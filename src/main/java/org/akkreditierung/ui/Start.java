@@ -4,6 +4,7 @@ import com.avaje.ebean.EbeanServerFactory;
 import com.avaje.ebean.Transaction;
 import com.avaje.ebean.config.DataSourceConfig;
 import com.avaje.ebean.config.ServerConfig;
+import org.akkreditierung.model.DB;
 import org.apache.wicket.util.time.Duration;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.bio.SocketConnector;
@@ -92,10 +93,13 @@ public class Start {
 		config.setDdlRun(false);
 
 		DataSourceConfig dataSourceConfig = new DataSourceConfig();
-		dataSourceConfig.setUsername("root");// FIXME not use database root use
-												// a special user like crawler
-		dataSourceConfig.setPassword("root");
-		dataSourceConfig.setUrl("jdbc:mysql://127.0.0.1:3306/akkreditierungsrat");
+        String dbConfigUrl = Properties.envOrElse("CLEARDB_DATABASE_URL", "mysql://root:root@127.0.0.1:3306/heroku_97e132547a4cac4");
+        String jdbcUrl = DB.parseMySQLUrl(dbConfigUrl)._1();
+        String userName = DB.parseMySQLUrl(dbConfigUrl)._2();
+        String password = DB.parseMySQLUrl(dbConfigUrl)._3();
+        dataSourceConfig.setUsername(userName);
+        dataSourceConfig.setPassword(password);
+		dataSourceConfig.setUrl(jdbcUrl);
 		dataSourceConfig.setDriver("com.mysql.jdbc.Driver");
 		dataSourceConfig.setMinConnections(1);
 		dataSourceConfig.setMaxConnections(25);
