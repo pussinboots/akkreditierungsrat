@@ -22,7 +22,7 @@ object DB {
 
   def getMysqlConnection(jdbcUrl: Option[String]) {
     Class.forName("com.mysql.jdbc.Driver")
-    val dbConnectionInfo = parseMySQLUrl(jdbcUrl.getOrElse("mysql://root:root@localhost:3306/heroku_97e132547a4cac4"))
+    val dbConnectionInfo = parseMySQLUrl(jdbcUrl.getOrElse("mysql://root:root@localhost:3306/heroku_9852f75c8ae3ea1"))
     ConnectionPool.singleton(dbConnectionInfo._1, dbConnectionInfo._2, dbConnectionInfo._3)
   }
 
