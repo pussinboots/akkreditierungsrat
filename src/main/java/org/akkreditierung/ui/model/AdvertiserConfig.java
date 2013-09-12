@@ -2,11 +2,10 @@ package org.akkreditierung.ui.model;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * @author frank
@@ -23,6 +22,10 @@ public class AdvertiserConfig implements Serializable {
     private String abschluss;
     private String hochschule;
     private String bezugstyp;
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "id", referencedColumnName = "id", nullable = true)
+    @MapKey(name = "k")
+    private Map<String, StudiengaengeAttribute> map;
 
     public int getId() {
 		return id;
@@ -62,5 +65,13 @@ public class AdvertiserConfig implements Serializable {
 
     public void setBezugstyp(String bezugstyp) {
         this.bezugstyp = bezugstyp;
+    }
+
+    public Map<String, StudiengaengeAttribute> getMap() {
+        return map;
+    }
+
+    public void setMap(Map<String, StudiengaengeAttribute> map) {
+        this.map = map;
     }
 }

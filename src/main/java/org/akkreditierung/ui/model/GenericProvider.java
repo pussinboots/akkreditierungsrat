@@ -8,6 +8,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 
 import java.util.Iterator;
+import java.util.List;
 
 public class GenericProvider<T> extends SortableDataProvider<T, String> {
 
@@ -52,8 +53,9 @@ public class GenericProvider<T> extends SortableDataProvider<T, String> {
 
 	@Override
 	public Iterator<T> iterator(long first, long count) {
-		return filter(bean.getQuery()).setOrderBy(orderBy(getSort())).setMaxRows(toInt(count)).setFirstRow(toInt(first))
-				.findList().iterator();
+        List<T> list = filter(bean.getQuery()).setOrderBy(orderBy(getSort())).setMaxRows(toInt(count)).setFirstRow(toInt(first))
+                .findList();
+		return list.iterator();
 	}
 
 	/**

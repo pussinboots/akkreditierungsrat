@@ -14,7 +14,9 @@ object DB {
     try {
       block(connection)
     } finally {
-      connection.close()
+      try {
+        connection.close()
+      }
     }
   }
 

@@ -31,7 +31,7 @@ object AkkreditierungsRatClient {
     val checkSumMap: Map[String, Studiengang] = Studiengang.findAll().map(elem => elem.checkSum -> elem)(collection.breakOut)
 
     val neueStudienGaenge = scala.collection.mutable.MutableList[Studiengang]()
-    for (offset <- Range.apply(0, end, 30)) {
+    for (offset <- Range.apply(1600, end, 30)) {
       val response = getResult(sessionId, s"${offset}")
       val cleaner = new HtmlCleaner
       val props = cleaner.getProperties
@@ -49,7 +49,6 @@ object AkkreditierungsRatClient {
             .get.getElementsByAttValue("title", "Weiter", true, false)(0).getAttributeByName("href")
             .replace("..", "http://www.hs-kompass2.de/kompass")
             .replace(sessionId, "##sessionId##")
-          println(s"link ${link}")
 
           val studienGang = Studiengang(None, data(0), data(1), data(2), data(3), link)
           if (!checkSumMap.contains(studienGang.checkSum)) {
@@ -92,13 +91,13 @@ object AkkreditierungsRatClient {
 
 object AkkreditierungsRatImport extends App {
 
-  DB.getMysqlConnection(None)
+  DB.getMysqlConnection(Some("mysql://be18d0fb184011:e47f7618@us-cdbr-east-04.cleardb.com/heroku_9852f75c8ae3ea1?reconnect=true"))
   //MySQL.createTableStudienGang()
 
-  val sessionId = "B053119144473C5A303894A328B7B42C" //TODO get a valid session id automaticly
+  val sessionId = "EF3BF201D419276B93473AA08F7EF418" //TODO get a valid session id automaticly
   println(s"Session ${sessionId}")
 
-  val neueStudienGaenge = fetchAndStoreStudienGaenge(sessionId, 30, {
+  val neueStudienGaenge = fetchAndStoreStudienGaenge(sessionId, 5000, {
     studienGang: Studiengang =>
       println(fetchAndStoreStudienGangInfo(sessionId, studienGang))
   })
