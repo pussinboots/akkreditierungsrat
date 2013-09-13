@@ -36,21 +36,28 @@ public class AdvertiserConfigPage extends WebPage {
         MarkupContainer detailPanel = new DetailPanel("selected", new PropertyModel<AdvertiserConfig>(this, "selected"));
         add(detailPanel);
 
-        TextField<String> hochSchule = new TextField<String>("hochschule", new Model(""));
-        hochSchule.add(new AjaxOnChangeBehavoir());
-        add(hochSchule);
-        TextField<String> fach = new TextField<String>("fach", new Model(""));
-        fach.add(new AjaxOnChangeBehavoir());
-        add(fach);
-        TextField<String> abschluss = new TextField<String>("abschluss", new Model(""));
-        abschluss.add(new AjaxOnChangeBehavoir());
-        add(abschluss);
-        DefaultDataTable table = new DefaultDataTable("datatable", getColumns(detailPanel), new AdvertiserConfigModelProvider(new FilterContainer(hochSchule, fach, abschluss)), 25);
+        FilterContainer filterContainer = createFilterContainer();
+        DefaultDataTable table = new DefaultDataTable("datatable", getColumns(detailPanel), new AdvertiserConfigModelProvider(filterContainer), 25);
 		add(table);
-		//add(new BookmarkablePageLink("createlink", AdvertiserConfigNewPage.class));
 	}
 
-	private List<IColumn> getColumns(final MarkupContainer detailPanel) {
+    private FilterContainer createFilterContainer() {
+        TextField<String> hochSchule = createTextFilter("hochschule");
+        TextField<String> fach = createTextFilter("fach");
+        TextField<String> abschluss = createTextFilter("abschluss");
+        TextField<String> agentur = createTextFilter("agentur");
+        TextField<String> studienform = createTextFilter("studienform");
+        return new FilterContainer(hochSchule, fach, abschluss, agentur, studienform);
+    }
+
+    private TextField<String> createTextFilter(String componentId) {
+        TextField<String> textFilter = new TextField<String>(componentId, new Model(""));
+        textFilter.add(new AjaxOnChangeBehavoir());
+        add(textFilter);
+        return textFilter;
+    }
+
+    private List<IColumn> getColumns(final MarkupContainer detailPanel) {
 		final List<IColumn> columns = new ArrayList<IColumn>();
 
 		columns.add(new PropertyColumn<AdvertiserConfig, String>(new Model<String>("Id"), "id", "id"));

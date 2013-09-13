@@ -1,28 +1,15 @@
 package org.akkreditierung.ui.model
 
-import com.avaje.ebean.ExpressionList
-import com.avaje.ebean.Query
+import com.avaje.ebean.{Expr, ExpressionList, Query}
 import org.apache.wicket.markup.html.form.TextField
 
-class FilterContainer {
-  def this(hochSchule: TextField[String], fach: TextField[String], abschluss: TextField[String]) {
-    this()
-    this.hochSchule = hochSchule
-    this.fach = fach
-    this.abschluss = abschluss
-  }
+class FilterContainer(hochSchule: TextField[String], fach: TextField[String], abschluss: TextField[String], agentur: TextField[String], studienForm: TextField[String]) {
 
-  def getHochSchule: String = {
-    return hochSchule.getValue
-  }
-
-  def getFach: String = {
-    return fach.getValue
-  }
-
-  def getAbschluss: String = {
-    return abschluss.getValue
-  }
+  def getHochSchule: String = return hochSchule.getValue
+  def getFach: String = return fach.getValue
+  def getAbschluss: String = return abschluss.getValue
+  def getAgentur: String = return agentur.getValue
+  def getStudienForm: String = return studienForm.getValue
 
   def apply[T](query: Query[T]) {
     val where: ExpressionList[T] = query.where
@@ -35,9 +22,11 @@ class FilterContainer {
     if (getAbschluss != null && getAbschluss.length > 0) {
       where.like("abschluss", getAbschluss)
     }
+    if (getAgentur != null && getAgentur.length > 0) {
+      where.and(Expr.eq("map.k", "von"), Expr.like("map.v", getAgentur))
+    }
+    if (getStudienForm != null && getStudienForm.length > 0) {
+      where.and(Expr.eq("map.k", "Besondere Studienform"), Expr.like("map.v", getStudienForm))
+    }
   }
-
-  private var hochSchule: TextField[String] = null
-  private var fach: TextField[String] = null
-  private var abschluss: TextField[String] = null
 }
