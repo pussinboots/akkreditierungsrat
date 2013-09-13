@@ -5,12 +5,12 @@ import java.io.Serializable
 import scala.beans.BeanProperty
 
 @Entity
-@Table(name = "studiengaenge_attribute") class StudiengaengeAttribute extends Serializable {
-  @Transient
-  private final val serialVersionUID: Long = -1587664618577852245L
+@Table(name = "studiengaenge_attribute")
+@SerialVersionUID(-1587664618577852245L)
+class StudiengaengeAttribute extends Serializable {
 
   override def toString: String = {
-    return "StudiengaengeAttribute{" + "id=" + id + ", k='" + k + '\'' + ", v='" + v + '\'' + '}'
+    "StudiengaengeAttribute{" + "id=" + id + ", k='" + k + '\'' + ", v='" + v + '\'' + '}'
   }
 
   @BeanProperty var id: Int = 0

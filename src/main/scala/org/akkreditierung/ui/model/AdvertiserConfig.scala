@@ -15,10 +15,5 @@ import scala.beans.BeanProperty
   @OneToMany(cascade = Array(CascadeType.ALL), fetch = FetchType.LAZY)
   @JoinColumn(name = "id", referencedColumnName = "id", nullable = true)
   @MapKey(name = "k")
-  var map: Map[String, StudiengaengeAttribute] = null
-
-  def getMap() = {
-    map
-  }
-  def setMap(map :Map[String, StudiengaengeAttribute]) = this.map = map
+  @BeanProperty var map: Map[String, StudiengaengeAttribute] = null
 }

@@ -80,7 +80,6 @@ object AkkreditierungsRatClient {
       .map(elem => StringEscapeUtils.unescapeHtml4(elem.getText().toString))
     if (!data.isEmpty) {
       val map = (keys zip data)(collection.breakOut)
-      println(s"link ${map}")
       map foreach {
         case (k, v) =>
           StudiengangAttribute.Insert(StudiengangAttribute(studienGang.id.get, k, v))

@@ -9,6 +9,6 @@ class AdvertiserConfigModelProvider(filterContainer: FilterContainer) extends Ge
 
   override def filter(query: Query[AdvertiserConfig]): Query[AdvertiserConfig] = {
     filterContainer.apply(query)
-    return super.filter(query)
+    super.filter(query)
   }
 }

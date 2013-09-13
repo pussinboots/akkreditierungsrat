@@ -9,45 +9,23 @@ import org.apache.wicket.model.LoadableDetachableModel
 import java.util.Iterator
 import java.util.List
 
-class GenericProvider[T] extends SortableDataProvider[T, String] {
-  private final val serialVersionUID: Long = -6117562733583734933L
+@SerialVersionUID(-6117562733583734933L)
+class GenericProvider[T](bean: DefaultBean[T]) extends SortableDataProvider[T, String] {
 
-  def this(defaultBean: DefaultBean[T]) {
-    this()
-    this.bean = defaultBean
-  }
-
-  def model(value: T): IModel[T] = {
-    return new LoadableDetachableModel[T] {
-      protected def load: T = {
-        return value
-      }
-    }
-  }
+  def model(value: T): IModel[T] = new LoadableDetachableModel[T] { protected def load: T = value }
 
   private def orderBy(param: SortParam[String]): OrderBy[T] = {
     val orderBy: OrderBy[T] = new OrderBy[T]
-    if (param.isAscending) {
-      orderBy.asc(param.getProperty)
-    }
-    else {
-      orderBy.desc(param.getProperty)
-    }
-    return orderBy
+    if (param.isAscending) orderBy.asc(param.getProperty) else orderBy.desc(param.getProperty)
+    orderBy
   }
 
-  def filter(query: Query[T]): Query[T] = {
-    return query
-  }
+  def filter(query: Query[T]): Query[T] = query
 
   def iterator(first: Long, count: Long): Iterator[T] = {
     val list: List[T] = filter(bean.getQuery).setOrderBy(orderBy(getSort)).setMaxRows(count.toInt).setFirstRow(first.toInt).findList
-    return list.iterator
+    list.iterator
   }
 
-  def size: Long = {
-    return filter(bean.getQuery).findRowCount
-  }
-
-  private final var bean: DefaultBean[T] = null
+  def size: Long = filter(bean.getQuery).findRowCount
 }
