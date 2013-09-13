@@ -28,7 +28,7 @@ object StudiengangAttribute{
     }
   }
 
-  def Insert(studiengangAttribute: StudiengangAttribute): StudiengangAttribute = { DB.withConnection { implicit connection =>
+  def Insert(studiengangAttribute: StudiengangAttribute) = { DB.withConnection { implicit connection =>
       SQL("insert into studiengaenge_attribute (id, k, v) values ({id},{key},{value})").on(
         'id -> studiengangAttribute.id,
         'key -> studiengangAttribute.key,
@@ -40,7 +40,7 @@ object StudiengangAttribute{
 
 object Studiengang {
   val single = {
-    get[Int]("studiengaenge.id") ~
+      get[Int]("studiengaenge.id") ~
       get[String]("studiengaenge.fach") ~
       get[String]("studiengaenge.abschluss") ~
       get[String]("studiengaenge.hochschule") ~
@@ -50,7 +50,7 @@ object Studiengang {
     }
   }
 
-  def Insert(studiengang: Studiengang): Studiengang = { DB.withConnection { implicit connection =>
+  def Insert(studiengang: Studiengang) = { DB.withConnection { implicit connection =>
       SQL("insert into studiengaenge (fach, abschluss, hochschule, bezugstyp, link, checksum) values ({fach},{abschluss},{hochschule},{bezugstyp},{link},{checksum})").on(
         'fach -> studiengang.fach,
         'abschluss -> studiengang.abschluss,
@@ -59,7 +59,7 @@ object Studiengang {
         'link -> studiengang.link,
         'checksum -> studiengang.checkSum).executeInsert()
     } match { case Some(long: Long) =>
-        studiengang.id = Option(long.toInt) // The Primary Key
+      studiengang.id = Option(long.toInt) // The Primary Key
     }
     studiengang
   }
@@ -70,18 +70,17 @@ object Studiengang {
   }
 
   //only work in hsqldb
-  def Merge(studiengang: Studiengang): Studiengang = { DB.withConnection { implicit connection =>
-      SQL(
-        """MERGE INTO studiengaenge as t USING (VALUES({fach},{abschluss},{hochschule},{bezugstyp},{link},{checksum}))
-           AS vals(fach, abschluss, hochschule, bezugstyp, link, checksum) ON t.checksum = vals.checksum
-           WHEN NOT MATCHED THEN INSERT (fach, abschluss, hochschule, bezugstyp, link, checksum) VALUES vals.fach, vals.abschluss, vals.hochschule, vals.bezugstyp, vals.link, svals.checksum
-        """.stripMargin).on(
-        'fach -> studiengang.fach,
-        'abschluss -> studiengang.abschluss,
-        'hochschule -> studiengang.hochschule,
-        'bezugstyp -> studiengang.bezugstyp,
-        'link -> studiengang.link,
-        'checksum -> studiengang.checkSum).executeInsert()
+  def Merge(studiengang: Studiengang) = { DB.withConnection { implicit connection =>
+      SQL("""MERGE INTO studiengaenge as t USING (VALUES({fach},{abschluss},{hochschule},{bezugstyp},{link},{checksum}))
+             AS vals(fach, abschluss, hochschule, bezugstyp, link, checksum) ON t.checksum = vals.checksum
+             WHEN NOT MATCHED THEN INSERT (fach, abschluss, hochschule, bezugstyp, link, checksum) VALUES vals.fach, vals.abschluss, vals.hochschule, vals.bezugstyp, vals.link, svals.checksum
+          """.stripMargin).on(
+          'fach -> studiengang.fach,
+          'abschluss -> studiengang.abschluss,
+          'hochschule -> studiengang.hochschule,
+          'bezugstyp -> studiengang.bezugstyp,
+          'link -> studiengang.link,
+          'checksum -> studiengang.checkSum).executeInsert()
     }
     studiengang
   }
