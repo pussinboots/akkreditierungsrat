@@ -39,7 +39,6 @@ object DB {
   def getHSqlConnection(jdbcUrl: String = "jdbc:hsqldb:mem:hsqldb:WithAnorm") {
     Class.forName("org.hsqldb.jdbc.JDBCDriver")
     ConnectionPool.singleton(jdbcUrl, "", "")
-    //ConnectionPool.singleton("jdbc:hsqldb:file:data/db", "", "")
   }
 
   def parseMySQLUrl(mysqlUrl: String) = {

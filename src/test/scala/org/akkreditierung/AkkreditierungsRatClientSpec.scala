@@ -19,17 +19,19 @@ class AkkreditierungsRatClientSpec extends Specification {
       "fetch and store studiengaenge in the database" in Betamax("akkreditierungsratclient", Some(TapeMode.READ_ONLY)) {
         DB.getHSqlConnection("jdbc:hsqldb:mem:hsqldb:studiengaenge")
         DB.createTables()
-        fetchAndStoreStudienGaenge("72240F2156C40507378CCE3E13F1EE75", 30, {studienGang: Studiengang=>
+        fetchAndStoreStudienGaenge("72240F2156C40507378CCE3E13F1EE75", 30, {
+          studienGang: Studiengang =>
         }).length must beEqualTo(30)
         val studienGaenge = Studiengang.findAll()
         studienGaenge.length must beEqualTo(30)
       }
 
-      "check that 150 studiengang attribute are stored in the database for the 30 fetched studiengaenge" in Betamax("akkreditierungsratclient", Some(TapeMode.READ_ONLY)) {
+      "check that 614 studiengang attribute are stored in the database for the 30 fetched studiengaenge" in Betamax("akkreditierungsratclient", Some(TapeMode.READ_ONLY)) {
         DB.getHSqlConnection("jdbc:hsqldb:mem:hsqldb:studiengangattribute")
         DB.createTables()
-        fetchAndStoreStudienGaenge("72240F2156C40507378CCE3E13F1EE75", 30, {studienGang: Studiengang=>
-          fetchAndStoreStudienGangInfo("72240F2156C40507378CCE3E13F1EE75", studienGang)
+        fetchAndStoreStudienGaenge("72240F2156C40507378CCE3E13F1EE75", 30, {
+          studienGang: Studiengang =>
+            fetchAndStoreStudienGangInfo("72240F2156C40507378CCE3E13F1EE75", studienGang)
         }).length must beEqualTo(30)
         val studienGangAttribute = StudiengangAttribute.findAll()
         studienGangAttribute.length must beEqualTo(614)

@@ -31,7 +31,7 @@ object AkkreditierungsRatClient {
     val checkSumMap: Map[String, Studiengang] = Studiengang.findAll().map(elem => elem.checkSum -> elem)(collection.breakOut)
 
     val neueStudienGaenge = scala.collection.mutable.MutableList[Studiengang]()
-    for (offset <- Range.apply(1600, end, 30)) {
+    for (offset <- Range.apply(0, end, 30)) {
       val response = getResult(sessionId, s"${offset}")
       val cleaner = new HtmlCleaner
       val props = cleaner.getProperties
