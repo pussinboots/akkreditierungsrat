@@ -6,12 +6,12 @@ import org.specs2.execute.AsResult
 import co.freeside.betamax.proxy.jetty.ProxyServer
 import co.freeside.betamax.TapeMode
 
-class Betamax(tape: String, mode: Option[TapeMode] = None) extends Around {
+class Betamax(tape: String, mode: Option[TapeMode] = Some(TapeMode.READ_ONLY)) extends Around {
   def around[T: AsResult](t: => T) = Betamax.around(t, tape, mode)
 }
 
 object Betamax {
-  def apply(tape: String, mode: Option[TapeMode] = None) = new Betamax(tape, mode)
+  def apply(tape: String, mode: Option[TapeMode] = Some(TapeMode.READ_ONLY)) = new Betamax(tape, mode)
 
   def around[T: AsResult](t: => T, tape: String, mode: Option[TapeMode]) = {
     synchronized {
