@@ -3,24 +3,15 @@ package org.akkreditierung.model
 import java.sql.Connection
 
 import scalikejdbc.ConnectionPool
-import org.slf4j.LoggerFactory
 import anorm._
 import java.net.URI
 
 object DB {
   def withConnection[A](block: Connection => A): A = {
     val connection: Connection = ConnectionPool.borrow()
-
-    try {
-      block(connection)
-    } finally {
-      try {
-        connection.close()
-      }
-    }
+    try { block(connection) }
+    finally { try { connection.close() } }
   }
-
-  private def logger = LoggerFactory.getLogger(getClass)
 
   def getMysqlConnection(jdbcUrl: Option[String]) {
     Class.forName("com.mysql.jdbc.Driver")
@@ -46,11 +37,9 @@ object DB {
 
     val username = dbUri.getUserInfo().split(":").head
     val password = dbUri.getUserInfo().split(":").last
-    val port = {
-      if (dbUri.getPort() == -1) "" else ":" + dbUri.getPort()
-    }
+    val port = if (dbUri.getPort() == -1) "" else ":" + dbUri.getPort()
+
     val dbUrl = "jdbc:mysql://" + dbUri.getHost() + port + dbUri.getPath()
-    logger.info(Seq(dbUrl, username, password).toString())
     (dbUrl, username, password)
   }
 }
