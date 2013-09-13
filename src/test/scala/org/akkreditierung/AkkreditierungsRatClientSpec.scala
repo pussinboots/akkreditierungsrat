@@ -12,7 +12,9 @@ import org.akkreditierung.AkkreditierungsRatClient._
 class AkkreditierungsRatClientSpec extends Specification {
   "The AkkreditierungsRat Client" should {
     "get SuperXmlTabelle from playback" in Betamax("akkreditierungsratclient", Some(TapeMode.READ_ONLY)) {
-      getResult("72240F2156C40507378CCE3E13F1EE75").length must beEqualTo(17218)
+      val result = getResult("72240F2156C40507378CCE3E13F1EE75")
+      println(result)
+      result.length must beEqualTo(17218)
     }
 
     "fetch studiengaenge from playback" in {
