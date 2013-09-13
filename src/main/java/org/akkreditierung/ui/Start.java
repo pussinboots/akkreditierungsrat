@@ -41,7 +41,7 @@ public class Start {
 		config.setDdlRun(false);
 
 		DataSourceConfig dataSourceConfig = new DataSourceConfig();
-        String dbConfigUrl = Properties.envOrElse("CLEARDB_DATABASE_URL", "mysql://be18d0fb184011:e47f7618@us-cdbr-east-04.cleardb.com/heroku_9852f75c8ae3ea1?reconnect=true");
+        String dbConfigUrl = Properties.envOrElse("CLEARDB_DATABASE_URL", "mysql://root:root@127.0.0.1:3306/heroku_97e132547a4cac4");
         String jdbcUrl = DB.parseMySQLUrl(dbConfigUrl)._1();
         String userName = DB.parseMySQLUrl(dbConfigUrl)._2();
         String password = DB.parseMySQLUrl(dbConfigUrl)._3();
