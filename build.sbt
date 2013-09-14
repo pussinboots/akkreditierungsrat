@@ -31,6 +31,8 @@ libraryDependencies ++= Seq(
     "org.eclipse.jetty.aggregate" % "jetty-all-server" % "7.6.3.v20120416"
 )
 
+resolvers += "typesafe" at "http://repo.typesafe.com/typesafe/releases"
+
 // fetcher dependencies
 libraryDependencies ++= Seq(
     "net.databinder.dispatch" %% "dispatch-core" % "0.10.0",
