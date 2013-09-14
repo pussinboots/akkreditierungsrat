@@ -90,8 +90,7 @@ object AkkreditierungsRatClient {
 
 object AkkreditierungsRatImport extends App {
 
-  DB.getMysqlConnection(Some("mysql://be18d0fb184011:e47f7618@us-cdbr-east-04.cleardb.com/heroku_9852f75c8ae3ea1?reconnect=true"))
-  //MySQL.createTableStudienGang()
+  DB.getMysqlConnection()
 
   val sessionId = "EF3BF201D419276B93473AA08F7EF418" //TODO get a valid session id automaticly
   println(s"Session ${sessionId}")
@@ -100,30 +99,4 @@ object AkkreditierungsRatImport extends App {
     studienGang: Studiengang =>
       println(fetchAndStoreStudienGangInfo(sessionId, studienGang))
   })
-
-  //val allStudienGaenge = Studiengang.findAll()
-  //neueStudienGaenge.foreach {
-  //  studienGang =>
-  //    println(fetchAndStoreStudienGangInfo(sessionId, studienGang))
-  //}
-
-  /*def getSessionId() = {
-   val post = Map("tid" -> "80520",
-     "kennung" -> "akkr",
-     "password" -> "anfang12",
-     "sort" -> "2",
-     "Bezugstyp" -> "3",
-     "Fach" -> "",
-     "Hochschulort" -> "",
-     "Hochschultyp" -> "",
-     "Bundesland" -> "",
-     "Studienform" -> "",
-     "Button1" -> "Studieng%E4nge+anzeigen")
-
-   //"Cookie" ->"JSESSIONID=06B3F4C4704A2AC0B8A0F0CB54A22FAD")
-   val h = (headers + ("User-Agent" -> "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/28.0.1500.71 Chrome/28.0.1500.71 Safari/537.36"))
-   val response = Http(uri / "SuperXmlTabelle" << post <:< h)
-   val body = response()
-   body.getHeader("Set-Cookie").replace("; Path=/kompass", "")
- } */
 }

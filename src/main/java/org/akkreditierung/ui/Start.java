@@ -12,6 +12,7 @@ import org.eclipse.jetty.server.ssl.SslSocketConnector;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
+import scala.Tuple3;
 import scala.util.Properties;
 
 public class Start {
@@ -41,13 +42,10 @@ public class Start {
 		config.setDdlRun(false);
 
 		DataSourceConfig dataSourceConfig = new DataSourceConfig();
-        String dbConfigUrl = Properties.envOrElse("CLEARDB_DATABASE_URL", "mysql://root:root@127.0.0.1:3306/heroku_97e132547a4cac4");
-        String jdbcUrl = DB.parseMySQLUrl(dbConfigUrl)._1();
-        String userName = DB.parseMySQLUrl(dbConfigUrl)._2();
-        String password = DB.parseMySQLUrl(dbConfigUrl)._3();
-        dataSourceConfig.setUsername(userName);
-        dataSourceConfig.setPassword(password);
-		dataSourceConfig.setUrl(jdbcUrl);
+        Tuple3<String,String,String> dbConf = DB.parseConfiguredDbUrl(); //jdbcurl, username, password
+        dataSourceConfig.setUsername(dbConf._2());
+        dataSourceConfig.setPassword(dbConf._3());
+		dataSourceConfig.setUrl(dbConf._1());
 		dataSourceConfig.setDriver("com.mysql.jdbc.Driver");
 		dataSourceConfig.setMinConnections(1);
 		dataSourceConfig.setMaxConnections(25);
