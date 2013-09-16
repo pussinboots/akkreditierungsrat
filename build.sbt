@@ -2,11 +2,11 @@ import com.typesafe.sbt.SbtStartScript
 
 name := "akkreditierung_fetcher"
 
-version := "1.0-SNAPSHOT"
+version in ThisBuild := "0.2"
 
 organization := "org.akkreditierung"
 
-scalaVersion := "2.10.2"
+scalaVersion in ThisBuild := "2.10.2"
 
 mainClass in Compile := Some("org.akkreditierung.ui.Start")
 

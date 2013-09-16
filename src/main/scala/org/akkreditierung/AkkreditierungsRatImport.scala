@@ -9,7 +9,6 @@ import org.akkreditierung.model.{DB, StudiengangAttribute, Studiengang}
 import AkkreditierungsRatClient._
 import org.htmlcleaner.HtmlCleaner
 import org.apache.commons.lang3.StringEscapeUtils
-import java.sql.Connection
 
 object AkkreditierungsRatClient {
   def getResult(sessionId: String, offset: String = "0") = {
