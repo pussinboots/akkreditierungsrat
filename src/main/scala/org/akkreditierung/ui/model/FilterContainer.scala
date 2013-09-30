@@ -9,11 +9,11 @@ class FilterContainer(hochSchule: TextField[String], fach: TextField[String], ab
 
   def apply[T](query: Query[T]) {
     val where: ExpressionList[T] = query.where
-    filterIfNotEmpty(hochSchule, value => where.like("hochschule", value))
-    filterIfNotEmpty(fach, value => where.like("fach", value))
-    filterIfNotEmpty(abschluss, value => where.like("abschluss", value))
-    filterIfNotEmpty(agentur, value => where.and(Expr.eq("map.k", "von"), Expr.like("map.v", value)))
-    filterIfNotEmpty(studienForm, value =>  where.and(Expr.eq("map.k", "Besondere Studienform"), Expr.like("map.v", value)))
+    filterIfNotEmpty(hochSchule, {value: String => where.like("hochschule", value)})
+    filterIfNotEmpty(fach, {value: String => where.like("fach", value)})
+    filterIfNotEmpty(abschluss, {value: String => where.like("abschluss", value)})
+    filterIfNotEmpty(agentur, {value: String => where.and(Expr.eq("map.k", "von"), Expr.like("map.v", value))})
+    filterIfNotEmpty(studienForm, {value: String =>  where.and(Expr.eq("map.k", "Besondere Studienform"), Expr.like("map.v", value))})
   }
 
   def isNotEmpty(field: FormComponent[String]) = {
