@@ -43,6 +43,7 @@ public class Start {
 
 		DataSourceConfig dataSourceConfig = new DataSourceConfig();
         Tuple3<String,String,String> dbConf = DB.parseConfiguredDbUrl(); //jdbcurl, username, password
+        DB.getConfiguredMysqlConnection();
         dataSourceConfig.setUsername(dbConf._2());
         dataSourceConfig.setPassword(dbConf._3());
 		dataSourceConfig.setUrl(dbConf._1());

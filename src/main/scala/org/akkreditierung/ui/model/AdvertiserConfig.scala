@@ -4,6 +4,7 @@ import javax.persistence._
 import java.io.Serializable
 import java.util.Map
 import scala.beans.BeanProperty
+import org.akkreditierung.model.Studiengang
 
 @Entity
 @Table(name = "studiengaenge") class AdvertiserConfig {
@@ -17,4 +18,12 @@ import scala.beans.BeanProperty
   @JoinColumn(name = "id", referencedColumnName = "id", nullable = true)
   @MapKey(name = "k")
   @BeanProperty var map: Map[String, StudiengaengeAttribute] = null
+
+  override def toString: String = {
+    "studiengaenge{" + "id=" + id + ", fach='" + fach + '}'
+  }
+
+  def toStudienGang() = {
+    Studiengang(fach=fach, abschluss=abschluss, hochschule=hochschule, bezugstyp=bezugstyp, link="", gutachtentLink=Option(gutachtenLink))
+  }
 }

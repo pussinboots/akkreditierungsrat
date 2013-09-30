@@ -22,14 +22,14 @@ class AkkreditierungsRatClientSpec extends Specification {
       "fetch and store studiengaenge in the database" in Betamax("akkreditierungsratclient") {
         DB.getHSqlConnection("jdbc:hsqldb:mem:hsqldb:studiengaenge")
         DB.createTables()
-        fetchAndStoreStudienGaenge("72240F2156C40507378CCE3E13F1EE75", 30, {studienGang: Studiengang =>}).length must beEqualTo(30)
+        fetchAndStoreStudienGaenge("72240F2156C40507378CCE3E13F1EE75", 30, 30, {studienGang: Studiengang =>}).length must beEqualTo(30)
         Studiengang.findAll().length must beEqualTo(30)
       }
 
       "check that 614 studiengang attribute are stored in the database for the 30 fetched studiengaenge" in Betamax("akkreditierungsratclient") {
         DB.getHSqlConnection("jdbc:hsqldb:mem:hsqldb:studiengangattribute")
         DB.createTables()
-        fetchAndStoreStudienGaenge("72240F2156C40507378CCE3E13F1EE75", 30, {studienGang: Studiengang =>
+        fetchAndStoreStudienGaenge("72240F2156C40507378CCE3E13F1EE75", 30, 30, {studienGang: Studiengang =>
             fetchAndStoreStudienGangInfo("72240F2156C40507378CCE3E13F1EE75", studienGang)
         }).length must beEqualTo(30)
         StudiengangAttribute.findAll().length must beEqualTo(614)

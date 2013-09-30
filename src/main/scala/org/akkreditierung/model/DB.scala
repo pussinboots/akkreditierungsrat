@@ -2,7 +2,7 @@ package org.akkreditierung.model
 
 import java.sql.Connection
 
-import scalikejdbc.ConnectionPool
+import scalikejdbc.{ConnectionPoolSettings, ConnectionPool}
 import anorm._
 import java.net.URI
 import scala.util.Properties
@@ -16,11 +16,13 @@ object DB {
     finally { try { connection.close() } }
   }
 
+  def getConfiguredMysqlConnection() = getMysqlConnection()
+
   def getMysqlConnection(jdbcUrl: String = dbConfigUrl) {
     Class.forName("com.mysql.jdbc.Driver")
     val dbConnectionInfo = parseDbUrl(jdbcUrl)
     //println(s"connect to ${dbConnectionInfo._1}")
-    ConnectionPool.singleton(dbConnectionInfo._1, dbConnectionInfo._2, dbConnectionInfo._3)
+    ConnectionPool.singleton(dbConnectionInfo._1, dbConnectionInfo._2, dbConnectionInfo._3, ConnectionPoolSettings(validationQuery="SELECT 1"))
   }
 
   def createTables() {

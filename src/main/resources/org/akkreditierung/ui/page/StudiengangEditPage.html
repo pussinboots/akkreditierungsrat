@@ -7,11 +7,23 @@
 </head>
 <body>
 <form wicket:id="form">
+        <label>fach</label>
+        <input type="text" wicket:id="fach" /> <br />
+    <label>abschluss</label>
+    <input type="text" wicket:id="abschluss" /> <br />
+    <label>hochschule</label>
+    <input type="text" wicket:id="hochschule" /> <br />
+    <label>bezugstyp</label>
+    <input type="text" wicket:id="bezugstyp" /> <br />
+    <label>gutachtenLink</label>
+    <input type="text" wicket:id="gutachtenLink" /> <br />
     <table>
         <tr wicket:id="displayPanel">
             <td>
                 <label wicket:id="key_column">link</label>
-                <input wicket:id="value_column" />
+            </td>
+            <td>
+                <textarea wicket:id="value_column" />
             </td>
         </tr>
     </table>

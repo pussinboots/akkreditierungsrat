@@ -26,11 +26,11 @@ object AkkreditierungsRatClient {
     body.getResponseBody()
   }
 
-  def fetchAndStoreStudienGaenge(sessionId: String, end: Int = 30, block: Studiengang => _) = {
+  def fetchAndStoreStudienGaenge(sessionId: String, step: Int= 30, end: Int = 30, block: Studiengang => _) = {
     val checkSumMap: Map[String, Studiengang] = Studiengang.findAll().map(elem => elem.checkSum -> elem)(collection.breakOut)
 
     val neueStudienGaenge = scala.collection.mutable.MutableList[Studiengang]()
-    for (offset <- Range.apply(0, end, 30)) {
+    for (offset <- Range.apply(0, end, step)) {
       val response = getResult(sessionId, s"${offset}")
       val cleaner = new HtmlCleaner
       val props = cleaner.getProperties
@@ -98,7 +98,7 @@ object AkkreditierungsRatImport extends App {
   val sessionId = "C6120CD195C79082C3FAD4AD450AE90D" //TODO get a valid session id automaticly
   println(s"Session ${sessionId}")
 
-  val neueStudienGaenge = fetchAndStoreStudienGaenge(sessionId, 5000, {
+  val neueStudienGaenge = fetchAndStoreStudienGaenge(sessionId, 100, 5000, {
     studienGang: Studiengang =>
       println(fetchAndStoreStudienGangInfo(sessionId, studienGang))
   })
