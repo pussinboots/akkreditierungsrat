@@ -91,6 +91,7 @@ public class AdvertiserConfigPage extends WebPage {
         }
 
         protected void onUpdate(AjaxRequestTarget target) {
+            target.add(AdvertiserConfigPage.this);
         }
     }
 
