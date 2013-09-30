@@ -5,11 +5,11 @@ import org.apache.wicket.markup.html.form.TextField
 
 class FilterContainer(hochSchule: TextField[String], fach: TextField[String], abschluss: TextField[String], agentur: TextField[String], studienForm: TextField[String]) {
 
-  def getHochSchule: String = return hochSchule.getValue
-  def getFach: String = return fach.getValue
-  def getAbschluss: String = return abschluss.getValue
-  def getAgentur: String = return agentur.getValue
-  def getStudienForm: String = return studienForm.getValue
+  def getHochSchule: String = return s"%${hochSchule.getValue}"
+  def getFach: String = return s"%${fach.getValue}"
+  def getAbschluss: String = return s"%${abschluss.getValue}"
+  def getAgentur: String = return s"%${agentur.getValue}"
+  def getStudienForm: String = return s"%${studienForm.getValue}"
 
   def apply[T](query: Query[T]) {
     val where: ExpressionList[T] = query.where
