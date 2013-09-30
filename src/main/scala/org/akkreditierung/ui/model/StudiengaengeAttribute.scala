@@ -13,7 +13,7 @@ class StudiengaengeAttribute extends Serializable {
     "StudiengaengeAttribute{" + "id=" + id + ", k='" + k + '\'' + ", v='" + v + '\'' + '}'
   }
 
-  @Id @BeanProperty var id: Int = 0
+  @BeanProperty var id: Int = 0
   @BeanProperty var k: String = null
   @BeanProperty var v: String = null
 }
