@@ -79,7 +79,8 @@ object Studiengang {
   def UpdateGutachtentLink(studiengang: Studiengang) = {
     DB.withConnection {
       implicit connection =>
-        SQL("update studiengaenge set \"Gutachten Link\"={gutachtenLink}").on(
+        SQL("update studiengaenge set `Gutachten Link`={gutachtenLink} where id={id}").on(
+          'id -> studiengang.id,
           'gutachtenLink -> studiengang.gutachtentLink).executeInsert()
     }
     studiengang
