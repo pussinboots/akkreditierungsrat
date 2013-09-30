@@ -82,6 +82,10 @@ object AkkreditierungsRatClient {
       map foreach {
         case (k, v) =>
           StudiengangAttribute.Insert(StudiengangAttribute(studienGang.id.get, k, v))
+          if (k == "Gutachten Link") {
+            studienGang.gutachtentLink = Some(v)
+            Studiengang.UpdateGutachtentLink(studienGang)
+          }
       }
     }
   }

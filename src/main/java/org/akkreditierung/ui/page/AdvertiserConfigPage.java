@@ -4,6 +4,7 @@ import org.akkreditierung.ui.model.AdvertiserConfig;
 import org.akkreditierung.ui.model.AdvertiserConfigModelProvider;
 import org.akkreditierung.ui.model.FilterContainer;
 import org.akkreditierung.ui.model.StudiengaengeAttribute;
+import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -14,8 +15,10 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
@@ -66,6 +69,12 @@ public class AdvertiserConfigPage extends WebPage {
 		columns.add(new PropertyColumn<AdvertiserConfig, String>(new Model<String>("Abschluss"), "abschluss", "abschluss"));
 		columns.add(new PropertyColumn<AdvertiserConfig, String>(new Model<String>("Hochschule"), "hochschule", "hochschule"));
         columns.add(new PropertyColumn<AdvertiserConfig, String>(new Model<String>("Bezugstyp"), "bezugstyp", "bezugstyp"));
+        columns.add(new PropertyColumn<AdvertiserConfig, String>(new Model<String>("Gutachten"), "gutachtenLink", "gutachtenLink") {
+            @Override
+            public void populateItem(Item<ICellPopulator<AdvertiserConfig>> item, String componentId, IModel<AdvertiserConfig> rowModel) {
+                    item.add(new LinkPanel(componentId, rowModel.getObject().getGutachtenLink(), "hier"));
+            }
+        });
         columns.add(new PropertyColumn<AdvertiserConfig, String>(new Model<String>("Aktion"), "id") {
             @Override
             public void populateItem(Item<ICellPopulator<AdvertiserConfig>> item, String componentId, IModel<AdvertiserConfig> rowModel) {
@@ -76,12 +85,14 @@ public class AdvertiserConfigPage extends WebPage {
 	}
 
 	private class LinkPanel extends Panel {
-		public LinkPanel(String id, AdvertiserConfig advertiserConfig) {
+		public LinkPanel(String id, String url, String label) {
 			super(id);
-			PageParameters param = new PageParameters();
-			param.add("studiengangId", advertiserConfig.getId());
-			BookmarkablePageLink link = new BookmarkablePageLink("link", StudiengangDetailPage.class, param);
-			link.add(new Label("label", "bearbeiten"));
+            Component link;
+            if (url != null){
+                link = new ExternalLink("link", url, label);
+            } else {
+                link = new Label("link");
+            }
 			add(link);
 		}
 	}
