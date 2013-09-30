@@ -1,6 +1,6 @@
 package org.akkreditierung.ui.model
 
-import javax.persistence.{Transient, Entity, Table}
+import javax.persistence.{Id, Transient, Entity, Table}
 import java.io.Serializable
 import scala.beans.BeanProperty
 
@@ -13,7 +13,7 @@ class StudiengaengeAttribute extends Serializable {
     "StudiengaengeAttribute{" + "id=" + id + ", k='" + k + '\'' + ", v='" + v + '\'' + '}'
   }
 
-  @BeanProperty var id: Int = 0
+  @Id @BeanProperty var id: Int = 0
   @BeanProperty var k: String = null
   @BeanProperty var v: String = null
 }

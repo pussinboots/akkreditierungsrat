@@ -16,6 +16,7 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
@@ -78,8 +79,8 @@ public class AdvertiserConfigPage extends WebPage {
 		public LinkPanel(String id, AdvertiserConfig advertiserConfig) {
 			super(id);
 			PageParameters param = new PageParameters();
-			param.add("advertiserConfigId", advertiserConfig.getId());
-			BookmarkablePageLink link = new BookmarkablePageLink("link", AdvertiserConfigPage.class, param);
+			param.add("studiengangId", advertiserConfig.getId());
+			BookmarkablePageLink link = new BookmarkablePageLink("link", StudiengangDetailPage.class, param);
 			link.add(new Label("label", "bearbeiten"));
 			add(link);
 		}
@@ -97,16 +98,22 @@ public class AdvertiserConfigPage extends WebPage {
 
     private class ActionPanel extends Panel
     {
-        public ActionPanel(String id, IModel<AdvertiserConfig> model, final MarkupContainer detailPanel)
+        public ActionPanel(String id, final IModel<AdvertiserConfig> model, final MarkupContainer detailPanel)
         {
             super(id, model);
-            add(new AjaxLink("select")
-            {
+            add(new AjaxLink("select") {
                 @Override
-                public void onClick(AjaxRequestTarget target)
-                {
+                public void onClick(AjaxRequestTarget target) {
                     setSelected((AdvertiserConfig) getParent().getDefaultModelObject());
                     target.add(detailPanel);
+                }
+            });
+            add(new Link("new") {
+                @Override
+                public void onClick() {
+                    PageParameters pageParameters = new PageParameters();
+                    pageParameters.add(StudiengangDetailPage.PAGE_PARAMETER_ID, model.getObject().getId());
+                    setResponsePage(StudiengangDetailPage.class, pageParameters);
                 }
             });
         }
@@ -133,7 +140,7 @@ public class AdvertiserConfigPage extends WebPage {
                 @Override
                 protected List getData() {
                     Map map = (mapModel.getObject() == null)? Collections.<String, StudiengaengeAttribute>emptyMap(): mapModel.getObject();
-                    return new ArrayList(map.values());    //To change body of overridden methods use File | Settings | File Templates.
+                    return new ArrayList(map.values());
                 }
             };
             DataView<StudiengaengeAttribute> dataView = new DataView<StudiengaengeAttribute>("displayPanel", provider) {
