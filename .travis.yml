@@ -1,6 +1,10 @@
 language: scala
 scala:
    - 2.10.2
+env:
+  global:
+    - secure: eB/MtVuwvVY19jFz88W/4HnAgQFs9l0XqhIJ5v1upWghRS79BAIWgoQ9k3Kc92odpzyJzG2Fb8MjEFFfEyOXHv36jaOz+wW8mAlZaip9Obevu/gepysNSz45PWAfggBPsxie+SgvOWZ3vaBncIG7tkHdkBa7Oz/YmP+q4RcDv90=
+
 after_success:
           - if [[ "$TRAVIS_PULL_REQUEST" == "true" ]]; then
               echo "This is a pull request. No deployment will be done."; exit 0;
