@@ -1,25 +1,19 @@
 language: scala
-scala:
-   - 2.10.2
-env:
-  global:
-    - secure: eB/MtVuwvVY19jFz88W/4HnAgQFs9l0XqhIJ5v1upWghRS79BAIWgoQ9k3Kc92odpzyJzG2Fb8MjEFFfEyOXHv36jaOz+wW8mAlZaip9Obevu/gepysNSz45PWAfggBPsxie+SgvOWZ3vaBncIG7tkHdkBa7Oz/YmP+q4RcDv90=
-
-after_success:
-  - if [[ "$TRAVIS_PULL_REQUEST" == "true" ]]; then
-      echo "This is a pull request. No deployment will be done."; exit 0;
-    fi
-  - if [![ "$TRAVIS_BRANCH" == "master" ]]; then
-      echo "This is not the master branch ($TRAVIS_BRANCH) so no deployment"; exit 0;
-    fi
-  - echo "Start Deployment to heroku"
-  - wget -qO- https://toolbelt.heroku.com/install-ubuntu.sh | sh
-  - git remote add heroku git@heroku.com:lit-ocean-2199.git
-  - echo "Host heroku.com" >> ~/.ssh/config
-  - echo "   StrictHostKeyChecking no" >> ~/.ssh/config
-  - echo "   CheckHostIP no" >> ~/.ssh/config
-  - echo "   UserKnownHostsFile=/dev/null" >> ~/.ssh/config
-  - heroku keys:clear
-  - yes | heroku keys:add
-  - yes | heroku config:set BUILDPACK_URL=https://github.com/heroku/heroku-buildpack-scala.git
-  - yes | git push heroku master
+env: 
+  global: 
+    secure: rTgZnVyWVFtR5wxgve06B2/0L/fcaTR+UlFL6MATMefRo0lmI7rRzdx7ahXf16t8WCAvEZXh4r0XuQTWMGjTvtoSnFhE9DQtq4humKcrykG8RtTLnUsVJVcz4paFhjK6MANdCQ0BbW5PlcGuqHm6Bfyrk+G1syxEjLgDJFkxFO4=
+scala: 
+- 2.10.2
+after_success: 
+- if [[ "$TRAVIS_PULL_REQUEST" == "true" ]]; then echo "This is a pull request. No deployment will be done."; exit 0; fi
+- if [![ "$TRAVIS_BRANCH" == "master" ]]; then echo "This is not the master branch ($TRAVIS_BRANCH) so no deployment"; exit 0; fi
+- echo "Start Deployment to heroku"
+- wget -qO- https://toolbelt.heroku.com/install-ubuntu.sh | sh
+- git remote add heroku git@heroku.com:lit-ocean-2199.git
+- echo "Host heroku.com" >> ~/.ssh/config
+- echo "   StrictHostKeyChecking no" >> ~/.ssh/config
+- echo "   CheckHostIP no" >> ~/.ssh/config
+- echo "   UserKnownHostsFile=/dev/null" >> ~/.ssh/config
+- heroku keys:clear
+- yes | heroku keys:add
+- yes | git push heroku master
