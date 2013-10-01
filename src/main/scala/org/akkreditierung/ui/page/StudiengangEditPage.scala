@@ -10,6 +10,8 @@ import org.apache.wicket.model.{CompoundPropertyModel, PropertyModel}
 import org.apache.wicket.markup.html.list.{ListItem, ListView}
 import org.akkreditierung.ui.model.{AdvertiserConfig, StudiengaengeAttribute}
 import org.akkreditierung.model.{Studiengang, StudiengangAttribute}
+import org.wicket.scala.RepeatingViews._
+import org.apache.wicket.markup.repeater.Item
 
 object StudiengangEditPage {
   final val PAGE_PARAMETER_ID: String = "studiengangId"
@@ -41,13 +43,9 @@ class StudiengangEditPage(parameters: PageParameters) extends WebPage(parameters
       clearInput()    //todo not working at the moment clear all input and model values
     }
   }
-
-  val dataView = new ListView[StudiengaengeAttribute]("displayPanel", list) {
-    protected def populateItem(item: ListItem[StudiengaengeAttribute]) {
-      val entry = item.getModelObject
-      item.add(new Label("key_column", entry.k))
-      item.add(new TextArea[String]("value_column", new PropertyModel[String](entry, "v")))
-    }
+  val dataView = listView("displayPanel", list) {(entry: StudiengaengeAttribute, item: ListItem[StudiengaengeAttribute]) =>
+    item.add(new Label("key_column", entry.k))
+    item.add(new TextArea[String]("value_column", new PropertyModel[String](entry, "v")))
   }
   form.add(dataView)
   form.add(fach)
