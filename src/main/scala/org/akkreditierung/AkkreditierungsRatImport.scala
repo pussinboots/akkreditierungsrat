@@ -74,6 +74,7 @@ object AkkreditierungsRatClient {
     val keys = childs
       .filter(elem => elem.getAttributeByName("class") != null && elem.getAttributeByName("class").equalsIgnoreCase("ergspalte"))
       .map(elem => StringEscapeUtils.unescapeHtml4(elem.getText().toString))
+    //TODO kodierungs probleme beim auslesen oder speichern der studien gangs attribute
     val data = childs
       .filter(elem => elem.getAttributeByName("class") != null && elem.getAttributeByName("class").equalsIgnoreCase("ergfeld"))
       .map(elem => StringEscapeUtils.unescapeHtml4(elem.getText().toString))
@@ -95,10 +96,10 @@ object AkkreditierungsRatImport extends App {
 
   DB.getMysqlConnection()
 
-  val sessionId = "C6120CD195C79082C3FAD4AD450AE90D" //TODO get a valid session id automaticly
+  val sessionId = "6292946D6F4BC9BC7CB2BC9CB96F92BA" //TODO get a valid session id automaticly
   println(s"Session ${sessionId}")
 
-  val neueStudienGaenge = fetchAndStoreStudienGaenge(sessionId, 100, 5000, {
+  val neueStudienGaenge = fetchAndStoreStudienGaenge(sessionId, 30, 5000, {
     studienGang: Studiengang =>
       println(fetchAndStoreStudienGangInfo(sessionId, studienGang))
   })

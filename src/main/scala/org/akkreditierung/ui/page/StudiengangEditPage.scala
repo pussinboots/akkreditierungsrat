@@ -2,13 +2,11 @@ package org.akkreditierung.ui.page
 
 import org.apache.wicket.markup.html.WebPage
 import org.apache.wicket.markup.html.basic.Label
-import org.apache.wicket.markup.repeater.Item
-import org.apache.wicket.markup.repeater.data.DataView
 import org.apache.wicket.markup.repeater.data.ListDataProvider
 import org.apache.wicket.request.mapper.parameter.PageParameters
 import scala.collection.JavaConversions._
 import org.apache.wicket.markup.html.form.{TextArea, Form, TextField}
-import org.apache.wicket.model.{CompoundPropertyModel, PropertyModel, Model}
+import org.apache.wicket.model.{CompoundPropertyModel, PropertyModel}
 import org.apache.wicket.markup.html.list.{ListItem, ListView}
 import org.akkreditierung.ui.model.{AdvertiserConfig, StudiengaengeAttribute}
 import org.akkreditierung.model.{Studiengang, StudiengangAttribute}
@@ -27,11 +25,11 @@ class StudiengangEditPage(parameters: PageParameters) extends WebPage(parameters
     s
   }
   val studienGang = new AdvertiserConfig()
-  val fach = new TextField[String]("fach");
-  val abschluss = new TextField[String]("abschluss");
-  val hochschule = new TextField[String]("hochschule");
-  val bezugstyp = new TextField[String]("bezugstyp");
-  val gutachtenLink = new TextField[String]("gutachtenLink");
+  val fach = new TextField[String]("fach")
+  val abschluss = new TextField[String]("abschluss")
+  val hochschule = new TextField[String]("hochschule")
+  val bezugstyp = new TextField[String]("bezugstyp")
+  val gutachtenLink = new TextField[String]("gutachtenLink")
   val form = new Form("form", new CompoundPropertyModel[AdvertiserConfig](studienGang)) {
     override def  onSubmit() {
       println(studienGang)
@@ -40,7 +38,7 @@ class StudiengangEditPage(parameters: PageParameters) extends WebPage(parameters
           println(s"${entry.k} = ${entry.v}")
           StudiengangAttribute.Insert(StudiengangAttribute(storedStudienGang.id.get, entry.k, entry.v))
       }
-      clearInput()
+      clearInput()    //todo not working at the moment clear all input and model values
     }
   }
 

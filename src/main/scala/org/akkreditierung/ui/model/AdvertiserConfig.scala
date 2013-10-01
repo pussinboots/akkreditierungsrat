@@ -13,6 +13,7 @@ import org.akkreditierung.model.Studiengang
   @BeanProperty var abschluss: String = null
   @BeanProperty var hochschule: String = null
   @BeanProperty var bezugstyp: String = null
+  @BeanProperty var link: String = null
   @BeanProperty @Column(name = "`Gutachten Link`") var gutachtenLink: String = null
   @OneToMany(cascade = Array(CascadeType.ALL), fetch = FetchType.LAZY)
   @JoinColumn(name = "id", referencedColumnName = "id", nullable = true)
@@ -24,6 +25,6 @@ import org.akkreditierung.model.Studiengang
   }
 
   def toStudienGang() = {
-    Studiengang(fach=fach, abschluss=abschluss, hochschule=hochschule, bezugstyp=bezugstyp, link="", gutachtentLink=Option(gutachtenLink))
+    Studiengang(fach=fach, abschluss=abschluss, hochschule=hochschule, bezugstyp=bezugstyp, link=link, gutachtentLink=Option(gutachtenLink))
   }
 }
