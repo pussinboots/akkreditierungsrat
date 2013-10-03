@@ -38,6 +38,11 @@ object DB {
     ConnectionPool.singleton(jdbcUrl, "", "")
   }
 
+  def shutdownHSqlConnection(jdbcUrl: String = "jdbc:hsqldb:mem:hsqldb:WithAnorm") {
+    Class.forName("org.hsqldb.jdbc.JDBCDriver")
+    ConnectionPool.singleton(jdbcUrl+";shutdown=true", "", "")
+  }
+
   def parseConfiguredDbUrl() = parseDbUrl()
 
   def parseDbUrl(mysqlUrl: String = dbConfigUrl) = {

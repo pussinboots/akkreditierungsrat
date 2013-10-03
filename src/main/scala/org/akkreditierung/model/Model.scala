@@ -93,14 +93,6 @@ object Studiengang {
     }
   }
 
-  def findById(id: Int): Studiengang = {
-    DB.withConnection {
-      implicit connection =>
-        SQL("select * from studiengaenge where id={id}").on(
-          'id -> id).single(Studiengang.single)
-    }
-  }
-
   def findByFach(fach: String): Studiengang = {
     DB.withConnection {
       implicit connection =>
