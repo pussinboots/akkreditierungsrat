@@ -79,7 +79,7 @@ object Studiengang {
   def UpdateGutachtentLink(studiengang: Studiengang) = {
     DB.withConnection {
       implicit connection =>
-        SQL("update studiengaenge set `Gutachten Link`={gutachtenLink} where id={id}").on(
+        SQL("update studiengaenge set \"Gutachten Link\"={gutachtenLink} where id={id}").on(
           'id -> studiengang.id,
           'gutachtenLink -> studiengang.gutachtentLink).executeInsert()
     }
@@ -98,6 +98,14 @@ object Studiengang {
       implicit connection =>
         SQL("select * from studiengaenge where id={id}").on(
           'id -> id).single(Studiengang.single)
+    }
+  }
+
+  def findByFach(fach: String): Studiengang = {
+    DB.withConnection {
+      implicit connection =>
+        SQL("select * from studiengaenge where fach={fach}").on(
+          'fach -> fach).single(Studiengang.single)
     }
   }
 

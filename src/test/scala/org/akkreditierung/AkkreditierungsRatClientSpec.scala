@@ -33,8 +33,8 @@ class AkkreditierungsRatClientSpec extends Specification {
             fetchAndStoreStudienGangInfo("72240F2156C40507378CCE3E13F1EE75", studienGang)
         }).length must beEqualTo(30)
         StudiengangAttribute.findAll().length must beEqualTo(614)
-        Studiengang.findById(1).gutachtentLink.get must beEqualTo("http://www.aqas.de/downloads/Gutachten/49_319_BWL")
-        Studiengang.findById(27).gutachtentLink must beEqualTo(None)
+        Studiengang.findByFach("Alternativer Tourismus").gutachtentLink.get must beEqualTo("http://www.aqas.de/downloads/Gutachten/49_319_BWL")
+        Studiengang.findByFach("Alte Geschichte").gutachtentLink must beEqualTo(None)
       }
     }
   }
