@@ -7,7 +7,6 @@ import org.akkreditierung.betamax.Betamax
 import org.akkreditierung.model.{DB, StudiengangAttribute, Studiengang}
 import org.akkreditierung.AkkreditierungsRatClient._
 
-@RunWith(classOf[JUnitRunner])
 class AkkreditierungsRatClientSpec extends Specification {
 
   sys.props.+=("com.ning.http.client.AsyncHttpClientConfig.useProxyProperties" -> "true") //activate betamax proxy for dispatch
