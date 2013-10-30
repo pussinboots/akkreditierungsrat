@@ -12,6 +12,8 @@ mainClass in Compile := Some("org.akkreditierung.ui.Start")
 
 seq(SbtStartScript.startScriptForClassesSettings: _*)
 
+seq(ScctPlugin.instrumentSettings : _*)
+
 //ui dependencies
 libraryDependencies ++= Seq(
     "org.apache.wicket" % "wicket-core" % "6.6.0",
@@ -44,9 +46,12 @@ libraryDependencies ++= Seq(
     "org.hsqldb" %  "hsqldb" % "[2,)"
 )
 
+resolvers += "enhancedwickettester" at "http://enhancedwickettester.googlecode.com/svn/repo"
+
 // test dependencies
 libraryDependencies ++= Seq(
     "co.freeside" % "betamax" % "1.1.2" % "test",
     "org.codehaus.groovy" % "groovy-all" % "1.8.8" % "test",
-    "org.specs2" %% "specs2" % "2.2" % "test"
+    "org.specs2" %% "specs2" % "2.2" % "test",
+    "pl.rabbitsoftware" % "enhancedwickettester" % "1.0.0" % "test"
 )

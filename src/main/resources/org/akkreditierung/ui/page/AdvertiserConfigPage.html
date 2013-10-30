@@ -7,15 +7,17 @@
 		<link rel="stylesheet" href="style.css" type="text/css" media="screen" title="Stylesheet" />
 	</head>
 	<body>
-        HochSchule: <input type="text" wicket:id="hochschule" /> <br />
-        Fach: <input type="text" wicket:id="fach" /> <br />
-        Abschluss: <input type="text" wicket:id="abschluss" /> <br />
-        Agentur: <input type="text" wicket:id="agentur" /> <br />
-        StudienForm: <input type="text" wicket:id="studienform" /> <br />
-
+        <form wicket:id="filterForm">
+            HochSchule: <input wicket:id="hochschule" /> <br />
+            Fach: <input type="text" wicket:id="fach" /> <br />
+            Abschluss: <input type="text" wicket:id="abschluss" /> <br />
+            Agentur: <input type="text" wicket:id="agentur" /> <br />
+            StudienForm: <input type="text" wicket:id="studienform" /> <br />
+        </form>
         <div wicket:id="selected"></div>
 
 		<table class="dataview" wicket:id="datatable" />
 		<!--<a href="#" wicket:id="createlink">anlegen</a>-->
-	</body>
+
+    </body>
 </html>

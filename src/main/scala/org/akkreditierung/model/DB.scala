@@ -1,11 +1,12 @@
 package org.akkreditierung.model
 
-import java.sql.Connection
+import java.sql.{DriverManager, Connection}
 
 import scalikejdbc.{ConnectionPoolSettings, ConnectionPool}
 import anorm._
 import java.net.URI
 import scala.util.Properties
+import org.hsqldb.jdbc.JDBCDriver
 
 object DB {
   val dbConfigUrl: String = Properties.envOrElse("CLEARDB_DATABASE_URL", "mysql://root:root@127.0.0.1:3306/heroku_97e132547a4cac4")
@@ -33,14 +34,24 @@ object DB {
     }
   }
 
-  def getHSqlConnection(jdbcUrl: String = "jdbc:hsqldb:mem:hsqldb:WithAnorm") {
+  def getHSqlConnection(jdbcUrl: String = "jdbc:hsqldb:mem:public") = {
     Class.forName("org.hsqldb.jdbc.JDBCDriver")
+    DriverManager.registerDriver(new JDBCDriver())
     ConnectionPool.singleton(jdbcUrl, "", "")
+    jdbcUrl
   }
 
-  def shutdownHSqlConnection(jdbcUrl: String = "jdbc:hsqldb:mem:hsqldb:WithAnorm") {
+  def shutdownHSqlConnection(jdbcUrl: String = "jdbc:hsqldb:mem", schema: String = "public") {
     Class.forName("org.hsqldb.jdbc.JDBCDriver")
-    ConnectionPool.singleton(jdbcUrl+";shutdown=true", "", "")
+    val connection = ConnectionPool.borrow()
+    val statement = connection.createStatement()
+    try {
+      statement.execute(s"DROP SCHEMA ${schema} CASCADE")
+      connection.commit()
+    } finally {
+      statement.close()
+    }
+    ConnectionPool.closeAll()
   }
 
   def parseConfiguredDbUrl() = parseDbUrl()

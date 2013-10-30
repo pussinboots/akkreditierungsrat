@@ -1,11 +1,9 @@
 package org.akkreditierung
 
-import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
 import org.specs2.mutable._
-import org.akkreditierung.betamax.Betamax
 import org.akkreditierung.model.{DB, StudiengangAttribute, Studiengang}
 import org.akkreditierung.AkkreditierungsRatClient._
+import org.akkreditierung.test.Betamax
 
 class AkkreditierungsRatClientSpec extends Specification {
 

@@ -44,6 +44,10 @@ object StudiengangAttribute {
     }
     studiengangAttribute
   }
+  def Inserts(studiengangAttributes: Seq[StudiengangAttribute]) = {
+    studiengangAttributes.foreach(s=>Insert(s))
+    studiengangAttributes
+  }
 }
 
 object Studiengang {
@@ -73,6 +77,11 @@ object Studiengang {
       case Some(long: Long) =>
         studiengang.id = Option(long.toInt) // The Primary Key
     }
+    studiengang
+  }
+
+  def Inserts(studiengang: Seq[Studiengang]) = {
+    studiengang.foreach(s=>Insert(s))
     studiengang
   }
 

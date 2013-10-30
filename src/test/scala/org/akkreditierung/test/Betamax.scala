@@ -1,4 +1,4 @@
-package org.akkreditierung.betamax
+package org.akkreditierung.test
 
 import org.specs2.mutable.Around
 import co.freeside.betamax.Recorder

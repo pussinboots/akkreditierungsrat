@@ -8,7 +8,7 @@ class AdvertiserConfigModelProvider(filterContainer: FilterContainer) extends Ge
   setSort("id", SortOrder.ASCENDING)
 
   override def filter(query: Query[AdvertiserConfig]): Query[AdvertiserConfig] = {
-    filterContainer.apply(query)
+    if (filterContainer != null) filterContainer.apply(query)
     super.filter(query)
   }
 }

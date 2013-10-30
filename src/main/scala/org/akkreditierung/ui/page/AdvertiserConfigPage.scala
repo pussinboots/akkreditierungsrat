@@ -17,13 +17,13 @@ import org.apache.wicket.markup.html.panel.Panel
 import org.apache.wicket.markup.repeater.Item
 import org.apache.wicket.markup.repeater.data.DataView
 import org.apache.wicket.markup.repeater.data.ListDataProvider
-import org.apache.wicket.model.IModel
-import org.apache.wicket.model.PropertyModel
+import org.apache.wicket.model.{Model, IModel, PropertyModel}
 import org.apache.wicket.request.mapper.parameter.PageParameters
 import java.util._
 import org.wicket.scala.Columns._
 import org.wicket.scala.Fields._
 import org.wicket.scala.RepeatingViews._
+import org.apache.wicket.markup.html.form.{TextField, Form}
 
 object AdvertiserConfigPage {
   private final val serialVersionUID: Long = 1L
@@ -32,12 +32,15 @@ object AdvertiserConfigPage {
 class AdvertiserConfigPage(parameters: PageParameters) extends WebPage(parameters) {
   val detailPanel: MarkupContainer = new DetailPanel("selected", new PropertyModel[AdvertiserConfig](this, "selected"))
   add(detailPanel)
-  val filterContainer: FilterContainer = createFilterContainer
+  val filterContainer: FilterContainer = createFilterContainer()
   val table = new DefaultDataTable[AdvertiserConfig, String]("datatable", getColumns(detailPanel), new AdvertiserConfigModelProvider(filterContainer), 25)
   add(table)
 
-  private def createFilterContainer: FilterContainer = {
-    return new FilterContainer(createAjaxTextFilter("hochschule", this), createAjaxTextFilter("fach", this), createAjaxTextFilter("abschluss", this), createAjaxTextFilter("agentur", this), createAjaxTextFilter("studienform", this))
+  private def createFilterContainer() : FilterContainer = {
+    val form = new Form("filterForm")
+    val filter = new FilterContainer(createAjaxTextFilter("hochschule", form), createAjaxTextFilter("fach", form), createAjaxTextFilter("abschluss", form), createAjaxTextFilter("agentur", form), createAjaxTextFilter("studienform", form))
+    add(form)
+    filter
   }
 
   private def getColumns(detailPanel: MarkupContainer) = {
