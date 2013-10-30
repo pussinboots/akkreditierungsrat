@@ -10,8 +10,9 @@ import org.specs2.specification.BeforeAfterExample
 
 class AdvertiserConfigPageTest extends Specification with Before {
   def before {
-    val jdbcUrl = DB.getHSqlConnection()
+    DB.shutdownHSqlConnection()
 
+    val jdbcUrl = DB.getHSqlConnection()
     EBean.initDataSource("org.hsqldb.jdbc.JDBCDriver", jdbcUrl)
     DB.createTables()
 
@@ -46,6 +47,6 @@ class AdvertiserConfigPageTest extends Specification with Before {
   }
 
   step {
-    DB.shutdownHSqlConnection()
+    //DB.shutdownHSqlConnection()
   }
 }

@@ -10,6 +10,8 @@ import org.akkreditierung.ui.model.StudiengaengeAttribute
 
 class StudiengangDetailPageTest extends Specification with Before {
   def before {
+    DB.shutdownHSqlConnection()
+
     val jdbc = DB.getHSqlConnection()
     EBean.initDataSource("org.hsqldb.jdbc.JDBCDriver", jdbc)
     DB.createTables()
@@ -38,6 +40,6 @@ class StudiengangDetailPageTest extends Specification with Before {
   }
 
   step {
-    DB.shutdownHSqlConnection("jdbc:hsqldb:mem:hsqldb:test")
+    //DB.shutdownHSqlConnection()
   }
 }

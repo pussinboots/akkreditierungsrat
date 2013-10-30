@@ -13,8 +13,14 @@ object DB {
 
   def withConnection[A](block: Connection => A): A = {
     val connection: Connection = ConnectionPool.borrow()
-    try { block(connection) }
-    finally { try { connection.close() } }
+    try {
+      block(connection)
+    }
+    finally {
+      try {
+        connection.close()
+      }
+    }
   }
 
   def getConfiguredMysqlConnection() = getMysqlConnection()
@@ -23,7 +29,7 @@ object DB {
     Class.forName("com.mysql.jdbc.Driver")
     val dbConnectionInfo = parseDbUrl(jdbcUrl)
     //println(s"connect to ${dbConnectionInfo._1}")
-    ConnectionPool.singleton(dbConnectionInfo._1, dbConnectionInfo._2, dbConnectionInfo._3, ConnectionPoolSettings(validationQuery="SELECT 1"))
+    ConnectionPool.singleton(dbConnectionInfo._1, dbConnectionInfo._2, dbConnectionInfo._3, ConnectionPoolSettings(validationQuery = "SELECT 1"))
   }
 
   def createTables() {
@@ -36,22 +42,23 @@ object DB {
 
   def getHSqlConnection(jdbcUrl: String = "jdbc:hsqldb:mem:public") = {
     Class.forName("org.hsqldb.jdbc.JDBCDriver")
-    DriverManager.registerDriver(new JDBCDriver())
     ConnectionPool.singleton(jdbcUrl, "", "")
     jdbcUrl
   }
 
   def shutdownHSqlConnection(jdbcUrl: String = "jdbc:hsqldb:mem", schema: String = "public") {
     Class.forName("org.hsqldb.jdbc.JDBCDriver")
-    val connection = ConnectionPool.borrow()
-    val statement = connection.createStatement()
-    try {
-      statement.execute(s"DROP SCHEMA ${schema} CASCADE")
-      connection.commit()
-    } finally {
-      statement.close()
+    if (ConnectionPool.isInitialized()) {
+      val connection = ConnectionPool.borrow()
+      val statement = connection.createStatement()
+      try {
+        statement.execute(s"DROP SCHEMA ${schema} CASCADE")
+        connection.commit()
+      } finally {
+        statement.close()
+      }
+      ConnectionPool.closeAll()
     }
-    ConnectionPool.closeAll()
   }
 
   def parseConfiguredDbUrl() = parseDbUrl()

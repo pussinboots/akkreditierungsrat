@@ -52,6 +52,5 @@ resolvers += "enhancedwickettester" at "http://enhancedwickettester.googlecode.c
 libraryDependencies ++= Seq(
     "co.freeside" % "betamax" % "1.1.2" % "test",
     "org.codehaus.groovy" % "groovy-all" % "1.8.8" % "test",
-    "org.specs2" %% "specs2" % "2.2" % "test",
-    "pl.rabbitsoftware" % "enhancedwickettester" % "1.0.0" % "test"
+    "org.specs2" %% "specs2" % "2.2" % "test"
 )
