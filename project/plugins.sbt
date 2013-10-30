@@ -15,4 +15,10 @@ addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.6.0-SNAPSHOT")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-start-script" % "0.9.0")
 
+resolvers += Classpaths.typesafeResolver
+
+resolvers += "scct-github-repository" at "http://mtkopone.github.com/scct/maven-repo"
+
+addSbtPlugin("reaktor" % "sbt-scct" % "0.2-SNAPSHOT")
+
 //addSbtPlugin("com.earldouglas" % "xsbt-web-plugin" % "0.4.2")
