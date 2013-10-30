@@ -3,19 +3,14 @@ package org.akkreditierung.ui.page
 import org.specs2.mutable._
 import org.apache.wicket.util.tester.WicketTester
 import org.akkreditierung.model.{Studiengang, StudiengangAttribute, DB}
-import org.akkreditierung.test.EBean
+import org.akkreditierung.test.{HSQLDbBefore, EBean}
 import org.apache.wicket.request.mapper.parameter.PageParameters
 import org.apache.wicket.markup.repeater.data.DataView
 import org.akkreditierung.ui.model.StudiengaengeAttribute
 
-class StudiengangDetailPageTest extends Specification with Before {
-  def before {
-    DB.shutdownHSqlConnection()
+class StudiengangDetailPageTest extends Specification with HSQLDbBefore {
 
-    val jdbc = DB.getHSqlConnection()
-    EBean.initDataSource("org.hsqldb.jdbc.JDBCDriver", jdbc)
-    DB.createTables()
-
+  override def initTestData() {
     def studiengangAttribute1 = new StudiengangAttribute(1, "k1", "v1")
     def studiengangAttribute2 = new StudiengangAttribute(1, "k2", "v2")
     StudiengangAttribute.Inserts(Seq(studiengangAttribute1, studiengangAttribute2))

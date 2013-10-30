@@ -40,10 +40,10 @@ object DB {
     }
   }
 
-  def getHSqlConnection(jdbcUrl: String = "jdbc:hsqldb:mem:public") = {
+  def getHSqlConnection(jdbcUrl: String = "jdbc:hsqldb:mem", schema: String = "public") = {
     Class.forName("org.hsqldb.jdbc.JDBCDriver")
-    ConnectionPool.singleton(jdbcUrl, "", "")
-    jdbcUrl
+    ConnectionPool.singleton(s"${jdbcUrl}:${schema}", "", "")
+    s"${jdbcUrl}:${schema}"
   }
 
   def shutdownHSqlConnection(jdbcUrl: String = "jdbc:hsqldb:mem", schema: String = "public") {
@@ -54,6 +54,8 @@ object DB {
       try {
         statement.execute(s"DROP SCHEMA ${schema} CASCADE")
         connection.commit()
+      } catch {
+        case e: Exception => e.printStackTrace()
       } finally {
         statement.close()
       }

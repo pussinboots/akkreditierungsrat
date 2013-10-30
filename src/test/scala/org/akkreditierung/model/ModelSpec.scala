@@ -1,12 +1,11 @@
 package org.akkreditierung.model
 
 import org.specs2.mutable._
+import org.akkreditierung.test.HSQLDbBefore
 
-class ModelSpec extends Specification with Before {
+class ModelSpec extends Specification with HSQLDbBefore {
 
-  def before = {
-    DB.getHSqlConnection("jdbc:hsqldb:mem:hsqldb:ModelSpec")
-    DB.createTables()
+  override def initTestData() {
     Studiengang.Insert(new Studiengang(None, "fach", "abschluss", "hochschule", "bezugstyp", "link", None))
     Studiengang.Insert(new Studiengang(None, "fach2", "abschluss2", "hochschule2", "bezugstyp2", "link", Some("gutachtenlink")))
   }
