@@ -17,8 +17,13 @@ case class Studiengang(var id: Option[Int] = None, fach: String, abschluss: Stri
 }
 
 case class StudiengangAttribute(var id: Int, key: String, value: String)
+trait DBBean[T] {
+  def Count(): Long
+  def Find(maxRows : Long, firstRow: Long) : Seq[T]
+}
 
-object StudiengangAttribute {
+
+object StudiengangAttribute extends DBBean[StudiengangAttribute] {
   val single = {
     get[Int]("studiengaenge_attribute.id") ~
       get[String]("studiengaenge_attribute.k") ~
@@ -26,6 +31,41 @@ object StudiengangAttribute {
       case id ~ k ~ v => StudiengangAttribute(id, k, v)
     }
   }
+
+  def Count() = {
+    DB.withConnection {
+      implicit connection =>
+        SQL("select count(*) from studiengaenge_attribute").as(scalar[Long].single)
+    }
+  }
+
+  def Find(maxRows : Long, firstRow: Long) = {
+    val onList = Seq(
+      Some('limit -> maxRows),
+      Some('offset -> firstRow)
+    ).flatMap(_.map(v => v._1 -> toParameterValue(v._2)))
+    DB.withConnection {
+      implicit connection =>
+        SQL("select * from studiengaenge_attribute LIMIT {limit} OFFSET {offset}").on(
+          onList: _*
+        ).as(StudiengangAttribute.single *)
+    }
+  }
+
+  def Find[A](maxRows : Long, firstRow: Long, where: Map[String, ParameterValue[A]]) = {
+    val onList = Seq(
+      Some('limit -> maxRows),
+      Some('offset -> firstRow)
+    ).flatMap(_.map(v => v._1 -> toParameterValue(v._2)))
+    where.map { x => s"${x._1} = {${x._1}}" }.mkString(" AND ")
+    DB.withConnection {
+      implicit connection =>
+        SQL("select * from studiengaenge_attribute LIMIT {limit} OFFSET {offset}").on(
+          onList: _*
+        ).as(StudiengangAttribute.single *)
+    }
+  }
+
 
   def findAll(): Seq[StudiengangAttribute] = {
     DB.withConnection {
