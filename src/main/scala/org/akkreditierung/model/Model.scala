@@ -5,6 +5,7 @@ import java.security.MessageDigest
 import anorm.SqlParser._
 import anorm.~
 
+//TODO Datum erfassung (eventuell datum änderung)
 case class Studiengang(var id: Option[Int] = None, fach: String, abschluss: String, hochschule: String, bezugstyp: String, link: String, var gutachtentLink: Option[String] = None) {
   lazy val checkSum = {
     val str = fach + abschluss + hochschule + bezugstyp + link

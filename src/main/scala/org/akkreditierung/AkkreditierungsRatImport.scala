@@ -96,7 +96,7 @@ object AkkreditierungsRatImport extends App {
 
   DB.getMysqlConnection()
 
-  val sessionId = "6292946D6F4BC9BC7CB2BC9CB96F92BA" //TODO get a valid session id automaticly
+  val sessionId = "5791E97BB670630389049E710496B606" //TODO get a valid session id automaticly
   println(s"Session ${sessionId}")
 
   val neueStudienGaenge = fetchAndStoreStudienGaenge(sessionId, 30, 5000, {
