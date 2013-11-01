@@ -9,7 +9,7 @@ import scala.util.Properties
 import org.hsqldb.jdbc.JDBCDriver
 
 object DB {
-  val dbConfigUrl: String = Properties.envOrElse("CLEARDB_DATABASE_URL", "mysql://root:root@127.0.0.1:3306/heroku_97e132547a4cac4")
+  val dbConfigUrl: String = Properties.envOrElse("CLEARDB_DATABASE_URL", "mysql://root:root@127.0.0.1:3306/heroku_9852f75c8ae3ea1")
 
   def withConnection[A](block: Connection => A): A = {
     val connection: Connection = ConnectionPool.borrow()
@@ -35,8 +35,9 @@ object DB {
   def createTables() {
     DB.withConnection {
       implicit connection: Connection =>
-        SQL("create table studiengaenge (id integer primary key Identity, fach varchar(256), abschluss varchar(256), hochschule varchar(256), bezugstyp varchar(256), link varchar(256), checksum varchar(128), GutachtenLink varchar(256) default null, createDate timestamp default current_timestamp)").execute()
+        SQL("create table studiengaenge (id integer primary key Identity, jobId integer, fach varchar(256), abschluss varchar(256), hochschule varchar(256), bezugstyp varchar(256), link varchar(256), checksum varchar(128), GutachtenLink varchar(256) default null, createDate timestamp default current_timestamp)").execute()
         SQL("create table studiengaenge_attribute (id integer, k varchar(128), v CLOB)").execute()
+        SQL("create table jobs (id integer primary key Identity, createDate timestamp DEFAULT CURRENT_TIMESTAMP, newEntries integer DEFAULT '0', status varchar(12))").execute()
     }
   }
 

@@ -10,6 +10,7 @@ import org.akkreditierung.model.Studiengang
 @Table(name = "studiengaenge") class AdvertiserConfig {
   @Id @BeanProperty var id: Int = 0
   @BeanProperty var fach: String = null
+  @BeanProperty @Column(name = "jobId") var jobId: Int = 0
   @BeanProperty var abschluss: String = null
   @BeanProperty var hochschule: String = null
   @BeanProperty var bezugstyp: String = null
@@ -25,6 +26,6 @@ import org.akkreditierung.model.Studiengang
   }
 
   def toStudienGang() = {
-    Studiengang(fach=fach, abschluss=abschluss, hochschule=hochschule, bezugstyp=bezugstyp, link=link, gutachtentLink=Option(gutachtenLink))
+    Studiengang(jobId=Option(jobId), fach=fach, abschluss=abschluss, hochschule=hochschule, bezugstyp=bezugstyp, link=link, gutachtentLink=Option(gutachtenLink))
   }
 }

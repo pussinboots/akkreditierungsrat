@@ -1,9 +1,6 @@
 package org.akkreditierung.ui.page
 
-import org.akkreditierung.ui.model.AdvertiserConfig
-import org.akkreditierung.ui.model.AdvertiserConfigModelProvider
-import org.akkreditierung.ui.model.FilterContainer
-import org.akkreditierung.ui.model.StudiengaengeAttribute
+import org.akkreditierung.ui.model._
 import org.apache.wicket.MarkupContainer
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.ajax.markup.html.AjaxLink
@@ -33,12 +30,14 @@ class AdvertiserConfigPage(parameters: PageParameters) extends WebPage(parameter
   val detailPanel: MarkupContainer = new DetailPanel("selected", new PropertyModel[AdvertiserConfig](this, "selected"))
   add(detailPanel)
   val filterContainer: FilterContainer = createFilterContainer()
+  val job = new JobBean().findLatest()
+  add(new Label("job", s" ${job.getNewEntries()} neue Studiengänge importiert am ${job.createDate} status ${job.status}"))
   val table = new DefaultDataTable[AdvertiserConfig, String]("datatable", getColumns(detailPanel), new AdvertiserConfigModelProvider(filterContainer), 25)
   add(table)
 
   private def createFilterContainer() : FilterContainer = {
     val form = new Form("filterForm")
-    val filter = new FilterContainer(createAjaxTextFilter("hochschule", form), createAjaxTextFilter("fach", form), createAjaxTextFilter("abschluss", form), createAjaxTextFilter("agentur", form), createAjaxTextFilter("studienform", form))
+    val filter = new FilterContainer(createAjaxTextFilter("hochschule", form), createAjaxTextFilter("fach", form), createAjaxTextFilter("abschluss", form), createAjaxTextFilter("agentur", form), createAjaxTextFilter("studienform", form), createAjaxTextFilter("jobId", form))
     add(form)
     filter
   }

@@ -4,9 +4,10 @@ import anorm._
 import java.security.MessageDigest
 import anorm.SqlParser._
 import anorm.~
+import java.util.Date
 
 //TODO Datum erfassung (eventuell datum änderung)
-case class Studiengang(var id: Option[Int] = None, fach: String, abschluss: String, hochschule: String, bezugstyp: String, link: String, var gutachtentLink: Option[String] = None) {
+case class Studiengang(var id: Option[Int] = None, jobId: Option[Int], fach: String, abschluss: String, hochschule: String, bezugstyp: String, link: String, var gutachtentLink: Option[String] = None) {
   lazy val checkSum = {
     val str = fach + abschluss + hochschule + bezugstyp + link
     MessageDigest.getInstance("MD5").digest(str.getBytes).map(0xFF & _).map {
@@ -23,6 +24,7 @@ trait DBBean[T] {
   def Find(maxRows : Long, firstRow: Long) : Seq[T]
 }
 
+case class Job(var id: Option[Int] = None, createDate: Date = new Date(), newEntries: Int = 0, status: String = "started")
 
 object StudiengangAttribute extends DBBean[StudiengangAttribute] {
   val single = {
@@ -94,21 +96,23 @@ object StudiengangAttribute extends DBBean[StudiengangAttribute] {
 object Studiengang {
   val single = {
     get[Int]("studiengaenge.id") ~
+      get[Option[Int]]("studiengaenge.jobId") ~
       get[String]("studiengaenge.fach") ~
       get[String]("studiengaenge.abschluss") ~
       get[String]("studiengaenge.hochschule") ~
       get[String]("studiengaenge.bezugstyp") ~
       get[String]("studiengaenge.link") ~
       get[Option[String]]("studiengaenge.GutachtenLink") map {
-      case id ~ fach ~ abschluss ~ hochschule ~ bezugstyp ~ link ~ gutachtenLink => Studiengang(Option(id), fach, abschluss, hochschule, bezugstyp, link, gutachtenLink)
+      case id ~ jobId ~ fach ~ abschluss ~ hochschule ~ bezugstyp ~ link ~ gutachtenLink => Studiengang(Option(id), jobId, fach, abschluss, hochschule, bezugstyp, link, gutachtenLink)
     }
   }
 
   def Insert(studiengang: Studiengang) = {
     DB.withConnection {
       implicit connection =>
-        SQL("insert into studiengaenge (fach, abschluss, hochschule, bezugstyp, link, checksum) values ({fach},{abschluss},{hochschule},{bezugstyp},{link},{checksum})").on(
+        SQL("insert into studiengaenge (jobId, fach, abschluss, hochschule, bezugstyp, link, checksum) values ({jobId}, {fach},{abschluss},{hochschule},{bezugstyp},{link},{checksum})").on(
           'fach -> studiengang.fach,
+          'jobId -> studiengang.jobId,
           'abschluss -> studiengang.abschluss,
           'hochschule -> studiengang.hochschule,
           'bezugstyp -> studiengang.bezugstyp,
@@ -167,5 +171,70 @@ object Studiengang {
           'checksum -> studiengang.checkSum).executeInsert()
     }
     studiengang
+  }
+}
+
+object Job {
+  val single = {
+    get[Int]("jobs.id") ~
+      get[Date]("jobs.createDate") ~
+      get[Int]("jobs.newEntries") ~
+      get[String]("jobs.status") map {
+      case id ~ createDate ~ newEntries ~ status=> Job(Option(id), createDate, newEntries, status)
+    }
+  }
+
+  def Insert(job: Job) = {
+    DB.withConnection {
+      implicit connection =>
+        SQL("insert into jobs (newEntries, status) values ({newEntries}, {status})").on(
+          'newEntries -> job.newEntries,
+          'status -> job.status).executeInsert()
+    } match {
+      case Some(long: Long) =>
+        job.id = Option(long.toInt) // The Primary Key
+    }
+    job
+  }
+
+  def UpdateOrDelete(job: Job) {
+    if(job.newEntries > 0) {
+      Update(job)
+    }else{
+      Delete(job)
+    }
+  }
+
+  def Update(job: Job) = {
+    DB.withConnection {
+      implicit connection =>
+        SQL("update jobs set newEntries={newEntries}, status={status} where id={id}").on(
+          'id -> job.id,
+          'newEntries -> job.newEntries,
+          'status ->job.status).executeInsert()
+    }
+    job
+  }
+
+  def Delete(job: Job) {
+    DB.withConnection {
+      implicit connection =>
+        SQL("delete from jobs where id={id}").on(
+          'id -> job.id).executeInsert()
+    }
+  }
+
+  def findAll(): Seq[Job] = {
+    DB.withConnection {
+      implicit connection =>
+        SQL("select * from jobs").as(Job.single *)
+    }
+  }
+
+  def findLatest(): Option[Job] = {
+    DB.withConnection {
+      implicit connection =>
+        SQL("select * from jobs order by createDate desc limit 1").singleOpt(Job.single)
+    }
   }
 }

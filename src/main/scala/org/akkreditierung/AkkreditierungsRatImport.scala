@@ -5,7 +5,7 @@ import dispatch.Http
 import dispatch.enrichFuture
 import dispatch.implyRequestVerbs
 import dispatch.url
-import org.akkreditierung.model.{DB, StudiengangAttribute, Studiengang}
+import org.akkreditierung.model.{Job, DB, StudiengangAttribute, Studiengang}
 import AkkreditierungsRatClient._
 import org.htmlcleaner.HtmlCleaner
 import org.apache.commons.lang3.StringEscapeUtils
@@ -38,6 +38,7 @@ object AkkreditierungsRatClient {
     val checkSumMap: Map[String, Studiengang] = Studiengang.findAll().map(elem => elem.checkSum -> elem)(collection.breakOut)
 
     val neueStudienGaenge = scala.collection.mutable.MutableList[Studiengang]()
+    val job = Job.Insert(Job())
     for (offset <- Range.apply(0, end, step)) {
       val response = getResult(sessionId, s"${offset}")
       val cleaner = new HtmlCleaner
@@ -57,7 +58,7 @@ object AkkreditierungsRatClient {
             .replace("..", "http://www.hs-kompass2.de/kompass")
             .replace(sessionId, "##sessionId##")
 
-          val studienGang = Studiengang(None, data(0), data(1), data(2), data(3), link)
+          val studienGang = Studiengang(None, job.id, data(0), data(1), data(2), data(3), link)
           if (!checkSumMap.contains(studienGang.checkSum)) {
             Studiengang.Insert(studienGang)
             neueStudienGaenge += studienGang
@@ -69,6 +70,8 @@ object AkkreditierungsRatClient {
         }
       }
     }
+
+    Job.UpdateOrDelete(Job(id=job.id, newEntries=neueStudienGaenge.size, status="finished"))
     neueStudienGaenge
   }
 
@@ -108,7 +111,7 @@ object AkkreditierungsRatImport extends App {
 //  val sessionId = "5791E97BB670630389049E710496B606" //TODO get a valid session id automaticly
   println(s"Session ${sessionId}")
 
-  val neueStudienGaenge = fetchAndStoreStudienGaenge(sessionId, 30, 5000, {
+  val neueStudienGaenge = fetchAndStoreStudienGaenge(sessionId, 30, 90, {
     studienGang: Studiengang =>
       println(fetchAndStoreStudienGangInfo(sessionId, studienGang))
   })
