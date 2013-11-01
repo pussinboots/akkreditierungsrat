@@ -35,7 +35,7 @@ object DB {
   def createTables() {
     DB.withConnection {
       implicit connection: Connection =>
-        SQL("create table studiengaenge (id integer primary key Identity, fach varchar(256), abschluss varchar(256), hochschule varchar(256), bezugstyp varchar(256), link varchar(256), checksum varchar(128), \"Gutachten Link\" varchar(256) default null)").execute()
+        SQL("create table studiengaenge (id integer primary key Identity, fach varchar(256), abschluss varchar(256), hochschule varchar(256), bezugstyp varchar(256), link varchar(256), checksum varchar(128), GutachtenLink varchar(256) default null)").execute()
         SQL("create table studiengaenge_attribute (id integer, k varchar(128), v CLOB)").execute()
     }
   }

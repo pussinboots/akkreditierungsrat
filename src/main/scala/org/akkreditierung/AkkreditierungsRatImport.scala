@@ -18,6 +18,26 @@ object AkkreditierungsRatClient {
     val response = Http(uri / "SuperXmlTabelle" << post <:< header)
     response().getResponseBody
   }
+  /*
+  tid:80520
+kennung:akkr
+passwort:anfang12
+sort:2
+Bezugstyp:3
+Fach:
+Hochschulort:
+Hochschultyp:
+Bundesland:
+Studienform:
+   */
+
+  def getSessionId() = {
+    val post = Map("tid" -> "80520", "kennung" -> "akkr", "passwort" -> "anfang12", "sort" -> "2", "Bezugstyp" -> "3")
+    val uri = url("http://www.hs-kompass2.de/kompass/servlet")
+    val header = Map("Content-Type" -> "application/x-www-form-urlencoded", "Referer" -> "http://www.hs-kompass2.de/kompass/xml/akkr/maske.html")
+    val response = Http(uri / "SuperXmlTabelle" << post <:< header)
+    response().getHeader("Set-Cookie").substring(11,43)
+  }
 
   def getStudienGangInfo(sessionId: String, link: String) = {
     val uri = url(link.replace("##sessionId##", sessionId))
@@ -96,7 +116,8 @@ object AkkreditierungsRatImport extends App {
 
   DB.getMysqlConnection()
 
-  val sessionId = "5791E97BB670630389049E710496B606" //TODO get a valid session id automaticly
+  val sessionId = getSessionId()
+//  val sessionId = "5791E97BB670630389049E710496B606" //TODO get a valid session id automaticly
   println(s"Session ${sessionId}")
 
   val neueStudienGaenge = fetchAndStoreStudienGaenge(sessionId, 30, 5000, {

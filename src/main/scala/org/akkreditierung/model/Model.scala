@@ -99,7 +99,7 @@ object Studiengang {
       get[String]("studiengaenge.hochschule") ~
       get[String]("studiengaenge.bezugstyp") ~
       get[String]("studiengaenge.link") ~
-      get[Option[String]]("studiengaenge.Gutachten Link") map {
+      get[Option[String]]("studiengaenge.GutachtenLink") map {
       case id ~ fach ~ abschluss ~ hochschule ~ bezugstyp ~ link ~ gutachtenLink => Studiengang(Option(id), fach, abschluss, hochschule, bezugstyp, link, gutachtenLink)
     }
   }
@@ -129,7 +129,7 @@ object Studiengang {
   def UpdateGutachtentLink(studiengang: Studiengang) = {
     DB.withConnection {
       implicit connection =>
-        SQL("update studiengaenge set \"Gutachten Link\"={gutachtenLink} where id={id}").on(
+        SQL("update studiengaenge set GutachtenLink={gutachtenLink} where id={id}").on(
           'id -> studiengang.id,
           'gutachtenLink -> studiengang.gutachtentLink).executeInsert()
     }

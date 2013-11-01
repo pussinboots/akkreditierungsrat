@@ -14,7 +14,7 @@ import org.akkreditierung.model.Studiengang
   @BeanProperty var hochschule: String = null
   @BeanProperty var bezugstyp: String = null
   @BeanProperty var link: String = null
-  @BeanProperty @Column(name = "`Gutachten Link`") var gutachtenLink: String = null
+  @BeanProperty @Column(name = "GutachtenLink") var gutachtenLink: String = null
   @OneToMany(cascade = Array(CascadeType.ALL), fetch = FetchType.LAZY)
   @JoinColumn(name = "id", referencedColumnName = "id", nullable = true)
   @MapKey(name = "k")
