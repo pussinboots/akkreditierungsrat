@@ -1,5 +1,7 @@
 import com.typesafe.sbt.SbtStartScript
 
+import SbtStartScript.StartScriptKeys._
+
 name := "akkreditierung_fetcher"
 
 version in ThisBuild := "0.2"

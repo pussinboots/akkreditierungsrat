@@ -18,18 +18,6 @@ object AkkreditierungsRatClient {
     val response = Http(uri / "SuperXmlTabelle" << post <:< header)
     response().getResponseBody
   }
-  /*
-  tid:80520
-kennung:akkr
-passwort:anfang12
-sort:2
-Bezugstyp:3
-Fach:
-Hochschulort:
-Hochschultyp:
-Bundesland:
-Studienform:
-   */
 
   def getSessionId() = {
     val post = Map("tid" -> "80520", "kennung" -> "akkr", "passwort" -> "anfang12", "sort" -> "2", "Bezugstyp" -> "3")
