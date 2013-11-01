@@ -30,7 +30,7 @@ class AkkreditierungsRatClientSpec extends Specification with HSQLDbBefore {
         StudiengangAttribute.findAll().length must beEqualTo(614)
         Studiengang.findByFach("Alternativer Tourismus").gutachtentLink.get must beEqualTo("http://www.aqas.de/downloads/Gutachten/49_319_BWL")
         Studiengang.findByFach("Alte Geschichte").gutachtentLink must beEqualTo(None)
-        Studiengang.findByFach("Alte Geschichte").jobId must beEqualTo(Job.findLatest())
+        Studiengang.findByFach("Alte Geschichte").jobId must beEqualTo(Job.findLatest().get.id)
       }
     }
   }
