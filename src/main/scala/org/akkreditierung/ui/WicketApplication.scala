@@ -5,6 +5,7 @@ import org.apache.wicket.markup.html.WebPage
 import org.apache.wicket.protocol.http.WebApplication
 import org.apache.wicket.authroles.authentication.{AuthenticatedWebApplication, AbstractAuthenticatedWebSession}
 import org.akkreditierung.ui.auth.AuthSession
+import org.apache.wicket.protocol.https.{HttpsConfig, HttpsMapper}
 
 class WicketApplication extends AuthenticatedWebApplication {
   def getHomePage: Class[_ <: WebPage] = classOf[AdvertiserConfigPage]
@@ -14,6 +15,8 @@ class WicketApplication extends AuthenticatedWebApplication {
     mountPage("configs", classOf[AdvertiserConfigPage])
     mountPage("detail", classOf[StudiengangDetailPage])
     mountPage("edit", classOf[StudiengangEditPage])
+    //todo activate automatic https redirect
+    //setRootRequestMapper(new HttpsMapper(getRootRequestMapper(), new HttpsConfig(80, 443)));
   }
 
   override def getWebSessionClass: Class[_ <:AbstractAuthenticatedWebSession] = {

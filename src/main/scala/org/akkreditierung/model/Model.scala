@@ -247,7 +247,7 @@ object Job {
   def findLatest(): Option[Job] = {
     DB.withConnection {
       implicit connection =>
-        SQL("select * from jobs order by createDate desc limit 1").singleOpt(Job.single)
+        SQL("select * from jobs order by id desc limit 1").singleOpt(Job.single)
     }
   }
 }
