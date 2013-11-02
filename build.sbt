@@ -23,6 +23,7 @@ libraryDependencies ++= Seq(
     "org.apache.wicket" % "wicket-core" % "6.6.0",
     "org.apache.wicket" % "wicket-extensions" % "6.6.0",
     "org.apache.wicket" % "wicket-datetime" % "6.6.0",
+    "org.apache.wicket" % "wicket-auth-roles" % "6.6.0",
     "org.avaje" % "ebean" % "2.7.7",
     "javax.servlet" % "servlet-api" % "2.5"
 )

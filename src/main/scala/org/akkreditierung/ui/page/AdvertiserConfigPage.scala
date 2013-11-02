@@ -8,8 +8,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.DefaultDataT
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn
 import org.apache.wicket.markup.html.WebPage
 import org.apache.wicket.markup.html.basic.Label
-import org.apache.wicket.markup.html.link.ExternalLink
-import org.apache.wicket.markup.html.link.Link
+import org.apache.wicket.markup.html.link.{BookmarkablePageLink, ExternalLink, Link}
 import org.apache.wicket.markup.html.panel.Panel
 import org.apache.wicket.markup.repeater.Item
 import org.apache.wicket.markup.repeater.data.DataView
@@ -21,6 +20,7 @@ import org.wicket.scala.Columns._
 import org.wicket.scala.Fields._
 import org.wicket.scala.RepeatingViews._
 import org.apache.wicket.markup.html.form.{TextField, Form}
+import org.apache.wicket.markup.resolver.AutoLinkResolver.AutolinkBookmarkablePageLink
 
 object AdvertiserConfigPage {
   private final val serialVersionUID: Long = 1L
@@ -31,6 +31,7 @@ class AdvertiserConfigPage(parameters: PageParameters) extends WebPage(parameter
   add(detailPanel)
   val filterContainer: FilterContainer = createFilterContainer()
   val job = new JobBean().findLatest()
+  add(new BookmarkablePageLink[Void]("editLink", classOf[StudiengangEditPage]))
   add(new Label("job", s" ${job.getNewEntries()} neue Studiengänge importiert am ${job.createDate} status ${job.status}"))
   val table = new DefaultDataTable[AdvertiserConfig, String]("datatable", getColumns(detailPanel), new AdvertiserConfigModelProvider(filterContainer), 25)
   add(table)

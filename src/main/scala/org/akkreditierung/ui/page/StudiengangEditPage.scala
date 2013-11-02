@@ -12,6 +12,7 @@ import org.akkreditierung.ui.model.{AdvertiserConfig, StudiengaengeAttribute}
 import org.akkreditierung.model.{Studiengang, StudiengangAttribute}
 import org.wicket.scala.RepeatingViews._
 import org.apache.wicket.markup.repeater.Item
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation
 
 object StudiengangEditPage {
   final val PAGE_PARAMETER_ID: String = "studiengangId"
@@ -19,6 +20,7 @@ object StudiengangEditPage {
   private final val serialVersionUID: Long = 1L
 }
 
+@AuthorizeInstantiation(value=Array("ADMIN"))
 class StudiengangEditPage(parameters: PageParameters) extends WebPage(parameters) {
   val provider = new ListDataProvider[String](StudiengangEditPage.fields)
   val list = StudiengangEditPage.fields map {field=>
