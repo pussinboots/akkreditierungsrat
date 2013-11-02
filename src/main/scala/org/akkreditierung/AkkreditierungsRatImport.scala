@@ -5,12 +5,16 @@ import dispatch.Http
 import dispatch.enrichFuture
 import dispatch.implyRequestVerbs
 import dispatch.url
-import org.akkreditierung.model.{Job, DB, StudiengangAttribute, Studiengang}
+import org.akkreditierung.model._
 import AkkreditierungsRatClient._
 import org.htmlcleaner.HtmlCleaner
 import org.apache.commons.lang3.StringEscapeUtils
+import scala.Some
 
 object AkkreditierungsRatClient {
+
+  val sourceAkkreditierungsRat = Source.FindOrCreateSourceAkkreditierungsrat()
+
   def getResult(sessionId: String, offset: String = "0") = {
     val post = Map("tid" -> "80520", "reuseresult" -> "false", "stylesheet" -> "tabelle_html_akkr.xsl", "Bezugstyp" -> "3", "sort" -> "2", "offset" -> offset, "maxoffset" -> "", "contenttype" -> "")
     val uri = url("http://www.hs-kompass2.de/kompass/servlet")
@@ -58,7 +62,7 @@ object AkkreditierungsRatClient {
             .replace("..", "http://www.hs-kompass2.de/kompass")
             .replace(sessionId, "##sessionId##")
 
-          val studienGang = Studiengang(None, job.id, data(0), data(1), data(2), data(3), link)
+          val studienGang = Studiengang(None, job.id, data(0), data(1), data(2), data(3), link, sourceId= sourceAkkreditierungsRat.get.id.get)
           if (!checkSumMap.contains(studienGang.checkSum)) {
             Studiengang.Insert(studienGang)
             neueStudienGaenge += studienGang
@@ -70,7 +74,6 @@ object AkkreditierungsRatClient {
         }
       }
     }
-
     Job.UpdateOrDelete(Job(id=job.id, newEntries=neueStudienGaenge.size, status="finished"))
     neueStudienGaenge
   }
@@ -108,10 +111,9 @@ object AkkreditierungsRatImport extends App {
   DB.getMysqlConnection()
 
   val sessionId = getSessionId()
-//  val sessionId = "5791E97BB670630389049E710496B606" //TODO get a valid session id automaticly
   println(s"Session ${sessionId}")
 
-  val neueStudienGaenge = fetchAndStoreStudienGaenge(sessionId, 30, 90, {
+  val neueStudienGaenge = fetchAndStoreStudienGaenge(sessionId, 30, 5100, {
     studienGang: Studiengang =>
       println(fetchAndStoreStudienGangInfo(sessionId, studienGang))
   })

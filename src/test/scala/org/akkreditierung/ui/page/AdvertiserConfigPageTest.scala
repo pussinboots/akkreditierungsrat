@@ -11,8 +11,8 @@ import org.specs2.specification.BeforeAfterExample
 class AdvertiserConfigPageTest extends Specification with HSQLDbBefore {
 
   override def initTestData() {
-    def studiengang1 = new Studiengang(jobId=Some(1), fach = "Angewandte Informatik", abschluss = "Master", hochschule = "Potsdam Universität", bezugstyp = "bezug", link = "link")
-    def studiengang2 = new Studiengang(jobId=Some(2), fach = "Soziologie", abschluss = "Bachelor", hochschule = "Mainz Universität", bezugstyp = "bezug", link = "link2")
+    def studiengang1 = new Studiengang(jobId=Some(1), fach = "Angewandte Informatik", abschluss = "Master", hochschule = "Potsdam Universität", bezugstyp = "bezug", link = "link", sourceId= 1)
+    def studiengang2 = new Studiengang(jobId=Some(2), fach = "Soziologie", abschluss = "Bachelor", hochschule = "Mainz Universität", bezugstyp = "bezug", link = "link2", sourceId= 1)
     Studiengang.Inserts(Seq(studiengang1, studiengang2))
   }
 

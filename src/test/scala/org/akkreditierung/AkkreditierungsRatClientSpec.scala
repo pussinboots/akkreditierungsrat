@@ -1,17 +1,17 @@
 package org.akkreditierung
 
 import org.specs2.mutable._
-import org.akkreditierung.model.{Job, DB, StudiengangAttribute, Studiengang}
+import org.akkreditierung.model._
 import org.akkreditierung.AkkreditierungsRatClient._
 import org.akkreditierung.test.{HSQLDbBefore, Betamax}
 import co.freeside.betamax.{TapeMode, Recorder}
 import co.freeside.betamax.proxy.jetty.ProxyServer
 import org.specs2.execute.AsResult
+import scala.Some
 
 class AkkreditierungsRatClientSpec extends Specification with HSQLDbBefore {
 
   sys.props.+=("com.ning.http.client.AsyncHttpClientConfig.useProxyProperties" -> "true") //activate betamax proxy for dispatch
-
 
   override def initTestData() {
     sys.props.+=("com.ning.http.client.AsyncHttpClientConfig.useProxyProperties" -> "true")
@@ -45,6 +45,8 @@ class AkkreditierungsRatClientSpec extends Specification with HSQLDbBefore {
         Studiengang.findByFach("Alternativer Tourismus").gutachtentLink.get must beEqualTo("http://www.aqas.de/downloads/Gutachten/49_319_BWL")
         Studiengang.findByFach("Alte Geschichte").gutachtentLink must beEqualTo(None)
         Studiengang.findByFach("Alte Geschichte").jobId must beEqualTo(Job.findLatest().get.id)
+        val source = Source.FindByName("akkreditierungsrat")
+        Studiengang.findByFach("Alte Geschichte").sourceId must beEqualTo(source.get.id.get)
       }
     }
   }

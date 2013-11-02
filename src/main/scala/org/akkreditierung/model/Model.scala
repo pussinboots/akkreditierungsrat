@@ -6,8 +6,12 @@ import anorm.SqlParser._
 import anorm.~
 import java.util.Date
 
+object SourceAkkreditierungsRat {
+  val name = "akkreditierungsrat"
+}
+
 //TODO Datum erfassung (eventuell datum änderung)
-case class Studiengang(var id: Option[Int] = None, jobId: Option[Int], fach: String, abschluss: String, hochschule: String, bezugstyp: String, link: String, var gutachtentLink: Option[String] = None) {
+case class Studiengang(var id: Option[Int] = None, jobId: Option[Int], fach: String, abschluss: String, hochschule: String, bezugstyp: String, link: String, var gutachtentLink: Option[String] = None, sourceId: Int) {
   lazy val checkSum = {
     val str = fach + abschluss + hochschule + bezugstyp + link
     MessageDigest.getInstance("MD5").digest(str.getBytes).map(0xFF & _).map {
@@ -19,12 +23,16 @@ case class Studiengang(var id: Option[Int] = None, jobId: Option[Int], fach: Str
 }
 
 case class StudiengangAttribute(var id: Int, key: String, value: String)
+
 trait DBBean[T] {
   def Count(): Long
-  def Find(maxRows : Long, firstRow: Long) : Seq[T]
+
+  def Find(maxRows: Long, firstRow: Long): Seq[T]
 }
 
 case class Job(var id: Option[Int] = None, createDate: Date = new Date(), newEntries: Int = 0, status: String = "started")
+
+case class Source(var id: Option[Int] = None, name: String, createDate: Date = new Date())
 
 object StudiengangAttribute extends DBBean[StudiengangAttribute] {
   val single = {
@@ -42,7 +50,7 @@ object StudiengangAttribute extends DBBean[StudiengangAttribute] {
     }
   }
 
-  def Find(maxRows : Long, firstRow: Long) = {
+  def Find(maxRows: Long, firstRow: Long) = {
     val onList = Seq(
       Some('limit -> maxRows),
       Some('offset -> firstRow)
@@ -55,12 +63,14 @@ object StudiengangAttribute extends DBBean[StudiengangAttribute] {
     }
   }
 
-  def Find[A](maxRows : Long, firstRow: Long, where: Map[String, ParameterValue[A]]) = {
+  def Find[A](maxRows: Long, firstRow: Long, where: Map[String, ParameterValue[A]]) = {
     val onList = Seq(
       Some('limit -> maxRows),
       Some('offset -> firstRow)
     ).flatMap(_.map(v => v._1 -> toParameterValue(v._2)))
-    where.map { x => s"${x._1} = {${x._1}}" }.mkString(" AND ")
+    where.map {
+      x => s"${x._1} = {${x._1}}"
+    }.mkString(" AND ")
     DB.withConnection {
       implicit connection =>
         SQL("select * from studiengaenge_attribute LIMIT {limit} OFFSET {offset}").on(
@@ -87,8 +97,9 @@ object StudiengangAttribute extends DBBean[StudiengangAttribute] {
     }
     studiengangAttribute
   }
+
   def Inserts(studiengangAttributes: Seq[StudiengangAttribute]) = {
-    studiengangAttributes.foreach(s=>Insert(s))
+    studiengangAttributes.foreach(s => Insert(s))
     studiengangAttributes
   }
 }
@@ -102,22 +113,24 @@ object Studiengang {
       get[String]("studiengaenge.hochschule") ~
       get[String]("studiengaenge.bezugstyp") ~
       get[String]("studiengaenge.link") ~
-      get[Option[String]]("studiengaenge.GutachtenLink") map {
-      case id ~ jobId ~ fach ~ abschluss ~ hochschule ~ bezugstyp ~ link ~ gutachtenLink => Studiengang(Option(id), jobId, fach, abschluss, hochschule, bezugstyp, link, gutachtenLink)
+      get[Option[String]]("studiengaenge.GutachtenLink") ~
+      get[Int]("studiengaenge.sourceId") map {
+      case id ~ jobId ~ fach ~ abschluss ~ hochschule ~ bezugstyp ~ link ~ gutachtenLink ~ sourceId => Studiengang(Option(id), jobId, fach, abschluss, hochschule, bezugstyp, link, gutachtenLink, sourceId)
     }
   }
 
   def Insert(studiengang: Studiengang) = {
     DB.withConnection {
       implicit connection =>
-        SQL("insert into studiengaenge (jobId, fach, abschluss, hochschule, bezugstyp, link, checksum) values ({jobId}, {fach},{abschluss},{hochschule},{bezugstyp},{link},{checksum})").on(
+        SQL("insert into studiengaenge (jobId, fach, abschluss, hochschule, bezugstyp, link, checksum, sourceId) values ({jobId}, {fach},{abschluss},{hochschule},{bezugstyp},{link},{checksum},{sourceId})").on(
           'fach -> studiengang.fach,
           'jobId -> studiengang.jobId,
           'abschluss -> studiengang.abschluss,
           'hochschule -> studiengang.hochschule,
           'bezugstyp -> studiengang.bezugstyp,
           'link -> studiengang.link,
-          'checksum -> studiengang.checkSum).executeInsert()
+          'checksum -> studiengang.checkSum,
+          'sourceId -> studiengang.sourceId).executeInsert()
     } match {
       case Some(long: Long) =>
         studiengang.id = Option(long.toInt) // The Primary Key
@@ -126,7 +139,7 @@ object Studiengang {
   }
 
   def Inserts(studiengang: Seq[Studiengang]) = {
-    studiengang.foreach(s=>Insert(s))
+    studiengang.foreach(s => Insert(s))
     studiengang
   }
 
@@ -180,7 +193,7 @@ object Job {
       get[Date]("jobs.createDate") ~
       get[Int]("jobs.newEntries") ~
       get[String]("jobs.status") map {
-      case id ~ createDate ~ newEntries ~ status=> Job(Option(id), createDate, newEntries, status)
+      case id ~ createDate ~ newEntries ~ status => Job(Option(id), createDate, newEntries, status)
     }
   }
 
@@ -198,9 +211,9 @@ object Job {
   }
 
   def UpdateOrDelete(job: Job) {
-    if(job.newEntries > 0) {
+    if (job.newEntries > 0) {
       Update(job)
-    }else{
+    } else {
       Delete(job)
     }
   }
@@ -211,7 +224,7 @@ object Job {
         SQL("update jobs set newEntries={newEntries}, status={status} where id={id}").on(
           'id -> job.id,
           'newEntries -> job.newEntries,
-          'status ->job.status).executeInsert()
+          'status -> job.status).executeInsert()
     }
     job
   }
@@ -235,6 +248,62 @@ object Job {
     DB.withConnection {
       implicit connection =>
         SQL("select * from jobs order by createDate desc limit 1").singleOpt(Job.single)
+    }
+  }
+}
+
+object Source {
+  val single = {
+    get[Int]("sources.id") ~
+      get[String]("sources.name") ~
+      get[Date]("sources.createDate") map {
+      case id ~ name ~ createDate => Source(Option(id), name, createDate)
+    }
+  }
+
+  def Insert(source: Source) = {
+    DB.withConnection {
+      implicit connection =>
+        SQL("insert into sources (name, createDate) values ({name}, {createDate})").on(
+          'name -> source.name,
+          'createDate -> source.createDate).executeInsert()
+    } match {
+      case Some(long: Long) =>
+        source.id = Option(long.toInt) // The Primary Key
+    }
+    source
+  }
+
+  def FindAll(): Seq[Source] = {
+    DB.withConnection {
+      implicit connection =>
+        SQL("select * from sources").as(Source.single *)
+    }
+  }
+
+  def FindByName(name: String): Option[Source] = {
+    DB.withConnection {
+      implicit connection =>
+        SQL("select * from sources where name={name}").on(
+        'name -> name
+        ).singleOpt(Source.single)
+    }
+  }
+
+  def FindOrCreateSourceAkkreditierungsrat(): Option[Source] = {
+    DB.withConnection {
+      implicit connection =>
+        FindByName(SourceAkkreditierungsRat.name).orElse(
+          Option(Insert(Source(name=SourceAkkreditierungsRat.name)))
+        )
+    }
+  }
+
+  def Delete(source: Source) {
+    DB.withConnection {
+      implicit connection =>
+        SQL("delete from sources where id={id}").on(
+          'id -> source.id.get).executeInsert()
     }
   }
 }
