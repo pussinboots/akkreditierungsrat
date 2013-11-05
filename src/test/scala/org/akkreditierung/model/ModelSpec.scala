@@ -36,6 +36,16 @@ class ModelSpec extends Specification with HSQLDbBefore {
       Job.Delete(job)
       Job.findLatest() must beEqualTo(None)
     }
+    "find all existing jobs" in {
+      val job = Job.Insert(Job())
+      Job.Insert(Job())
+      Job.UpdateOrDelete(Job(id=job.id, newEntries = 1, status="finished"))
+      val jobs = Job.findAll()
+      jobs.size must beEqualTo(2)
+      jobs.foreach(job=>Job.Delete(job))
+      Job.Delete(job)
+      Job.findLatest() must beEqualTo(None)
+    }
     "delete Job entry with newEntries equal zero" in {
       val job = Job.Insert(Job())
       Job.UpdateOrDelete(Job(id=job.id, newEntries = 0, status="finished"))
