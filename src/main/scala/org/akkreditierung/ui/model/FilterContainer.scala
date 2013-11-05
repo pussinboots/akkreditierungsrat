@@ -2,8 +2,6 @@ package org.akkreditierung.ui.model
 
 import com.avaje.ebean.{Expr, ExpressionList, Query}
 import org.apache.wicket.markup.html.form.{FormComponent, TextField}
-import java.sql.Connection
-import scalikejdbc.ConnectionPool
 
 class FilterContainer(hochSchule: TextField[String], fach: TextField[String], abschluss: TextField[String], agentur: TextField[String], studienForm: TextField[String], jobId: TextField[String]) {
 

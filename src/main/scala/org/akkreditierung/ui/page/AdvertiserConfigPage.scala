@@ -11,16 +11,14 @@ import org.apache.wicket.markup.html.basic.Label
 import org.apache.wicket.markup.html.link.{BookmarkablePageLink, ExternalLink, Link}
 import org.apache.wicket.markup.html.panel.Panel
 import org.apache.wicket.markup.repeater.Item
-import org.apache.wicket.markup.repeater.data.DataView
 import org.apache.wicket.markup.repeater.data.ListDataProvider
-import org.apache.wicket.model.{Model, IModel, PropertyModel}
+import org.apache.wicket.model.{IModel, PropertyModel}
 import org.apache.wicket.request.mapper.parameter.PageParameters
 import java.util._
 import org.wicket.scala.Columns._
 import org.wicket.scala.Fields._
 import org.wicket.scala.RepeatingViews._
-import org.apache.wicket.markup.html.form.{TextField, Form}
-import org.apache.wicket.markup.resolver.AutoLinkResolver.AutolinkBookmarkablePageLink
+import org.apache.wicket.markup.html.form.Form
 
 object AdvertiserConfigPage {
   private final val serialVersionUID: Long = 1L

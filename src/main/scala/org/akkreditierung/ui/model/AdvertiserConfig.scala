@@ -1,7 +1,6 @@
 package org.akkreditierung.ui.model
 
 import javax.persistence._
-import java.io.Serializable
 import java.util.Map
 import scala.beans.BeanProperty
 import org.akkreditierung.model.Studiengang
@@ -22,9 +21,9 @@ import org.akkreditierung.model.Studiengang
   @MapKey(name = "k")
   @BeanProperty var map: Map[String, StudiengaengeAttribute] = null
 
-  override def toString: String = {
-    "studiengaenge{" + "id=" + id + ", fach='" + fach + '}'
-  }
+//  override def toString: String = {
+//    "studiengaenge{" + "id=" + id + ", fach='" + fach + '}'
+//  }
 
   def toStudienGang() = {
     Studiengang(jobId=Option(jobId), fach=fach, abschluss=abschluss, hochschule=hochschule, bezugstyp=bezugstyp, link=link, gutachtentLink=Option(gutachtenLink), sourceId = sourceId)

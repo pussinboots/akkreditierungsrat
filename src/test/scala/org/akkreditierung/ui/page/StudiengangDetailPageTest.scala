@@ -2,11 +2,12 @@ package org.akkreditierung.ui.page
 
 import org.specs2.mutable._
 import org.apache.wicket.util.tester.WicketTester
-import org.akkreditierung.model.{Studiengang, StudiengangAttribute, DB}
-import org.akkreditierung.test.{HSQLDbBefore, EBean}
+import org.akkreditierung.model.StudiengangAttribute
+import org.akkreditierung.test.HSQLDbBefore
 import org.apache.wicket.request.mapper.parameter.PageParameters
 import org.apache.wicket.markup.repeater.data.DataView
 import org.akkreditierung.ui.model.StudiengaengeAttribute
+import org.akkreditierung.ui.WicketApplication
 
 class StudiengangDetailPageTest extends Specification with HSQLDbBefore {
 
@@ -18,7 +19,7 @@ class StudiengangDetailPageTest extends Specification with HSQLDbBefore {
 
   "StudiengangDetailPage" should {
     "construct without error" in {
-      val wt = new WicketTester
+      val wt = new WicketTester(new WicketApplication())
       val p = wt.startPage(classOf[StudiengangDetailPage], new PageParameters().add(StudiengangDetailPage.PAGE_PARAMETER_ID, "1"))
       wt.assertComponent("displayPanel", classOf[DataView[StudiengaengeAttribute]])
       def table = wt.getComponentFromLastRenderedPage("displayPanel").asInstanceOf[DataView[StudiengaengeAttribute]]

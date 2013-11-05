@@ -1,7 +1,7 @@
 package org.akkreditierung.test
 
 import org.specs2.mutable.Before
-import org.akkreditierung.model.{Studiengang, DB}
+import org.akkreditierung.model.DB
 
 trait HSQLDbBefore extends Before {
   override def before {

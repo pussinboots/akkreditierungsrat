@@ -1,12 +1,11 @@
 package org.akkreditierung.model
 
-import java.sql.{DriverManager, Connection}
+import java.sql.Connection
 
 import scalikejdbc.{ConnectionPoolSettings, ConnectionPool}
 import anorm._
 import java.net.URI
 import scala.util.Properties
-import org.hsqldb.jdbc.JDBCDriver
 
 object DB {
   val dbConfigUrl: String = Properties.envOrElse("CLEARDB_DATABASE_URL", "mysql://root:root@127.0.0.1:3306/heroku_9852f75c8ae3ea1")

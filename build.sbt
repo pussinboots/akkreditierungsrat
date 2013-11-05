@@ -18,6 +18,8 @@ seq(ScctPlugin.instrumentSettings : _*)
 
 parallelExecution in Test := false
 
+parallelExecution in ScctTest := false
+
 //ui dependencies
 libraryDependencies ++= Seq(
     "org.apache.wicket" % "wicket-core" % "6.6.0",

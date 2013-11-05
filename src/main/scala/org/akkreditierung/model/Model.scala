@@ -24,17 +24,11 @@ case class Studiengang(var id: Option[Int] = None, jobId: Option[Int], fach: Str
 
 case class StudiengangAttribute(var id: Int, key: String, value: String)
 
-trait DBBean[T] {
-  def Count(): Long
-
-  def Find(maxRows: Long, firstRow: Long): Seq[T]
-}
-
 case class Job(var id: Option[Int] = None, createDate: Date = new Date(), newEntries: Int = 0, status: String = "started")
 
 case class Source(var id: Option[Int] = None, name: String, createDate: Date = new Date())
 
-object StudiengangAttribute extends DBBean[StudiengangAttribute] {
+object StudiengangAttribute {
   val single = {
     get[Int]("studiengaenge_attribute.id") ~
       get[String]("studiengaenge_attribute.k") ~
@@ -43,42 +37,14 @@ object StudiengangAttribute extends DBBean[StudiengangAttribute] {
     }
   }
 
-  def Count() = {
+  def find(studienGang: Studiengang): Map[String, StudiengangAttribute] = {
     DB.withConnection {
       implicit connection =>
-        SQL("select count(*) from studiengaenge_attribute").as(scalar[Long].single)
+        SQL("select * from studiengaenge_attribute where id={id}").on(
+          'id -> studienGang.id
+          ).as(StudiengangAttribute.single *).map { t => (t.key, t) } toMap
     }
   }
-
-  def Find(maxRows: Long, firstRow: Long) = {
-    val onList = Seq(
-      Some('limit -> maxRows),
-      Some('offset -> firstRow)
-    ).flatMap(_.map(v => v._1 -> toParameterValue(v._2)))
-    DB.withConnection {
-      implicit connection =>
-        SQL("select * from studiengaenge_attribute LIMIT {limit} OFFSET {offset}").on(
-          onList: _*
-        ).as(StudiengangAttribute.single *)
-    }
-  }
-
-  def Find[A](maxRows: Long, firstRow: Long, where: Map[String, ParameterValue[A]]) = {
-    val onList = Seq(
-      Some('limit -> maxRows),
-      Some('offset -> firstRow)
-    ).flatMap(_.map(v => v._1 -> toParameterValue(v._2)))
-    where.map {
-      x => s"${x._1} = {${x._1}}"
-    }.mkString(" AND ")
-    DB.withConnection {
-      implicit connection =>
-        SQL("select * from studiengaenge_attribute LIMIT {limit} OFFSET {offset}").on(
-          onList: _*
-        ).as(StudiengangAttribute.single *)
-    }
-  }
-
 
   def findAll(): Seq[StudiengangAttribute] = {
     DB.withConnection {
@@ -166,24 +132,6 @@ object Studiengang {
         SQL("select * from studiengaenge where fach={fach}").on(
           'fach -> fach).single(Studiengang.single)
     }
-  }
-
-  //only work in hsqldb
-  def Merge(studiengang: Studiengang) = {
-    DB.withConnection {
-      implicit connection =>
-        SQL( """MERGE INTO studiengaenge as t USING (VALUES({fach},{abschluss},{hochschule},{bezugstyp},{link},{checksum}))
-             AS vals(fach, abschluss, hochschule, bezugstyp, link, checksum) ON t.checksum = vals.checksum
-             WHEN NOT MATCHED THEN INSERT (fach, abschluss, hochschule, bezugstyp, link, checksum) VALUES vals.fach, vals.abschluss, vals.hochschule, vals.bezugstyp, vals.link, svals.checksum
-             """.stripMargin).on(
-          'fach -> studiengang.fach,
-          'abschluss -> studiengang.abschluss,
-          'hochschule -> studiengang.hochschule,
-          'bezugstyp -> studiengang.bezugstyp,
-          'link -> studiengang.link,
-          'checksum -> studiengang.checkSum).executeInsert()
-    }
-    studiengang
   }
 }
 

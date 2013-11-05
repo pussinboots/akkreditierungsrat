@@ -2,10 +2,8 @@ package org.akkreditierung.ui
 
 import org.akkreditierung.ui.page.{MySignInPage, StudiengangEditPage, StudiengangDetailPage, AdvertiserConfigPage}
 import org.apache.wicket.markup.html.WebPage
-import org.apache.wicket.protocol.http.WebApplication
 import org.apache.wicket.authroles.authentication.{AuthenticatedWebApplication, AbstractAuthenticatedWebSession}
 import org.akkreditierung.ui.auth.AuthSession
-import org.apache.wicket.protocol.https.{HttpsConfig, HttpsMapper}
 
 class WicketApplication extends AuthenticatedWebApplication {
   def getHomePage: Class[_ <: WebPage] = classOf[AdvertiserConfigPage]

@@ -1,9 +1,8 @@
 package org.akkreditierung.ui.model
 
 import javax.persistence._
-import java.util.{Date, Map}
+import java.util.Date
 import scala.beans.BeanProperty
-import org.akkreditierung.model.Studiengang
 
 @Entity
 @Table(name = "jobs") class Job {

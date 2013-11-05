@@ -7,11 +7,10 @@ import org.apache.wicket.request.mapper.parameter.PageParameters
 import scala.collection.JavaConversions._
 import org.apache.wicket.markup.html.form.{TextArea, Form, TextField}
 import org.apache.wicket.model.{CompoundPropertyModel, PropertyModel}
-import org.apache.wicket.markup.html.list.{ListItem, ListView}
+import org.apache.wicket.markup.html.list.ListItem
 import org.akkreditierung.ui.model.{AdvertiserConfig, StudiengaengeAttribute}
 import org.akkreditierung.model.{Studiengang, StudiengangAttribute}
 import org.wicket.scala.RepeatingViews._
-import org.apache.wicket.markup.repeater.Item
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation
 
 object StudiengangEditPage {

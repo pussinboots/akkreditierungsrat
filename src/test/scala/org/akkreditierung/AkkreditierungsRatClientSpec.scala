@@ -6,7 +6,6 @@ import org.akkreditierung.AkkreditierungsRatClient._
 import org.akkreditierung.test.{HSQLDbBefore, Betamax}
 import co.freeside.betamax.{TapeMode, Recorder}
 import co.freeside.betamax.proxy.jetty.ProxyServer
-import org.specs2.execute.AsResult
 import scala.Some
 
 class AkkreditierungsRatClientSpec extends Specification with HSQLDbBefore {

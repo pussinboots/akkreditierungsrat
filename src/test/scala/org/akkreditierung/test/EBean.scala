@@ -1,7 +1,6 @@
 package org.akkreditierung.test
 
 import com.avaje.ebean.config.{DataSourceConfig, ServerConfig}
-import org.akkreditierung.model.DB
 import com.avaje.ebean.{EbeanServerFactory, Transaction}
 import com.avaje.ebeaninternal.server.lib.ShutdownManager
 

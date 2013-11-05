@@ -1,6 +1,6 @@
 package org.akkreditierung.ui.model
 
-import javax.persistence.{Id, Transient, Entity, Table}
+import javax.persistence.{Entity, Table}
 import java.io.Serializable
 import scala.beans.BeanProperty
 
@@ -9,9 +9,9 @@ import scala.beans.BeanProperty
 @SerialVersionUID(-1587664618577852245L)
 class StudiengaengeAttribute extends Serializable {
 
-  override def toString: String = {
-    "StudiengaengeAttribute{" + "id=" + id + ", k='" + k + '\'' + ", v='" + v + '\'' + '}'
-  }
+//  override def toString: String = {
+//    "StudiengaengeAttribute{" + "id=" + id + ", k='" + k + '\'' + ", v='" + v + '\'' + '}'
+//  }
 
   @BeanProperty var id: Int = 0
   @BeanProperty var k: String = null

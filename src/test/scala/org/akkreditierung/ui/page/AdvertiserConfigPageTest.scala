@@ -2,11 +2,11 @@ package org.akkreditierung.ui.page
 
 import org.specs2.mutable._
 import org.apache.wicket.util.tester.WicketTester
-import org.akkreditierung.model.{Studiengang, DB}
-import org.akkreditierung.test.{HSQLDbBefore, EBean}
+import org.akkreditierung.model.Studiengang
+import org.akkreditierung.test.HSQLDbBefore
 import org.akkreditierung.ui.model.AdvertiserConfig
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable
-import org.specs2.specification.BeforeAfterExample
+import org.akkreditierung.ui.WicketApplication
 
 class AdvertiserConfigPageTest extends Specification with HSQLDbBefore {
 
@@ -19,7 +19,7 @@ class AdvertiserConfigPageTest extends Specification with HSQLDbBefore {
   sequential
   "AdvertiserConfigPage" should {
     "with no filter" in {
-      val wt = new WicketTester
+      val wt = new WicketTester(new WicketApplication())
       val p = wt.startPage(classOf[AdvertiserConfigPage])
       wt.assertComponent("datatable", classOf[DataTable[AdvertiserConfig, String]])
       def table = wt.getComponentFromLastRenderedPage("datatable").asInstanceOf[DataTable[AdvertiserConfig, String]]
@@ -27,7 +27,7 @@ class AdvertiserConfigPageTest extends Specification with HSQLDbBefore {
     }
 
     "with hochschul filter" in {
-      val wt = new WicketTester
+      val wt = new WicketTester(new WicketApplication())
       val p = wt.startPage(classOf[AdvertiserConfigPage])
       wt.newFormTester("filterForm").setValue("hochschule", "Potsdam")
       wt.executeAjaxEvent("filterForm:hochschule", "onchange");
@@ -39,7 +39,7 @@ class AdvertiserConfigPageTest extends Specification with HSQLDbBefore {
     }
 
     "with hochschul filter" in {
-      val wt = new WicketTester
+      val wt = new WicketTester(new WicketApplication())
       val p = wt.startPage(classOf[AdvertiserConfigPage])
       wt.newFormTester("filterForm").setValue("jobId", "1")
       wt.executeAjaxEvent("filterForm:jobId", "onchange");
