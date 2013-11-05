@@ -62,7 +62,7 @@ object AkkreditierungsRatClient {
             .replace("..", "http://www.hs-kompass2.de/kompass")
             .replace(sessionId, "##sessionId##")
 
-          val studienGang = Studiengang(None, job.id, data(0), data(1), data(2), data(3), link, sourceId= sourceAkkreditierungsRat.get.id.get)
+          val studienGang = Studiengang(None, job.id, data(0), data(1), data(2), data(3), Option(link), sourceId= sourceAkkreditierungsRat.get.id.get)
           if (!checkSumMap.contains(studienGang.checkSum)) {
             Studiengang.Insert(studienGang)
             neueStudienGaenge += studienGang
@@ -79,7 +79,7 @@ object AkkreditierungsRatClient {
   }
 
   def fetchAndStoreStudienGangInfo(sessionId: String, studienGang: Studiengang) {
-    val response = getStudienGangInfo(sessionId, studienGang.link)
+    val response = getStudienGangInfo(sessionId, studienGang.link.get)
     val cleaner = new HtmlCleaner
     val props = cleaner.getProperties
     val rootNode = cleaner.clean(response)

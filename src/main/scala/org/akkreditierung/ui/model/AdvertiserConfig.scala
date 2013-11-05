@@ -26,6 +26,6 @@ import org.akkreditierung.model.Studiengang
 //  }
 
   def toStudienGang() = {
-    Studiengang(jobId=Option(jobId), fach=fach, abschluss=abschluss, hochschule=hochschule, bezugstyp=bezugstyp, link=link, gutachtentLink=Option(gutachtenLink), sourceId = sourceId)
+    Studiengang(jobId=Option(jobId), fach=fach, abschluss=abschluss, hochschule=hochschule, bezugstyp=bezugstyp, link=Option(link), gutachtentLink=Option(gutachtenLink), sourceId = sourceId)
   }
 }

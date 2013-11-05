@@ -11,9 +11,9 @@ object SourceAkkreditierungsRat {
 }
 
 //TODO Datum erfassung (eventuell datum änderung)
-case class Studiengang(var id: Option[Int] = None, jobId: Option[Int], fach: String, abschluss: String, hochschule: String, bezugstyp: String, link: String, var gutachtentLink: Option[String] = None, sourceId: Int) {
+case class Studiengang(var id: Option[Int] = None, jobId: Option[Int], fach: String, abschluss: String, hochschule: String, bezugstyp: String, link: Option[String], var gutachtentLink: Option[String] = None, sourceId: Int) {
   lazy val checkSum = {
-    val str = fach + abschluss + hochschule + bezugstyp + link
+    val str = fach + abschluss + hochschule + bezugstyp + link.get
     MessageDigest.getInstance("MD5").digest(str.getBytes).map(0xFF & _).map {
       "%02x".format(_)
     }.foldLeft("") {
@@ -78,7 +78,7 @@ object Studiengang {
       get[String]("studiengaenge.abschluss") ~
       get[String]("studiengaenge.hochschule") ~
       get[String]("studiengaenge.bezugstyp") ~
-      get[String]("studiengaenge.link") ~
+      get[Option[String]]("studiengaenge.link") ~
       get[Option[String]]("studiengaenge.GutachtenLink") ~
       get[Int]("studiengaenge.sourceId") map {
       case id ~ jobId ~ fach ~ abschluss ~ hochschule ~ bezugstyp ~ link ~ gutachtenLink ~ sourceId => Studiengang(Option(id), jobId, fach, abschluss, hochschule, bezugstyp, link, gutachtenLink, sourceId)
@@ -97,6 +97,26 @@ object Studiengang {
           'link -> studiengang.link,
           'checksum -> studiengang.checkSum,
           'sourceId -> studiengang.sourceId).executeInsert()
+    } match {
+      case Some(long: Long) =>
+        studiengang.id = Option(long.toInt) // The Primary Key
+    }
+    studiengang
+  }
+
+  def InsertWithGutachtenLink(studiengang: Studiengang) = {
+    DB.withConnection {
+      implicit connection =>
+        SQL("insert into studiengaenge (jobId, fach, abschluss, hochschule, bezugstyp, link, checksum, sourceId, gutachtenLink) values ({jobId}, {fach},{abschluss},{hochschule},{bezugstyp},{link},{checksum},{sourceId},{gutachtenLink})").on(
+          'fach -> studiengang.fach,
+          'jobId -> studiengang.jobId,
+          'abschluss -> studiengang.abschluss,
+          'hochschule -> studiengang.hochschule,
+          'bezugstyp -> studiengang.bezugstyp,
+          'link -> studiengang.link,
+          'checksum -> studiengang.checkSum,
+          'sourceId -> studiengang.sourceId,
+          'gutachtenLink -> studiengang.gutachtentLink).executeInsert()
     } match {
       case Some(long: Long) =>
         studiengang.id = Option(long.toInt) // The Primary Key

@@ -36,7 +36,7 @@ class StudiengangEditPage(parameters: PageParameters) extends WebPage(parameters
   val form = new Form("form", new CompoundPropertyModel[AdvertiserConfig](studienGang)) {
     override def  onSubmit() {
       println(studienGang)
-      val storedStudienGang = Studiengang.Insert(studienGang.toStudienGang())
+      val storedStudienGang = Studiengang.InsertWithGutachtenLink(studienGang.toStudienGang())
       list filter(entry => entry.v != null) foreach {entry =>
           println(s"${entry.k} = ${entry.v}")
           StudiengangAttribute.Insert(StudiengangAttribute(storedStudienGang.id.get, entry.k, entry.v))
