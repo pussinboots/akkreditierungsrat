@@ -13,7 +13,7 @@ object SourceAkkreditierungsRat {
 //TODO Datum erfassung (eventuell datum änderung)
 case class Studiengang(var id: Option[Int] = None, jobId: Option[Int], fach: String, abschluss: String, hochschule: String, bezugstyp: String, link: Option[String], var gutachtentLink: Option[String] = None, sourceId: Int) {
   lazy val checkSum = {
-    val str = fach + abschluss + hochschule + bezugstyp + link.get
+    val str = fach + abschluss + hochschule + bezugstyp + link.getOrElse("")
     MessageDigest.getInstance("MD5").digest(str.getBytes).map(0xFF & _).map {
       "%02x".format(_)
     }.foldLeft("") {
