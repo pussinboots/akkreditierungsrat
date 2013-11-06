@@ -36,7 +36,7 @@ class AdvertiserConfigPage(parameters: PageParameters) extends WebPage(parameter
 
   private def createFilterContainer() : FilterContainer = {
     val form = new Form("filterForm")
-    val filter = new FilterContainer(createAjaxTextFilter("hochschule", form), createAjaxTextFilter("fach", form), createAjaxTextFilter("abschluss", form), createAjaxTextFilter("agentur", form), createAjaxTextFilter("studienform", form), createAjaxTextFilter("jobId", form))
+    val filter = new FilterContainer(createAjaxTextFilter("hochschule", form), createAjaxTextFilter("fach", form), createAjaxTextFilter("abschluss", form), createAjaxTextFilter("agentur", form), createAjaxTextFilter("studienform", form), createAjaxHiddenTextFilter("jobId", form))
     add(form)
     filter
   }

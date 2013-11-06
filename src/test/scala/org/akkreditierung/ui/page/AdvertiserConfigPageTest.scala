@@ -38,7 +38,7 @@ class AdvertiserConfigPageTest extends Specification with HSQLDbBefore {
       data.next.getFach() must beEqualTo("Angewandte Informatik")
     }
 
-    "with hochschul filter" in {
+    "with jobid filter" in {
       val wt = new WicketTester(new WicketApplication())
       val p = wt.startPage(classOf[AdvertiserConfigPage])
       wt.newFormTester("filterForm").setValue("jobId", "1")
