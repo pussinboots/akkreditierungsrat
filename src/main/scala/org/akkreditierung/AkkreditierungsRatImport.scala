@@ -122,7 +122,7 @@ object AkkreditierungsRatImport extends App {
   val sessionId = getSessionId()
   println(s"Session ${sessionId}")
 
-  fetchAndStoreStudienGaenge(sessionId, 30, 60, {
+  fetchAndStoreStudienGaenge(sessionId, 30, 5100, {
     studienGang: Studiengang =>
       println(fetchAndStoreStudienGangInfo(sessionId, studienGang))
   })
