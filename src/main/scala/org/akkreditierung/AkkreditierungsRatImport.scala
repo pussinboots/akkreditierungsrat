@@ -10,13 +10,14 @@ import AkkreditierungsRatClient._
 import org.htmlcleaner.HtmlCleaner
 import org.apache.commons.lang3.StringEscapeUtils
 import scala.Some
+import scala.collection.mutable
 
 object AkkreditierungsRatClient {
 
   val sourceAkkreditierungsRat = Source.FindOrCreateSourceAkkreditierungsrat()
 
-  def getResult(sessionId: String, offset: String = "0") = {
-    val post = Map("tid" -> "80520", "reuseresult" -> "false", "stylesheet" -> "tabelle_html_akkr.xsl", "Bezugstyp" -> "3", "sort" -> "2", "offset" -> offset, "maxoffset" -> "", "contenttype" -> "")
+  def getResult(sessionId: String, offset: String = "0", bezugsTyp: String = "3") = {
+    val post = Map("tid" -> "80520", "reuseresult" -> "false", "stylesheet" -> "tabelle_html_akkr.xsl", "Bezugstyp" -> bezugsTyp, "sort" -> "2", "offset" -> offset, "maxoffset" -> "", "contenttype" -> "")
     val uri = url("http://www.hs-kompass2.de/kompass/servlet")
     val header = Map("Content-Type" -> "application/x-www-form-urlencoded", "Cookie" -> s"JSESSIONID=${sessionId}")
     val response = Http(uri / "SuperXmlTabelle" << post <:< header)
@@ -39,12 +40,22 @@ object AkkreditierungsRatClient {
   }
 
   def fetchAndStoreStudienGaenge(sessionId: String, step: Int= 30, end: Int = 30, block: Studiengang => _) = {
-    val checkSumMap: Map[String, Studiengang] = Studiengang.findAll().map(elem => elem.checkSum -> elem)(collection.breakOut)
-
-    val neueStudienGaenge = scala.collection.mutable.MutableList[Studiengang]()
     val job = Job.Insert(Job())
+
+    val neueStudienGaenge = mutable.MutableList[Studiengang]()
+    val checkSumMap: Map[String, Studiengang] = Studiengang.findAll().map(elem => elem.checkSum -> elem)(collection.breakOut)
+    //fetch bechelar studiengänge
+    fetchStudienGaengeByBezugsTyp(end, step, sessionId, "3", job, checkSumMap, neueStudienGaenge, block)
+    //fetch master studiengänge
+    fetchStudienGaengeByBezugsTyp(end, step, sessionId, "4", job, checkSumMap, neueStudienGaenge, block)
+    Job.UpdateOrDelete(Job(id=job.id, newEntries=neueStudienGaenge.size, status="finished"))
+    neueStudienGaenge
+  }
+
+
+  def fetchStudienGaengeByBezugsTyp(end: Int, step: Int, sessionId: String, bezugsTyp: String, job: Job, checkSumMap: Map[String, Studiengang], neueStudienGaenge: mutable.MutableList[Studiengang], block: (Studiengang) => (_$1) forSome {type _$1}) {
     for (offset <- Range.apply(0, end, step)) {
-      val response = getResult(sessionId, s"${offset}")
+      val response = getResult(sessionId, s"${offset}", bezugsTyp)
       val cleaner = new HtmlCleaner
       val props = cleaner.getProperties
       val rootNode = cleaner.clean(response)
@@ -62,7 +73,7 @@ object AkkreditierungsRatClient {
             .replace("..", "http://www.hs-kompass2.de/kompass")
             .replace(sessionId, "##sessionId##")
 
-          val studienGang = Studiengang(None, job.id, data(0), data(1), data(2), data(3), Option(link), sourceId= sourceAkkreditierungsRat.get.id.get)
+          val studienGang = Studiengang(None, job.id, data(0), data(1), data(2), data(3), Option(link), sourceId = sourceAkkreditierungsRat.get.id.get)
           if (!checkSumMap.contains(studienGang.checkSum)) {
             Studiengang.Insert(studienGang)
             neueStudienGaenge += studienGang
@@ -74,8 +85,6 @@ object AkkreditierungsRatClient {
         }
       }
     }
-    Job.UpdateOrDelete(Job(id=job.id, newEntries=neueStudienGaenge.size, status="finished"))
-    neueStudienGaenge
   }
 
   def fetchAndStoreStudienGangInfo(sessionId: String, studienGang: Studiengang) {
@@ -113,7 +122,7 @@ object AkkreditierungsRatImport extends App {
   val sessionId = getSessionId()
   println(s"Session ${sessionId}")
 
-  val neueStudienGaenge = fetchAndStoreStudienGaenge(sessionId, 30, 5100, {
+  fetchAndStoreStudienGaenge(sessionId, 30, 5100, {
     studienGang: Studiengang =>
       println(fetchAndStoreStudienGangInfo(sessionId, studienGang))
   })
