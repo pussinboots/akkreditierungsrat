@@ -45,10 +45,13 @@ object AkkreditierungsRatClient {
     val neueStudienGaenge = mutable.MutableList[Studiengang]()
     val checkSumMap: Map[String, Studiengang] = Studiengang.findAll().map(elem => elem.checkSum -> elem)(collection.breakOut)
     //fetch bechelar studiengänge
-    fetchStudienGaengeByBezugsTyp(end, step, sessionId, "3", job, checkSumMap, neueStudienGaenge, block)
-    //fetch master studiengänge
-    fetchStudienGaengeByBezugsTyp(end, step, sessionId, "4", job, checkSumMap, neueStudienGaenge, block)
-    Job.UpdateOrDelete(Job(id=job.id, newEntries=neueStudienGaenge.size, status="finished"))
+    try{
+      fetchStudienGaengeByBezugsTyp(end, step, sessionId, "3", job, checkSumMap, neueStudienGaenge, block)
+      //fetch master studiengänge
+      fetchStudienGaengeByBezugsTyp(end, step, sessionId, "4", job, checkSumMap, neueStudienGaenge, block)
+    } finally {
+      Job.UpdateOrDelete(Job(id=job.id, newEntries=neueStudienGaenge.size, status="finished"))
+    }
     neueStudienGaenge
   }
 
