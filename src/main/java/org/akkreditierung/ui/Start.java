@@ -36,6 +36,8 @@ public class Start {
 		config.setDdlGenerate(false);
 		config.setDdlRun(false);
 
+        DB.WithSSL();
+
 		DataSourceConfig dataSourceConfig = new DataSourceConfig();
         Tuple3<String,String,String> dbConf = DB.parseConfiguredDbUrl(); //jdbcurl, username, password
         DB.getConfiguredMysqlConnection();

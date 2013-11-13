@@ -122,9 +122,11 @@ object AkkreditierungsRatClient {
 
 object AkkreditierungsRatImport extends App {
 
-  System.setProperty("javax.net.debug", "all")
+  //activate ssl debug logging
+  //System.setProperty("javax.net.debug", "all")
 
-  DB.getMysqlConnectionWithSSL()
+  DB.WithSSL()
+  DB.getMysqlConnection()
 
   val sessionId = getSessionId()
   println(s"Session ${sessionId}")

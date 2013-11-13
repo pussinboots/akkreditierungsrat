@@ -24,13 +24,11 @@ object DB {
 
   def getConfiguredMysqlConnection() = getMysqlConnection()
 
-  def getMysqlConnectionWithSSL(jdbcUrl: String = dbConfigUrl) {
+  def WithSSL() {
     System.setProperty("javax.net.ssl.keyStore", "keystore")
     System.setProperty("javax.net.ssl.keyStorePassword", "Korn4711")
     System.setProperty("javax.net.ssl.trustStore", "truststore")
     System.setProperty("javax.net.ssl.trustStorePassword", "Korn4711")
-
-    getMysqlConnection(jdbcUrl)
   }
 
   def getMysqlConnection(jdbcUrl: String = dbConfigUrl) {
