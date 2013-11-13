@@ -24,6 +24,15 @@ object DB {
 
   def getConfiguredMysqlConnection() = getMysqlConnection()
 
+  def getMysqlConnectionWithSSL(jdbcUrl: String = dbConfigUrl) {
+    System.setProperty("javax.net.ssl.keyStore", "keystore")
+    System.setProperty("javax.net.ssl.keyStorePassword", "Korn4711")
+    System.setProperty("javax.net.ssl.trustStore", "truststore")
+    System.setProperty("javax.net.ssl.trustStorePassword", "Korn4711")
+
+    getMysqlConnection(jdbcUrl)
+  }
+
   def getMysqlConnection(jdbcUrl: String = dbConfigUrl) {
     Class.forName("com.mysql.jdbc.Driver")
     val dbConnectionInfo = parseDbUrl(jdbcUrl)
@@ -71,9 +80,9 @@ object DB {
 
     val username = dbUri.getUserInfo().split(":").head
     val password = dbUri.getUserInfo().split(":").last
-    val port = if (dbUri.getPort() == -1) "" else ":" + dbUri.getPort()
+    val port = if (dbUri.getPort() == -1) "" else s":${dbUri.getPort()}"
 
-    val dbUrl = "jdbc:mysql://" + dbUri.getHost() + port + dbUri.getPath()
+    val dbUrl = "jdbc:mysql://" + dbUri.getHost() + port + dbUri.getPath() + "?useSSL=true"
     (dbUrl, username, password)
   }
 }

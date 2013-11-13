@@ -15,6 +15,7 @@ class WicketApplication extends AuthenticatedWebApplication {
     mountPage("edit", classOf[StudiengangEditPage])
     //todo activate automatic https redirect
     //setRootRequestMapper(new HttpsMapper(getRootRequestMapper(), new HttpsConfig(80, 443)));
+    getDebugSettings().setAjaxDebugModeEnabled(false)
   }
 
   override def getWebSessionClass: Class[_ <:AbstractAuthenticatedWebSession] = {
@@ -24,4 +25,6 @@ class WicketApplication extends AuthenticatedWebApplication {
   override def getSignInPageClass: Class[_ <:WebPage] = {
     classOf[MySignInPage]
   }
+
+
 }
