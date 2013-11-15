@@ -36,8 +36,9 @@ object AkkreditierungsRatUpdate extends App {
   DB.getMysqlConnection()
   updateStudiengaenge()
 
-  def updateStudiengaenge(sessionId: String = getSessionId(), threadCount: Int = 4) {
+  def updateStudiengaenge(sessionId: String = getSessionId(), threadCount: Int = 4) = {
     println(s"Session ${sessionId}")
+    val nextId = { var i = 0; () => { i += 1; i} }
 
     val studienGaenge = Studiengang.findAllNotUpdatedInLastSevenDays()
 
@@ -55,6 +56,7 @@ object AkkreditierungsRatUpdate extends App {
           studienGang.modifiedDate = Some(new Date())
           Studiengang.UpdateModifiedDate(studienGang)
           println(s"Updated ${studienGang}")
+          println(nextId())
         }
         Studiengang.UpdateUpdateDate(new Date(), studienGang)
     }
@@ -63,6 +65,7 @@ object AkkreditierungsRatUpdate extends App {
 
     val squares: Seq[Studiengang] = Await.result(aggregated, Duration.Inf)
     println("End updating")
+    nextId() - 1
   }
   sys.exit()
 }
