@@ -59,7 +59,7 @@ class AkkreditierungsRatClientSpec extends Specification with HSQLDbBefore {
         Studiengang.findByFach("Alternativer Tourismus").gutachtentLink.get must beEqualTo("http://www.aqas.de/downloads/Gutachten/49_319_BWL")
         Studiengang.findByFach("Altertumswissenschaften").gutachtentLink must beEqualTo(None)
         Studiengang.findByFach("Altertumswissenschaften").jobId must beEqualTo(Job.findLatest().get.id)
-        val source = Source.val sourceAkkreditierungsRat = Source.FindOrCreateSourceAkkreditierungsrat()
+        val source = Source.FindOrCreateSourceAkkreditierungsrat()
         Studiengang.findByFach("Altertumswissenschaften").sourceId must beEqualTo(source.get.id.get)
         Studiengang.findByFach("Advanced Physical Methods in Radiotherapy").sourceId must beEqualTo(source.get.id.get)
       }
