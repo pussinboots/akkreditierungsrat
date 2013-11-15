@@ -12,9 +12,8 @@ import co.freeside.betamax.message.Request
 
 class AkkreditierungsRatClientSpec extends Specification with HSQLDbBefore {
 
-  sys.props.+=("com.ning.http.client.AsyncHttpClientConfig.useProxyProperties" -> "true")
-
   //activate betamax proxy for dispatch
+  sys.props.+=("com.ning.http.client.AsyncHttpClientConfig.useProxyProperties" -> "true")
 
   class NullableBodyMatcher extends Comparator[Request] {
     override def compare(a: Request, b: Request) = {
@@ -60,7 +59,7 @@ class AkkreditierungsRatClientSpec extends Specification with HSQLDbBefore {
         Studiengang.findByFach("Alternativer Tourismus").gutachtentLink.get must beEqualTo("http://www.aqas.de/downloads/Gutachten/49_319_BWL")
         Studiengang.findByFach("Altertumswissenschaften").gutachtentLink must beEqualTo(None)
         Studiengang.findByFach("Altertumswissenschaften").jobId must beEqualTo(Job.findLatest().get.id)
-        val source = Source.FindByName("akkreditierungsrat")
+        val source = Source.val sourceAkkreditierungsRat = Source.FindOrCreateSourceAkkreditierungsrat()
         Studiengang.findByFach("Altertumswissenschaften").sourceId must beEqualTo(source.get.id.get)
         Studiengang.findByFach("Advanced Physical Methods in Radiotherapy").sourceId must beEqualTo(source.get.id.get)
       }
