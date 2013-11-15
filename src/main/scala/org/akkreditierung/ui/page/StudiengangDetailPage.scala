@@ -8,6 +8,7 @@ import org.apache.wicket.markup.repeater.data.ListDataProvider
 import org.apache.wicket.request.mapper.parameter.PageParameters
 import java.util.ArrayList
 import org.wicket.scala.RepeatingViews._
+import org.wicket.scala.Fields._
 
 object StudiengangDetailPage {
   final val PAGE_PARAMETER_ID: String = "studiengangId"
@@ -19,7 +20,7 @@ class StudiengangDetailPage(parameters: PageParameters) extends WebPage(paramete
     val provider = new ListDataProvider[StudiengaengeAttribute](new ArrayList[StudiengaengeAttribute](studiengaengeAttributes.values))
     val d = dataView("displayPanel", provider) {(entry: StudiengaengeAttribute, item: Item[StudiengaengeAttribute]) =>
       item.add(new Label("key_column", entry.getK))
-      item.add(new Label("value_column", entry.getV))
+      item.add(labelWithSpecialEscaping("value_column", entry.getV))
     }
     add(d)
 }

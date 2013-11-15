@@ -325,3 +325,7 @@ float: left;
 tr.navigation .navigator {
 text-align: right;
 }
+
+textarea {
+    width:100%;
+}

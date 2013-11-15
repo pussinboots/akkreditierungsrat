@@ -20,6 +20,7 @@ case class Studiengang(var id: Option[Int] = None, jobId: Option[Int], fach: Str
       _ + _
     }
   }
+  lazy val studiengangAttributes = StudiengangAttribute.find(this)
 }
 
 case class StudiengangAttribute(var id: Int, key: String, value: String)
@@ -60,6 +61,17 @@ object StudiengangAttribute {
           'id -> studiengangAttribute.id,
           'key -> studiengangAttribute.key,
           'value -> studiengangAttribute.value).executeInsert()
+    }
+    studiengangAttribute
+  }
+
+  def Update(studiengangAttribute: StudiengangAttribute) = {
+    DB.withConnection {
+      implicit connection =>
+        SQL("update studiengaenge_attribute set v={v} where id={id} AND k={k}").on(
+          'id -> studiengangAttribute.id,
+          'k -> studiengangAttribute.key,
+          'v -> studiengangAttribute.value).executeInsert()
     }
     studiengangAttribute
   }
@@ -142,7 +154,7 @@ object Studiengang {
   def findAll(): Seq[Studiengang] = {
     DB.withConnection {
       implicit connection =>
-        SQL("select * from studiengaenge").as(Studiengang.single *)
+        SQL("select * from studiengaenge order by fach").as(Studiengang.single *)
     }
   }
 

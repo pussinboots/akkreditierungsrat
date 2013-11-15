@@ -97,7 +97,7 @@ class AdvertiserConfigPage(parameters: PageParameters) extends WebPage(parameter
 
     val d = dataView("displayPanel", provider) {(entry: StudiengaengeAttribute, item: Item[StudiengaengeAttribute]) =>
       item.add(new Label("key_column", entry.getK))
-      item.add(new Label("value_column", entry.getV))
+      item.add(labelWithSpecialEscaping("value_column", entry.getV))
     }
 
     add(d)

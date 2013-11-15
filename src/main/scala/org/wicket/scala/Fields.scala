@@ -5,6 +5,8 @@ import org.apache.wicket.model.Model
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.MarkupContainer
+import org.apache.wicket.markup.html.basic.Label
+import org.akkreditierung.HTML4Escaper
 
 object Fields {
   def addOnChange(textField: TextField[String]) = textField.add(new AjaxOnChangeBehavoir)
@@ -35,5 +37,11 @@ object Fields {
     protected def onUpdate(target: AjaxRequestTarget) {
       target.add(target.getPage)
     }
+  }
+
+  def labelWithSpecialEscaping(componentId: String, value: String): Label = {
+    val label = new Label(componentId, HTML4Escaper.escapeHtml4(value))
+    label.setEscapeModelStrings(false)
+    label
   }
 }

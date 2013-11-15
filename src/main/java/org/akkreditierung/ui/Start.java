@@ -5,6 +5,7 @@ import com.avaje.ebean.Transaction;
 import com.avaje.ebean.config.DataSourceConfig;
 import com.avaje.ebean.config.ServerConfig;
 import org.akkreditierung.model.DB;
+import org.akkreditierung.ui.model.StudiengaengeAttributeBean;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
 import scala.Tuple3;
