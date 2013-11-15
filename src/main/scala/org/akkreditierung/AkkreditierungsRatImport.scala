@@ -40,7 +40,7 @@ object AkkreditierungsRatUpdate extends App {
   import scala.concurrent.duration._
   import scala.concurrent._
   implicit val ec = new ExecutionContext {
-    val threadPool = Executors.newFixedThreadPool(8);
+    val threadPool = Executors.newFixedThreadPool(4);
     def execute(runnable: Runnable) = threadPool.submit(runnable)
     def reportFailure(t: Throwable) = t.printStackTrace()
   }
