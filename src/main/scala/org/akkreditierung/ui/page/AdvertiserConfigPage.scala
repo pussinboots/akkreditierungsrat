@@ -49,6 +49,7 @@ class AdvertiserConfigPage(parameters: PageParameters) extends WebPage(parameter
     columns.add(column("Hochschule", "hochschule"))
     columns.add(column("Bezugstyp", "bezugstyp"))
     columns.add(column("Gutachten", "gutachtenLink", (item, componentId, rowModel) => new LinkPanel(componentId, rowModel.getObject.getGutachtenLink, "hier")))
+    columns.add(column("Änderungs Datum", "modifiedDate"))
     columns.add(column("Aktion", "id", (item, componentId, rowModel) => new ActionPanel(componentId, rowModel, detailPanel)))
     columns
   }

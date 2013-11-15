@@ -35,13 +35,13 @@ object DB {
     Class.forName("com.mysql.jdbc.Driver")
     val dbConnectionInfo = parseDbUrl(jdbcUrl)
     //println(s"connect to ${dbConnectionInfo._1}")
-    ConnectionPool.singleton(dbConnectionInfo._1, dbConnectionInfo._2, dbConnectionInfo._3, ConnectionPoolSettings(validationQuery = "SELECT 1"))
+    ConnectionPool.singleton(dbConnectionInfo._1, dbConnectionInfo._2, dbConnectionInfo._3, ConnectionPoolSettings(validationQuery = "SELECT 1", initialSize= 10, maxSize = 100))
   }
 
   def createTables() {
     DB.withConnection {
       implicit connection: Connection =>
-        SQL("create table studiengaenge (id integer primary key Identity, jobId integer, fach varchar(256), abschluss varchar(256), hochschule varchar(256), bezugstyp varchar(256), link varchar(256), checksum varchar(128), GutachtenLink varchar(256) default null, createDate timestamp default current_timestamp, sourceId integer)").execute()
+        SQL("create table studiengaenge (id integer primary key Identity, jobId integer, fach varchar(256), abschluss varchar(256), hochschule varchar(256), bezugstyp varchar(256), link varchar(256), checksum varchar(128), GutachtenLink varchar(256) default null, createDate timestamp default current_timestamp, updateDate timestamp default null, modifiedDate timestamp default null, sourceId integer)").execute()
         SQL("create table studiengaenge_attribute (id integer, k varchar(128), v CLOB)").execute()
         SQL("create table jobs (id integer primary key Identity, createDate timestamp DEFAULT CURRENT_TIMESTAMP, newEntries integer DEFAULT '0', status varchar(12))").execute()
         SQL("create table sources (id integer primary key Identity, name varchar(128), createDate timestamp DEFAULT CURRENT_TIMESTAMP)").execute()

@@ -7,12 +7,13 @@ import dispatch.implyRequestVerbs
 import dispatch.url
 import org.akkreditierung.model._
 import AkkreditierungsRatClient._
-import org.htmlcleaner.HtmlCleaner
+import org.htmlcleaner.{TagNode, HtmlCleaner}
 import org.apache.commons.lang3.StringEscapeUtils
 import scala.Some
 import scala.collection.mutable
 import scala.concurrent._
 import scala.Some
+import java.util.Date
 
 object AkkreditierungsRatClient {
 
@@ -69,7 +70,7 @@ object AkkreditierungsRatClient {
       for (elem <- elements) {
         val childs = elem.getElementsByName("td", false)
         val data = childs
-          .filter(elem => elem.getAttributeByName("class") != null && elem.getAttributeByName("class").equalsIgnoreCase("ergfeld"))
+          .filter(elem => classAttributeEquals(elem, "ergfeld"))
           .map(elem => StringEscapeUtils.unescapeHtml4(elem.getText().toString))
         if (!data.isEmpty) {
           val link = childs
@@ -78,7 +79,7 @@ object AkkreditierungsRatClient {
             .replace("..", "http://www.hs-kompass2.de/kompass")
             .replace(sessionId, "##sessionId##")
 
-          val studienGang = Studiengang(None, job.id, data(0), data(1), data(2), data(3), Option(link), sourceId = sourceAkkreditierungsRat.get.id.get)
+          val studienGang = Studiengang(None, job.id, data(0), data(1), data(2), data(3), Option(link), modifiedDate = Some(new Date()), sourceId = sourceAkkreditierungsRat.get.id.get)
           if (!checkSumMap.contains(studienGang.checkSum)) {
             Studiengang.Insert(studienGang)
             neueStudienGaenge += studienGang
@@ -93,22 +94,27 @@ object AkkreditierungsRatClient {
     }
   }
 
-  def InsertStudienGangAttribute(studienGang: Studiengang, studiengangAttribute: StudiengangAttribute) {
+  def InsertStudienGangAttribute(studienGang: Studiengang, studiengangAttribute: StudiengangAttribute) = {
     StudiengangAttribute.Insert(studiengangAttribute)
+    false
   }
 
-  def UpdateStudienGangAttribute(studienGang: Studiengang, studiengangAttribute: StudiengangAttribute) {
+  def UpdateStudienGangAttribute(studienGang: Studiengang, studiengangAttribute: StudiengangAttribute): Boolean = {
     val attributes = studienGang.studiengangAttributes
     val st = attributes.get(studiengangAttribute.key)
     if (st == None) {
       InsertStudienGangAttribute(studienGang, studiengangAttribute)
+      return true
     } else if (!st.get.equals(studiengangAttribute)) {
       StudiengangAttribute.Update(studiengangAttribute)
+      return true
     }
+    return false
   }
 
-  def fetchAndStoreStudienGangInfo(sessionId: String, studienGang: Studiengang, persit: (Studiengang, StudiengangAttribute) => (Unit) = InsertStudienGangAttribute) {
+  def fetchAndStoreStudienGangInfo(sessionId: String, studienGang: Studiengang, persit: (Studiengang, StudiengangAttribute) => (Boolean) = InsertStudienGangAttribute) = {
     val response = getStudienGangInfo(sessionId, studienGang.link.get)
+    var change = false
     val cleaner = new HtmlCleaner
     val props = cleaner.getProperties
     props.setTransSpecialEntitiesToNCR(true)
@@ -116,22 +122,26 @@ object AkkreditierungsRatClient {
     //TODO simplify parsing the html data out into the Studiengang pojo
     val childs = rootNode.getElementsByName("td", true)
     val keys = childs
-      .filter(elem => elem.getAttributeByName("class") != null && elem.getAttributeByName("class").equalsIgnoreCase("ergspalte"))
+      .filter(elem => classAttributeEquals(elem, "ergspalte"))
       .map(elem => StringEscapeUtils.unescapeHtml4(elem.getText().toString))
-    //TODO kodierungs probleme beim auslesen oder speichern der studien gangs attribute
     val data = childs
-      .filter(elem => elem.getAttributeByName("class") != null && elem.getAttributeByName("class").equalsIgnoreCase("ergfeld"))
+      .filter(elem => classAttributeEquals(elem, "ergfeld"))
       .map(elem => StringEscapeUtils.unescapeHtml4(elem.getText().toString))
     if (!data.isEmpty) {
       val map = (keys zip data)(collection.breakOut)
       map foreach {
         case (k, v) =>
-          persit(studienGang, StudiengangAttribute(studienGang.id.get, k, v))
+          change = change || persit(studienGang, StudiengangAttribute(studienGang.id.get, k, v))
           if (k == "Gutachten Link") {
             studienGang.gutachtentLink = Some(v)
             Studiengang.UpdateGutachtentLink(studienGang)
           }
       }
     }
+    change
+  }
+
+  def classAttributeEquals(elem: TagNode, classToEqual: String): Boolean = {
+    elem.getAttributeByName("class") != null && elem.getAttributeByName("class").equalsIgnoreCase(classToEqual)
   }
 }

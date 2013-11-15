@@ -1,7 +1,7 @@
 package org.akkreditierung.ui.model
 
 import javax.persistence._
-import java.util.Map
+import java.util.{Date, Map}
 import scala.beans.BeanProperty
 import org.akkreditierung.model.Studiengang
 
@@ -15,6 +15,7 @@ import org.akkreditierung.model.Studiengang
   @BeanProperty var bezugstyp: String = null
   @BeanProperty var link: String = null
   @BeanProperty @Column(name = "GutachtenLink") var gutachtenLink: String = null
+  @BeanProperty @Column(name = "modifiedDate") var modifiedDate: Date = null
   @BeanProperty @Column(name = "sourceId") var sourceId: Int = 0
   @OneToMany(cascade = Array(CascadeType.ALL), fetch = FetchType.LAZY)
   @JoinColumn(name = "id", referencedColumnName = "id", nullable = true)
@@ -26,6 +27,6 @@ import org.akkreditierung.model.Studiengang
 //  }
 
   def toStudienGang() = {
-    Studiengang(jobId=Option(jobId), fach=fach, abschluss=abschluss, hochschule=hochschule, bezugstyp=bezugstyp, link=Option(link), gutachtentLink=Option(gutachtenLink), sourceId = sourceId)
+    Studiengang(jobId=Option(jobId), fach=fach, abschluss=abschluss, hochschule=hochschule, bezugstyp=bezugstyp, link=Option(link), gutachtentLink=Option(gutachtenLink), modifiedDate = Option(modifiedDate), sourceId = sourceId)
   }
 }

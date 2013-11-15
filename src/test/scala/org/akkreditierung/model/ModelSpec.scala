@@ -2,18 +2,19 @@ package org.akkreditierung.model
 
 import org.specs2.mutable._
 import org.akkreditierung.test.HSQLDbBefore
+import java.util.Date
 
 class ModelSpec extends Specification with HSQLDbBefore {
   sequential
 
   override def initTestData() {
-    Studiengang.Insert(new Studiengang(None, Some(1), "fach", "abschluss", "hochschule", "bezugstyp", Some("link"), None, 1))
-    Studiengang.Insert(new Studiengang(None, Some(2), "fach2", "abschluss2", "hochschule2", "bezugstyp2", Some("link"), Some("gutachtenlink"), 2))
+    Studiengang.Insert(new Studiengang(None, Some(1), "fach", "abschluss", "hochschule", "bezugstyp", Some("link"), None, Some(new Date()), 1))
+    Studiengang.Insert(new Studiengang(None, Some(2), "fach2", "abschluss2", "hochschule2", "bezugstyp2", Some("link"), Some("gutachtenlink"), Some(new Date()), 2))
   }
 
   "Studiengang class" should {
     "checksum should be the same" in {
-      val studiengang = new Studiengang(None, Some(1), "fach", "abschluss", "hochschule", "bezugstyp", Some("link"), None, 1)
+      val studiengang = new Studiengang(None, Some(1), "fach", "abschluss", "hochschule", "bezugstyp", Some("link"), None, Some(new Date()), 1)
       studiengang.checkSum must beEqualTo("020dcf7e6749afba8a4301843f958302")
     }
   }

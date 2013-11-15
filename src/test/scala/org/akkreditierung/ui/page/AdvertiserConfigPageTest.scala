@@ -7,12 +7,13 @@ import org.akkreditierung.test.HSQLDbBefore
 import org.akkreditierung.ui.model.AdvertiserConfig
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable
 import org.akkreditierung.ui.WicketApplication
+import java.util.Date
 
 class AdvertiserConfigPageTest extends Specification with HSQLDbBefore {
 
   override def initTestData() {
-    def studiengang1 = new Studiengang(jobId=Some(1), fach = "Angewandte Informatik", abschluss = "Master", hochschule = "Potsdam Universität", bezugstyp = "bezug", link = Some("link"), sourceId= 1)
-    def studiengang2 = new Studiengang(jobId=Some(2), fach = "Soziologie", abschluss = "Bachelor", hochschule = "Mainz Universität", bezugstyp = "bezug", link = Some("link2"), sourceId= 1)
+    def studiengang1 = new Studiengang(jobId=Some(1), fach = "Angewandte Informatik", abschluss = "Master", hochschule = "Potsdam Universität", bezugstyp = "bezug", link = Some("link"), modifiedDate=Some(new Date()), sourceId= 1)
+    def studiengang2 = new Studiengang(jobId=Some(2), fach = "Soziologie", abschluss = "Bachelor", hochschule = "Mainz Universität", bezugstyp = "bezug", link = Some("link2"), modifiedDate=Some(new Date()), sourceId= 1)
     Studiengang.Inserts(Seq(studiengang1, studiengang2))
   }
 

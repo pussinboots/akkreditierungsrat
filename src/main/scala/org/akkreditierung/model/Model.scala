@@ -11,7 +11,7 @@ object SourceAkkreditierungsRat {
 }
 
 //TODO Datum erfassung (eventuell datum änderung)
-case class Studiengang(var id: Option[Int] = None, jobId: Option[Int], fach: String, abschluss: String, hochschule: String, bezugstyp: String, link: Option[String], var gutachtentLink: Option[String] = None, sourceId: Int) {
+case class Studiengang(var id: Option[Int] = None, jobId: Option[Int], fach: String, abschluss: String, hochschule: String, bezugstyp: String, link: Option[String], var gutachtentLink: Option[String] = None, var modifiedDate: Option[Date], sourceId: Int) {
   lazy val checkSum = {
     val str = fach + abschluss + hochschule + bezugstyp + link.getOrElse("")
     MessageDigest.getInstance("MD5").digest(str.getBytes).map(0xFF & _).map {
@@ -92,8 +92,9 @@ object Studiengang {
       get[String]("studiengaenge.bezugstyp") ~
       get[Option[String]]("studiengaenge.link") ~
       get[Option[String]]("studiengaenge.GutachtenLink") ~
+      get[Option[Date]]("studiengaenge.modifiedDate") ~
       get[Int]("studiengaenge.sourceId") map {
-      case id ~ jobId ~ fach ~ abschluss ~ hochschule ~ bezugstyp ~ link ~ gutachtenLink ~ sourceId => Studiengang(Option(id), jobId, fach, abschluss, hochschule, bezugstyp, link, gutachtenLink, sourceId)
+      case id ~ jobId ~ fach ~ abschluss ~ hochschule ~ bezugstyp ~ link ~ gutachtenLink ~ modifiedDate ~ sourceId => Studiengang(Option(id), jobId, fach, abschluss, hochschule, bezugstyp, link, gutachtenLink, modifiedDate, sourceId)
     }
   }
 
@@ -151,10 +152,37 @@ object Studiengang {
     studiengang
   }
 
+  def UpdateUpdateDate(updateDate: Date, studiengang: Studiengang) = {
+    DB.withConnection {
+      implicit connection =>
+        SQL("update studiengaenge set updateDate={updateDate} where id={id}").on(
+          'id -> studiengang.id,
+          'updateDate -> updateDate).executeInsert()
+    }
+    studiengang
+  }
+
+  def UpdateModifiedDate(studiengang: Studiengang) = {
+    DB.withConnection {
+      implicit connection =>
+        SQL("update studiengaenge set modifiedDate={modifiedDate} where id={id}").on(
+          'id -> studiengang.id,
+          'modifiedDate -> studiengang.modifiedDate).executeInsert()
+    }
+    studiengang
+  }
+
   def findAll(): Seq[Studiengang] = {
     DB.withConnection {
       implicit connection =>
         SQL("select * from studiengaenge order by fach").as(Studiengang.single *)
+    }
+  }
+
+  def findAllNotUpdatedInLastSevenDays(): Seq[Studiengang] = {
+    DB.withConnection {
+      implicit connection =>
+        SQL("select * from studiengaenge where updateDate is null or updateDate < DATE_SUB(NOW(), INTERVAL 7 DAY) order by fach").as(Studiengang.single *)
     }
   }
 
