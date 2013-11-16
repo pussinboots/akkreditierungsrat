@@ -31,7 +31,7 @@ object Betamax {
       val recorder = new Recorder
       val proxyServer = new ProxyServer(recorder)
       import collection.JavaConversions._
-      recorder.insertTape("akkreditierungsratimport", Map("match" -> list))
+      recorder.insertTape(tape, Map("match" -> list))
       recorder.getTape.setMode(mode.getOrElse(recorder.getDefaultMode()))
       proxyServer.start()
       try {
