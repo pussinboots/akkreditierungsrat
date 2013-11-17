@@ -138,8 +138,7 @@ object Studiengang {
   }
 
   def Inserts(studiengang: Seq[Studiengang]) = {
-    studiengang.foreach(s => Insert(s))
-    studiengang
+    studiengang map(s => Insert(s))
   }
 
   def UpdateGutachtentLink(studiengang: Studiengang) = {

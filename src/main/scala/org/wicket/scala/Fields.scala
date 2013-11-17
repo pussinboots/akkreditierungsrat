@@ -9,27 +9,34 @@ import org.apache.wicket.markup.html.basic.Label
 import org.akkreditierung.HTML4Escaper
 
 object Fields {
-  def addOnChange(textField: TextField[String]) = textField.add(new AjaxOnChangeBehavoir)
-
-  def createAjaxTextFilter(componentId: String, componentToAdd: MarkupContainer, block: TextField[String] => Unit = addOnChange): TextField[String] = {
-    createTextFilter(componentId, componentToAdd, textField => textField.add(new AjaxOnChangeBehavoir))
+  def addOnChange(textField: TextField[String]) = {
+    textField.add(new AjaxOnChangeBehavoir)
+    textField
   }
 
-  def createAjaxHiddenTextFilter(componentId: String, componentToAdd: MarkupContainer, block: TextField[String] => Unit = addOnChange): TextField[String] = {
-    createHiddenTextField(componentId, componentToAdd, textField => textField.add(new AjaxOnChangeBehavoir))
+  def createAjaxTextFilter(componentId: String, componentToAdd: MarkupContainer, block: TextField[String] => TextField[String] = addOnChange): TextField[String] = {
+    createTextFilter(componentId, componentToAdd, {textField:TextField[String] =>
+      textField.add(new AjaxOnChangeBehavoir)
+      textField
+    } )
   }
 
-  def createTextFilter(componentId: String, componentToAdd: MarkupContainer, block: TextField[String] => Unit): TextField[String] = {
+  def createAjaxHiddenTextFilter(componentId: String, componentToAdd: MarkupContainer, block: TextField[String] => TextField[String] = addOnChange): TextField[String] = {
+    createHiddenTextField(componentId, componentToAdd, {textField:TextField[String] =>
+      textField.add(new AjaxOnChangeBehavoir)
+      textField}
+      )
+  }
+
+  def createTextFilter(componentId: String, componentToAdd: MarkupContainer, block: TextField[String] => TextField[String]): TextField[String] = {
     val textFilter: TextField[String] = new TextField[String](componentId, new Model(""))
-    block(textFilter)
-    componentToAdd.add(textFilter)
+    componentToAdd.add(block(textFilter))
     textFilter
   }
 
-  def createHiddenTextField(componentId: String, componentToAdd: MarkupContainer, block: TextField[String] => Unit): TextField[String] = {
+  def createHiddenTextField(componentId: String, componentToAdd: MarkupContainer, block: TextField[String] => TextField[String]): TextField[String] = {
     val textFilter: TextField[String] = new HiddenField[String](componentId, new Model(""))
-    block(textFilter)
-    componentToAdd.add(textFilter)
+    componentToAdd.add(block(textFilter))
     textFilter
   }
 
