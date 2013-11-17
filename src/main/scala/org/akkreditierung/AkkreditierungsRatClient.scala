@@ -87,7 +87,7 @@ object AkkreditierungsRatClient {
             println(s"insert ${studienGang}")
             checkSumMap.put(studienGang.checkSum, studienGang)
           } else {
-            println(s"already exists ${studienGang}")
+            //println(s"already exists ${studienGang}")
           }
         }
       }
