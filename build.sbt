@@ -55,9 +55,7 @@ libraryDependencies ++= Seq(
 
 libraryDependencies ++= List(
   "com.typesafe.slick" %% "slick" % "1.0.1",
-  "org.slf4j" % "slf4j-nop" % "1.6.4",
-  "com.h2database" % "h2" % "1.3.166",
-  "org.xerial" % "sqlite-jdbc" % "3.7.2"
+  "c3p0" % "c3p0" % "0.9.1.2"
 )
 
 resolvers += "enhancedwickettester" at "http://enhancedwickettester.googlecode.com/svn/repo"
