@@ -19,6 +19,8 @@ import org.wicket.scala.Columns._
 import org.wicket.scala.Fields._
 import org.wicket.scala.RepeatingViews._
 import org.apache.wicket.markup.html.form.Form
+import com.avaje.ebean.{Expr, ExpressionList}
+import org.akkreditierung.ui.model.Filter
 
 object AdvertiserConfigPage {
   private final val serialVersionUID: Long = 1L
@@ -27,16 +29,24 @@ object AdvertiserConfigPage {
 class AdvertiserConfigPage(parameters: PageParameters) extends WebPage(parameters) {
   val detailPanel: MarkupContainer = new DetailPanel("selected", new PropertyModel[AdvertiserConfig](this, "selected"))
   add(detailPanel)
-  val filterContainer: FilterContainer = createFilterContainer()
+  val filterContainer: DBFilter = createFilterContainer()
   val job = new JobBean().findLatest()
   add(new BookmarkablePageLink[Void]("editLink", classOf[StudiengangEditPage]))
   add(new Label("job", s" ${job.getNewEntries()} neue Studiengänge importiert am ${job.createDate} status ${job.status}"))
   val table = new DefaultDataTable[AdvertiserConfig, String]("datatable", getColumns(detailPanel), new AdvertiserConfigModelProvider(filterContainer), 25)
   add(table)
 
-  private def createFilterContainer() : FilterContainer = {
+  private def createFilterContainer() : DBFilter = {
     val form = new Form("filterForm")
-    val filter = new FilterContainer(createAjaxTextFilter("hochschule", form), createAjaxTextFilter("fach", form), createAjaxTextFilter("abschluss", form), createAjaxTextFilter("agentur", form), createAjaxTextFilter("studienform", form), createAjaxHiddenTextFilter("jobId", form))
+    //val filter = new FilterContainer(createAjaxTextFilter("hochschule", form), createAjaxTextFilter("fach", form), createAjaxTextFilter("abschluss", form), createAjaxTextFilter("agentur", form), createAjaxTextFilter("studienform", form), createAjaxHiddenTextFilter("jobId", form))
+    import DynamicFilterContainer._
+    val filter = new DynamicFilterContainer()
+    filter.add(new Filter("hochschule", createAjaxTextFilter("hochschule", form), likeFilter("hochschule")))
+    filter.add(new Filter("fach", createAjaxTextFilter("fach", form), likeFilter("fach")))
+    filter.add(new Filter("abschluss", createAjaxTextFilter("abschluss", form), likeFilter("abschluss")))
+    filter.add(new Filter("agentur", createAjaxTextFilter("agentur", form), likeAttributeFilter("von")))
+    filter.add(new Filter("studienform", createAjaxTextFilter("studienform", form), likeAttributeFilter("Besondere Studienform")))
+    filter.add(new Filter("jobId", createAjaxHiddenTextFilter("jobId", form), {(value: String, where: ExpressionList[_]) => where.eq("jobId", value.substring(1, value.length - 1).toInt)}))
     add(form)
     filter
   }

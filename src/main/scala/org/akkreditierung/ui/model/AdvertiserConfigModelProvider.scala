@@ -4,7 +4,7 @@ import com.avaje.ebean.Query
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder
 
 @SerialVersionUID(-6117562733583734933L)
-class AdvertiserConfigModelProvider(filterContainer: FilterContainer) extends GenericProvider[AdvertiserConfig](new AdvertiserConfigBean) {
+class AdvertiserConfigModelProvider(filterContainer: DBFilter) extends GenericProvider[AdvertiserConfig](new AdvertiserConfigBean) {
   setSort("fach", SortOrder.ASCENDING)
 
   override def filter(query: Query[AdvertiserConfig]): Query[AdvertiserConfig] = {
