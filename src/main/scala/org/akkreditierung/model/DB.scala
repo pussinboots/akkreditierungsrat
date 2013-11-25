@@ -6,6 +6,8 @@ import scalikejdbc.{ConnectionPoolSettings, ConnectionPool}
 import anorm._
 import java.net.URI
 import scala.util.Properties
+import com.mchange.v2.c3p0.ComboPooledDataSource
+import scala.slick.session.Database
 
 object DB {
   def dbConfigUrl: String = {
@@ -39,6 +41,25 @@ object DB {
     Class.forName("com.mysql.jdbc.Driver")
     val dbConnectionInfo = parseDbUrl(jdbcUrl)
     ConnectionPool.singleton(dbConnectionInfo._1, dbConnectionInfo._2, dbConnectionInfo._3, ConnectionPoolSettings(validationQuery = "SELECT 1", initialSize= 10, maxSize = 15))
+  }
+
+  def getSlickMysqlConnection(jdbcUrl: String = dbConfigUrl) = {
+    val dbConnectionInfo = parseDbUrl(jdbcUrl)
+    val ds = new ComboPooledDataSource
+    ds.setDriverClass("com.mysql.jdbc.Driver")
+    ds.setJdbcUrl(dbConnectionInfo._1)
+    ds.setUser(dbConnectionInfo._2)
+    ds.setPassword(dbConnectionInfo._3)
+    ds.setMaxPoolSize(15)
+    ds.setPreferredTestQuery("")
+    Database.forDataSource(ds)
+  }
+
+  def getSlickHSQLDatabase(jdbcUrl: String = "jdbc:hsqldb:mem:test1") = {
+    val ds = new ComboPooledDataSource
+    ds.setDriverClass("org.hsqldb.jdbc.JDBCDriver")
+    ds.setJdbcUrl(jdbcUrl + ";sql.enforce_size=false")
+    Database.forDataSource(ds)
   }
 
   def createTables() {

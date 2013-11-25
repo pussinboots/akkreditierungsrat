@@ -5,7 +5,8 @@ import scala.slick.driver.H2Driver.simple._
 import Database.threadLocalSession
 import java.sql.{Timestamp, Date}
 import java.security.MessageDigest
-import java.util.Calendar
+import java.util.{Date, Calendar}
+import org.akkreditierung.DateUtil
 
 case class Studiengang(var id: Option[Int] = None, jobId: Option[Int], fach: String, abschluss: String, hochschule: String, bezugstyp: String, link: Option[String], var gutachtentLink: Option[String] = None, updateDate: Option[Timestamp], var modifiedDate: Option[Timestamp], sourceId: Int) {
   lazy val checkSum = {
@@ -20,6 +21,36 @@ case class Studiengang(var id: Option[Int] = None, jobId: Option[Int], fach: Str
 }
 
 case class StudiengangAttribute(var id: Int, key: String, value: String)
+
+case class Job(id: Int, createDate: Timestamp = new Timestamp(Calendar.getInstance().getTimeInMillis), newEntries: Int = 0, status: String = "started")
+
+object Jobs extends Table[Job]("jobs") {
+  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def createDate = column[Timestamp]("createDate")
+  def newEntries = column[Int]("newEntries")
+  def status = column[String]("status")
+  def * = id ~ createDate ~ newEntries~ status <> (Job, Job.unapply _)
+  def forInsert = createDate ~ newEntries ~ status <> ({ t => Job(-1, t._1, t._2, t._3)}, { (u: Job) => Some((u.createDate, u.newEntries, u.status))}) returning id
+  def insert(job: Job) = job.copy(id = forInsert.insert(job))
+  def updateOrDelete(job: Job) {
+    if (job.newEntries <= 0)
+      Jobs.withFilter(_.id===job.id).delete
+    else
+      (for {jobs <- Jobs if jobs.id === job.id} yield (jobs.newEntries ~ jobs.status)).update(job.newEntries, job.status)
+  }
+  def findLatest() = Query(Jobs).sortBy(_.id.desc).take(1).firstOption
+}
+
+case class Source(id: Int, name: String, createDate: Timestamp = DateUtil.nowDateTime())
+
+object Sources extends Table[Source]("sources") {
+  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def name = column[String]("name")
+  def createDate = column[Timestamp]("createDate")
+  def * = id ~  name ~ createDate <> (Source, Source.unapply _)
+  def forInsert = name ~ createDate <> ({ t => Source(-1, name=t._1, createDate=t._2)}, { (u: Source) => Some((u.name, u.createDate))}) returning id
+  def insert(source: Source) = source.copy(id = forInsert.insert(source))
+}
 
 object Studiengangs extends Table[Studiengang]("Studiengangs") {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc) // This is the primary key column

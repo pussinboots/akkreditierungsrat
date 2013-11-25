@@ -5,6 +5,13 @@ import org.akkreditierung.AkkreditierungsRatClient._
 import scala.concurrent.{Await, Future}
 import java.util.concurrent.Executors
 import java.util.Date
+import scala.slick.session.Database
+import Database.threadLocalSession
+
+object DatabasePool {
+  DB.WithSSL()
+  val db = DB.getSlickMysqlConnection()
+}
 
 object AkkreditierungsRatImport extends App {
 
