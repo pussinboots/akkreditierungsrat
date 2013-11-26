@@ -7,7 +7,6 @@ import org.apache.wicket.extensions.markup.html.repeater.util.{SortParam, Sortab
 import org.apache.wicket.model.{IModel, LoadableDetachableModel}
 import org.akkreditierung.model.DB
 import DB.dal.profile.simple._
-
 @SerialVersionUID(-6117562733583734933L)
 class GenericSlickProvider[E <: Table[T], T](query: SlickQuery[E, T]) extends SortableDataProvider[T, String] {
 
@@ -15,23 +14,11 @@ class GenericSlickProvider[E <: Table[T], T](query: SlickQuery[E, T]) extends So
 
   def filter(query: SlickQuery[E, T]): SlickQuery[E, T] = query
 
-  def iterator(first: Long, count: Long): java.util.Iterator[T] = {
-    DB.db withSession {
-      import collection.JavaConversions._
-      import DB.dal._
-      import DB.dal.profile.simple._
-      val list: java.util.List[T] = filter(query).drop(first.toInt).take(count.toInt).sortBy(e => sortKey(e, getSort)).list
-      list.iterator
-    }
-  }
+  def paging(query: SlickQuery[E, T], first: Long, count: Long) = filter(query).drop(first.toInt).take(count.toInt)
+  import collection.JavaConversions._
+  def iterator(first: Long, count: Long): java.util.Iterator[T] = DB.db withSession paging(query, first, count).sortBy(sortKey(_, getSort)).list.iterator
 
-  def size: Long = {
-    DB.db withSession {
-      val q = SlickQuery(filter(query).length)
-      import DB.dal.profile.simple._
-      q.first
-    }
-  }
+  def size: Long = DB.db withSession SlickQuery(filter(query).length).first
 
   def sortKey[T](e: E, param: SortParam[String]): ColumnOrdered[_] = param.isAscending match {
     case true => e.column[String](param.getProperty).asc
