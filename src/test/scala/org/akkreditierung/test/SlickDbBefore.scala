@@ -10,9 +10,6 @@ trait SlickDbBefore extends Before {
   override def before {
     val schema="test"
     val db = DB.getSlickHSQLDatabase()
-    //EBean.initDataSource("org.hsqldb.jdbc.JDBCDriver", DB.getHSqlConnection())
-    //DB.createTables()
-    //DB.createSlickTables(new DAL(H2Driver))
     initTestData(db)
   }
 
