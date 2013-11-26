@@ -6,8 +6,40 @@ much easier to use wicket as fronted framework and need less code compared with 
 
 The first approach was implemented with Ebean as persistence framework, it is a very easy to use object
 relation mapping framework for Java but is not so well suited for Scala. After a little of research to find a
-good orm or persistence framework for Scala. The slick framework seems to be a good candidate because it is
-very 
+good orm or persistence framework for Scala. The slick (Scala Language-Integrated Connection Kit) framework 
+seems to be a good candidate because it is very well integreted with Scala. 
+
+Wicket make it very easy to implements data table for html page based on database tables.
+
+
+Here is the DataProvider implementation for wicket that use Ebean.
+
+object DefaultBean {
+  val DB_ADVERTISER_CONFIG: String = "akkreditierungsrat"
+}
+@SerialVersionUID(5517860393924994051L)
+abstract class DefaultBean[T](dbName: String, entityClass: Class[T]) extends Serializable {
+  def getQuery: Query[T] = Ebean.getServer(dbName).find(entityClass)
+}
+
+class GenericProvider[T](bean: DefaultBean[T]) extends SortableDataProvider[T, String] {
+
+  def model(value: T): IModel[T] = new LoadableDetachableModel[T] { protected def load: T = value }
+
+  private def orderBy(param: SortParam[String]): OrderBy[T] = {
+    val orderBy: OrderBy[T] = new OrderBy[T]
+    if (param.isAscending) orderBy.asc(param.getProperty) else orderBy.desc(param.getProperty)
+    orderBy
+  }
+
+  def filter(query: Query[T]): Query[T] = query
+
+  def iterator(first: Long, count: Long): Iterator[T] = filter(bean.getQuery).setOrderBy(orderBy(getSort)).setMaxRows(count.toInt).setFirstRow(first.toInt).findList().iterator
+
+  def size: Long = filter(bean.getQuery).findRowCount
+}
+
+Here is the DataProvider implementation for wicket that use Slick.
 
 class GenericSlickProvider[E <: Table[T], T](query: SlickQuery[E, T]) extends SortableDataProvider[T, String] {
 
