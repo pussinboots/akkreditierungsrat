@@ -58,3 +58,12 @@ Here is the DataProvider implementation for wicket that use Slick.
         case false => e.column[String](param.getProperty).desc
       }
     }
+
+The migration from Ebean to Slick was more or less easy. The complicated part was to implement dynamic sorting 
+at runtime based on the column name from wicket. The Documentation of Slick was not very helpful after a while 
+of searching the world wide web i got a hint how to do that.
+
+    sortBy(sortKey(_, getSort))
+    e.column[String](param.getProperty).asc
+    
+Above the solution for dynamic sorting is summarized.
