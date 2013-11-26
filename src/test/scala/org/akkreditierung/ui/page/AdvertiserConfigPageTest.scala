@@ -21,7 +21,8 @@ import org.specs2.specification.Outside
 
 class AdvertiserConfigPageTest extends Specification with SlickDbBefore {
 
-  val db = DB.getSlickHSQLDatabase()
+  sys.props.+=("Database" -> "h2")
+
   implicit val wicketTester = new Outside[WicketTester] {
     def outside: WicketTester = {
       val wt = new WicketTester(new WicketApplication())
@@ -73,17 +74,17 @@ class AdvertiserConfigPageTest extends Specification with SlickDbBefore {
         data.next.fach must beEqualTo("Angewandte Informatik")
     }
   }
-  "AdvertiserConfigPage LinkPanel" should {
-    "click open here link for the firts studiengang" in {wt: WicketTester =>
-        wt.assertComponent("datatable", classOf[DataTable[Studiengang, String]])
-        wt.clickLink("datatable:body:rows:1:cells:8:cell:select")
-        wt.assertComponent("selected:displayPanel", classOf[DataView[StudiengangAttribute]])
-        def table = wt.getComponentFromLastRenderedPage("selected:displayPanel").asInstanceOf[DataView[StudiengangAttribute]]
-        table.getRowCount() must beEqualTo(1)
-        import scala.collection.JavaConversions._
-        table.getItems().find(it => it.getModelObject.key == "k1").get.getModelObject.id must beEqualTo(1)
-        table.getItems().find(it => it.getModelObject.key == "k1").get.getModelObject.key must beEqualTo("k1")
-        table.getItems().find(it => it.getModelObject.key == "k1").get.getModelObject.value must beEqualTo("v1")
-    }
-  }
+//  "AdvertiserConfigPage LinkPanel" should {
+//    "click open here link for the firts studiengang" in {wt: WicketTester =>
+//        wt.assertComponent("datatable", classOf[DataTable[Studiengang, String]])
+//        wt.clickLink("datatable:body:rows:1:cells:8:cell:select")
+//        wt.assertComponent("selected:displayPanel", classOf[DataView[StudiengangAttribute]])
+//        def table = wt.getComponentFromLastRenderedPage("selected:displayPanel").asInstanceOf[DataView[StudiengangAttribute]]
+//        table.getRowCount() must beEqualTo(1)
+//        import scala.collection.JavaConversions._
+//        table.getItems().find(it => it.getModelObject.key == "k1").get.getModelObject.id must beEqualTo(1)
+//        table.getItems().find(it => it.getModelObject.key == "k1").get.getModelObject.key must beEqualTo("k1")
+//        table.getItems().find(it => it.getModelObject.key == "k1").get.getModelObject.value must beEqualTo("v1")
+//    }
+//  }
 }
