@@ -13,7 +13,7 @@ Wicket make it very easy to implements data table for html page based on databas
 
 
 Here is the DataProvider implementation for wicket that use Ebean.
-
+  
   object DefaultBean {
     val DB_ADVERTISER_CONFIG: String = "akkreditierungsrat"
   }
