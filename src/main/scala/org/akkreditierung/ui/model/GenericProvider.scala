@@ -22,10 +22,7 @@ class GenericProvider[T](bean: DefaultBean[T]) extends SortableDataProvider[T, S
 
   def filter(query: Query[T]): Query[T] = query
 
-  def iterator(first: Long, count: Long): Iterator[T] = {
-    val list: List[T] = filter(bean.getQuery).setOrderBy(orderBy(getSort)).setMaxRows(count.toInt).setFirstRow(first.toInt).findList
-    list.iterator
-  }
+  def iterator(first: Long, count: Long): Iterator[T] = filter(bean.getQuery).setOrderBy(orderBy(getSort)).setMaxRows(count.toInt).setFirstRow(first.toInt).findList().iterator
 
   def size: Long = filter(bean.getQuery).findRowCount
 }

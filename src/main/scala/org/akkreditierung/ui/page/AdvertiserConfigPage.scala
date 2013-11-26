@@ -117,7 +117,6 @@ class AdvertiserConfigPage(parameters: PageParameters) extends WebPage(parameter
       item.add(new Label("key_column", entry.getK))
       item.add(labelWithSpecialEscaping("value_column", entry.getV))
     }
-
     add(d)
   }
 }
