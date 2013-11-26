@@ -1,15 +1,20 @@
 package org.akkreditierung.ui.model
 
-import com.avaje.ebean.{Expr, ExpressionList, Query}
+import com.avaje.ebean.{Expr, ExpressionList, Query=>EbeanQuery}
 import org.apache.wicket.markup.html.form.{FormComponent, TextField}
+import scala.slick.lifted.Query
 
-trait DBFilter {
-  def apply[T](query: Query[T])
+trait DBFilter[T] {
+  def apply(query: EbeanQuery[T])
 }
 
-class FilterContainer(hochSchule: TextField[String], fach: TextField[String], abschluss: TextField[String], agentur: TextField[String], studienForm: TextField[String], jobId: TextField[String]) extends DBFilter {
+trait SlickFilter[E,T] {
+  def apply(query: Query[E,T]): Query[E, T]
+}
 
-  def apply[T](query: Query[T]) {
+class FilterContainer[T](hochSchule: TextField[String], fach: TextField[String], abschluss: TextField[String], agentur: TextField[String], studienForm: TextField[String], jobId: TextField[String]) extends DBFilter[T] {
+
+  override def apply(query: EbeanQuery[T]) {
     val where: ExpressionList[T] = query.where
     filterIfNotEmpty(hochSchule, {(value:String,field:String)=> where.like(field, value)})
     filterIfNotEmpty(fach, {(value:String,field:String) => where.like("fach", value)})

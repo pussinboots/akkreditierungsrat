@@ -8,8 +8,17 @@ import java.net.URI
 import scala.util.Properties
 import com.mchange.v2.c3p0.ComboPooledDataSource
 import scala.slick.session.Database
+import scala.slick.driver.{ExtendedProfile, H2Driver, MySQLDriver}
+import Database.threadLocalSession
+import org.akkreditierung.model.slick.DAL
+
+//https://github.com/slick/slick-examples/blob/master/src/main/scala/com/typesafe/slick/examples/lifted/MultiDBCakeExample.scala
 
 object DB {
+
+  lazy val db = getSlickMysqlConnection()//getSlickHSQLDatabase()
+  lazy val dal = new DAL(MySQLDriver)//new DAL(H2Driver)
+
   def dbConfigUrl: String = {
     val p = Properties.envOrElse("CLEARDB_DATABASE_URL", "mysql://root:root@127.0.0.1:3306/heroku_9852f75c8ae3ea1")
     println(p)
@@ -60,6 +69,14 @@ object DB {
     ds.setDriverClass("org.hsqldb.jdbc.JDBCDriver")
     ds.setJdbcUrl(jdbcUrl + ";sql.enforce_size=false")
     Database.forDataSource(ds)
+  }
+
+  def createSlickTables(db: Database, dal: DAL) {
+    import dal._
+    import dal.profile.simple._
+    db withSession {
+      dal.create
+    }
   }
 
   def createTables() {

@@ -13,6 +13,7 @@ import scala.util.Properties;
 
 public class Start {
 	public static void main(String[] args) throws Exception {
+        DB.db();
 		initDataSource();
 
         String webappDirLocation = "src/main/webapp/";
