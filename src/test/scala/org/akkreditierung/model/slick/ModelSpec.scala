@@ -14,13 +14,13 @@ import scala.slick.driver.H2Driver
 
 class ModelSpec extends Specification {
   sequential
+  isolated
 
   val db = DB.getSlickHSQLDatabase()
   val dao = new DAL(H2Driver)
   import dao._
   import dao.profile.simple._
   db withSession {
-
     val now = new Timestamp(Calendar.getInstance().getTimeInMillis)
     (dao.Studiengangs.ddl ++ dao.StudiengangAttributes.ddl ++ dao.Sources.ddl ++ dao.Jobs.ddl).create
     dao.Studiengangs.insert(Studiengang(Some(1), Some(1), "fach", "abschluss", "hochschule", "bezugstyp", Some("link"), None, Some(now), None, 1))
