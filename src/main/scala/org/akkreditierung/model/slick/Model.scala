@@ -16,8 +16,16 @@ trait Profile {
  */
 class DAL(override val profile: ExtendedProfile) extends StudiengangComponent with StudiengangAttributesComponent with JobsComponent with SourcesComponent with Profile {
   import profile.simple._
-  def create(implicit session: Session): Unit = {
+  def create(implicit session: Session)  {
     (Studiengangs.ddl ++ StudiengangAttributes.ddl ++ Sources.ddl ++ Jobs.ddl).create //helper method to create all tables
+  }
+
+  def drop(implicit session: Session) {
+    try{
+      (Studiengangs.ddl ++ StudiengangAttributes.ddl ++ Sources.ddl ++ Jobs.ddl).drop
+    } catch {
+      case ioe: Exception =>
+    }
   }
 }
 
