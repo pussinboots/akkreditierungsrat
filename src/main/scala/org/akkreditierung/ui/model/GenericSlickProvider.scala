@@ -1,12 +1,13 @@
 package org.akkreditierung.ui.model
 
-import scala.slick.lifted.{Query => SlickQuery, ColumnOrdered}
+import scala.slick.lifted.{ColumnOrdered}
 import scala.slick.session.{Database, Session}
 import Database.threadLocalSession
 import org.apache.wicket.extensions.markup.html.repeater.util.{SortParam, SortableDataProvider}
 import org.apache.wicket.model.{IModel, LoadableDetachableModel}
 import org.akkreditierung.model.DB
 import DB.dal.profile.simple._
+import DB.dal.profile.simple.{Query => SlickQuery}
 @SerialVersionUID(-6117562733583734933L)
 class GenericSlickProvider[E <: Table[T], T](query: SlickQuery[E, T]) extends SortableDataProvider[T, String] {
 

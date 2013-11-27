@@ -7,6 +7,7 @@ import java.util.{Date, Calendar}
 import org.akkreditierung.DateUtil
 import scala.slick.session.{Database, Session}
 import org.akkreditierung.model.DB
+import com.avaje.ebean.Expr
 
 trait Profile {
   val profile: ExtendedProfile
@@ -49,7 +50,7 @@ case class Studiengang(var id: Option[Int] = None, jobId: Option[Int], fach: Str
   }
 }
 
-trait StudiengangComponent { this: Profile => //requires a Profile to be mixed in...
+trait StudiengangComponent { this: Profile with StudiengangAttributesComponent=> //requires a Profile to be mixed in...
   import profile.simple._ //...to be able import profile.simple._
   import profile.simple.Database.threadLocalSession
 
@@ -70,12 +71,18 @@ trait StudiengangComponent { this: Profile => //requires a Profile to be mixed i
     def insert(studiengang: Studiengang) = studiengang.copy(id = Some(forInsert.insert(studiengang)))
     def findByFach(fach: String) =  (for {a <- Studiengangs if a.fach === fach} yield (a))
     def columns() = Map("id"->id,"jobId"->jobId,"fach"->fach,"abschluss"->abschluss,"hochschule"->hochschule,"bezugstyp"->bezugstyp,"link"->link,"gutachtentLink"->gutachtentLink,"updateDate"->updateDate,"modifiedDate"->modifiedDate,"sourceId"->sourceId)
+
+    def findByAttribute(attribute: String, value:String) = {
+      Studiengangs.flatMap{c=>
+        StudiengangAttributes.filter(s => s.id === c.id)
+      }
+    }
   }
 }
 
 case class StudiengangAttribute(var id: Int, key: String, value: String)
-trait StudiengangAttributesComponent { this: Profile with StudiengangComponent => //requires a Profile to be mixed in...
-  import profile.simple._ //...to be able import profile.simple._
+trait StudiengangAttributesComponent { this: Profile with StudiengangComponent=> //requires a Profile to be mixed in...
+  import profile.simple._
   import profile.simple.Database.threadLocalSession
   object StudiengangAttributes extends Table[StudiengangAttribute]("studiengaenge_attribute") {
     def id = column[Int]("id")
