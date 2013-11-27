@@ -14,9 +14,10 @@ class GenericSlickProvider[E <: Table[T], T](query: SlickQuery[E, T]) extends So
 
   def filter(query: SlickQuery[E, T]): SlickQuery[E, T] = query
 
-  def paging(query: SlickQuery[E, T], first: Long, count: Long) = filter(query).drop(first.toInt).take(count.toInt)
   import collection.JavaConversions._
-  def iterator(first: Long, count: Long): java.util.Iterator[T] = DB.db withSession paging(query, first, count).sortBy(sortKey(_, getSort)).list.iterator
+  def iterator(first: Long, count: Long): java.util.Iterator[T] = DB.db withSession {
+    filter(query).sortBy(sortKey(_, getSort)).drop(first.toInt).take(count.toInt).list.iterator
+  }
 
   def size: Long = DB.db withSession SlickQuery(filter(query).length).first
 
