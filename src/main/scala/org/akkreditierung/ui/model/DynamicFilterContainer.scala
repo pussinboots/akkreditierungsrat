@@ -8,42 +8,33 @@ import org.akkreditierung.model.DB
 import scala.slick.driver.H2Driver.simple._
 import scala.slick.session.Database
 import Database.threadLocalSession
+import org.akkreditierung.model.slick.Studiengang
 
-case class Filter(id: String, field: FormComponent[String], filter: (String, ExpressionList[_]) => _)
 case class FilterSlick[E,T](id: String, field: FormComponent[String], filter: (String, Query[E,T]) => Query[E,T])
-
-trait DBFilter[T] {
-  def apply(query: EbeanQuery[T])
-}
 
 trait SlickFilter[E,T] {
   def apply(query: Query[E,T]): Query[E, T]
 }
 
 object DynamicFilterContainer {
-  def likeFilter(field: String) = (value: String, where: ExpressionList[_]) => where.like(field, value)
-  def likeAttributeFilter(field: String) = (value: String, where: ExpressionList[_]) => where.and(Expr.eq("map.k", field), Expr.like("map.v", value))
-}
-class DynamicFilterContainer[E, T] extends DBFilter[T] with SlickFilter[E,T] {
-
-  val filters: Buffer[Filter]= Buffer[Filter]()
-  val slickFilters: Buffer[FilterSlick[E,T]]= Buffer[FilterSlick[E,T]]()
-
-  def add(filter: Filter) {
-    filters+=filter
+  def likeFilter(field: String) = {
+    (value: String, query: Query[DB.dal.Studiengangs.type, Studiengang]) =>
+      query.filter(_.column[String](field) like value)
   }
+  def likeAttributeFilter(field: String) = {(value: String, query: Query[DB.dal.Studiengangs.type, Studiengang]) =>
+    query.flatMap{c=>
+      DB.dal.StudiengangAttributes.filter(_.id ===c.id).filter(_.key === field).filter(_.value like value).map(s =>
+        (c)
+      )
+    }
+  }
+}
+class DynamicFilterContainer[E, T] extends SlickFilter[E,T] {
+
+  val slickFilters: Buffer[FilterSlick[E,T]]= Buffer[FilterSlick[E,T]]()
 
   def add(filter: FilterSlick[E,T]) {
     slickFilters+=filter
-  }
-
-  override def apply(query: EbeanQuery[T]) {
-    val where: ExpressionList[T] = query.where
-    DB.db withSession {
-      filters.foreach{filter=>
-        filterIfNotEmpty(filter.field, query, filter.filter)
-      }
-    }
   }
 
   override def apply(query: Query[E,T]): Query[E,T] = {
@@ -56,12 +47,6 @@ class DynamicFilterContainer[E, T] extends DBFilter[T] with SlickFilter[E,T] {
 
   def isNotEmpty(field: FormComponent[String]) = {
     field.getValue != null && field.getValue.length > 0
-  }
-
-  def filterIfNotEmpty(field: FormComponent[String], query: EbeanQuery[T], filter: (String, ExpressionList[_]) => _) {
-    if(isNotEmpty(field)) {
-      filter(s"%${field.getValue}%", query.where())
-    }
   }
 
   def filterIfNotEmpty(field: FormComponent[String], query: Query[E, T], filter: (String, Query[E,T]) => Query[E, T]): Query[E, T] = {

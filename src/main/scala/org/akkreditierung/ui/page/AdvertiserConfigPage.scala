@@ -20,9 +20,11 @@ import org.wicket.scala.Fields._
 import org.wicket.scala.RepeatingViews._
 import org.apache.wicket.markup.html.form.Form
 import com.avaje.ebean.{Expr, ExpressionList}
-import org.akkreditierung.ui.model.Filter
 import org.akkreditierung.model.DB
 import org.akkreditierung.model.slick.{Studiengang, Job}
+import org.akkreditierung.model.slick.Studiengang
+import org.akkreditierung.model.slick.Job
+import org.akkreditierung.ui.model.FilterSlick
 
 object AdvertiserConfigPage {
   private final val serialVersionUID: Long = 1L
@@ -44,24 +46,12 @@ class AdvertiserConfigPage(parameters: PageParameters) extends WebPage(parameter
     val form = new Form("filterForm")
     val filter = new DynamicFilterContainer[DB.dal.Studiengangs.type, Studiengang]()
     import DB.dal.profile.simple._
-    def s(field: String) = {
-      (value: String, query: Query[DB.dal.Studiengangs.type, Studiengang]) =>
-        query.filter(_.column[String](field) like value)
-    }
-    //import DB.dal._
-    def q(field: String) = {(value: String, query: Query[DB.dal.Studiengangs.type, Studiengang]) =>
-      query.flatMap{c=>
-        DB.dal.StudiengangAttributes.filter(_.id ===c.id).filter(_.key === field).filter(_.value like value).map(s =>
-          (c)
-        )
-      }
-    }
-
-    filter.add(new FilterSlick[DB.dal.Studiengangs.type, Studiengang]("hochschule", createAjaxTextFilter("hochschule", form), s("hochschule")))
-    filter.add(new FilterSlick[DB.dal.Studiengangs.type, Studiengang]("fach", createAjaxTextFilter("fach", form), s("fach")))
-    filter.add(new FilterSlick[DB.dal.Studiengangs.type, Studiengang]("abschluss", createAjaxTextFilter("abschluss", form), s("abschluss")))
-    filter.add(new FilterSlick[DB.dal.Studiengangs.type, Studiengang]("agentur", createAjaxTextFilter("agentur", form), q("von")))
-    filter.add(new FilterSlick[DB.dal.Studiengangs.type, Studiengang]("studienform", createAjaxTextFilter("studienform", form), q("Besondere Studienform")))
+    import DynamicFilterContainer._
+    filter.add(new FilterSlick[DB.dal.Studiengangs.type, Studiengang]("hochschule", createAjaxTextFilter("hochschule", form), likeFilter("hochschule")))
+    filter.add(new FilterSlick[DB.dal.Studiengangs.type, Studiengang]("fach", createAjaxTextFilter("fach", form), likeFilter("fach")))
+    filter.add(new FilterSlick[DB.dal.Studiengangs.type, Studiengang]("abschluss", createAjaxTextFilter("abschluss", form), likeFilter("abschluss")))
+    filter.add(new FilterSlick[DB.dal.Studiengangs.type, Studiengang]("agentur", createAjaxTextFilter("agentur", form), likeAttributeFilter("von")))
+    filter.add(new FilterSlick[DB.dal.Studiengangs.type, Studiengang]("studienform", createAjaxTextFilter("studienform", form), likeAttributeFilter("Besondere Studienform")))
     filter.add(new FilterSlick[DB.dal.Studiengangs.type, Studiengang]("jobId", createAjaxHiddenTextFilter("jobId", form), (value: String, query: Query[DB.dal.Studiengangs.type, Studiengang]) => query.filter(_.jobId === value.substring(1, value.length - 1).toInt)))
     add(form)
     filter

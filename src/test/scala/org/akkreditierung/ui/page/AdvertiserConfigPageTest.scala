@@ -41,8 +41,9 @@ class AdvertiserConfigPageTest extends Specification with SlickDbBefore {
       def studiengang2 = new Studiengang(Some(2), jobId = Some(2), fach = "Soziologie", abschluss = "Bachelor", hochschule = "Mainz Universität", bezugstyp = "bezug", link = Some("link2"), updateDate = DateUtil.nowDateTimeOpt(), modifiedDate = DateUtil.nowDateTimeOpt(), sourceId = 1)
       Studiengangs.insertAll(studiengang1, studiengang2)
       def studiengangAttribute1 = new StudiengangAttribute(1, "k1", "v1")
-      def studiengangAttribute2 = new StudiengangAttribute(2, "k1", "v1")
-      StudiengangAttributes.insertAll(studiengangAttribute1, studiengangAttribute2)
+      def studiengangAttribute2 = new StudiengangAttribute(2, "von", "Acquinn")
+      def studiengangAttribute3 = new StudiengangAttribute(2, "k1", "v1")
+      StudiengangAttributes.insertAll(studiengangAttribute1, studiengangAttribute2, studiengangAttribute3)
     }
   }
 
@@ -73,6 +74,16 @@ class AdvertiserConfigPageTest extends Specification with SlickDbBefore {
         table.getRowCount() must beEqualTo(1)
         val data = table.getDataProvider().iterator(table.getItemsPerPage() * table.getCurrentPage(), table.getItemsPerPage())
         data.next.fach must beEqualTo("Angewandte Informatik")
+    }
+
+    "with agentur filter" in {wt: WicketTester =>
+      wt.newFormTester("filterForm").setValue("agentur", "Acquinn")
+      wt.executeAjaxEvent("filterForm:agentur", "onchange");
+      wt.assertComponent("datatable", classOf[DataTable[Studiengang, String]])
+      def table = wt.getComponentFromLastRenderedPage("datatable").asInstanceOf[DataTable[Studiengang, String]]
+      table.getRowCount() must beEqualTo(1)
+      val data = table.getDataProvider().iterator(table.getItemsPerPage() * table.getCurrentPage(), table.getItemsPerPage())
+      data.next.fach must beEqualTo("Soziologie")
     }
   }
 //  "AdvertiserConfigPage LinkPanel" should {
