@@ -12,6 +12,14 @@ import Database.threadLocalSession
 case class Filter(id: String, field: FormComponent[String], filter: (String, ExpressionList[_]) => _)
 case class FilterSlick[E,T](id: String, field: FormComponent[String], filter: (String, Query[E,T]) => Query[E,T])
 
+trait DBFilter[T] {
+  def apply(query: EbeanQuery[T])
+}
+
+trait SlickFilter[E,T] {
+  def apply(query: Query[E,T]): Query[E, T]
+}
+
 object DynamicFilterContainer {
   def likeFilter(field: String) = (value: String, where: ExpressionList[_]) => where.like(field, value)
   def likeAttributeFilter(field: String) = (value: String, where: ExpressionList[_]) => where.and(Expr.eq("map.k", field), Expr.like("map.v", value))
