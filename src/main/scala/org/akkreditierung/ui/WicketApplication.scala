@@ -4,6 +4,23 @@ import org.akkreditierung.ui.page.{MySignInPage, StudiengangEditPage, Studiengan
 import org.apache.wicket.markup.html.WebPage
 import org.apache.wicket.authroles.authentication.{AuthenticatedWebApplication, AbstractAuthenticatedWebSession}
 import org.akkreditierung.ui.auth.AuthSession
+import org.apache.wicket.ConverterLocator
+import org.apache.wicket.util.convert.converter.AbstractConverter
+import java.util.Locale
+
+class OptionConverter extends AbstractConverter[Option[String]] {
+  override def convertToObject(value: String, locale: Locale ) : Option[String] = {
+    if (value == null)
+      return None
+    else
+      return Some(value)
+  }
+  override def convertToString(value: Option[String], locale: Locale) = {
+    value.getOrElse("")
+  }
+
+  def getTargetType: Class[Option[String]] = classOf[Option[String]]
+}
 
 class WicketApplication extends AuthenticatedWebApplication {
   def getHomePage: Class[_ <: WebPage] = classOf[AdvertiserConfigPage]
@@ -18,13 +35,13 @@ class WicketApplication extends AuthenticatedWebApplication {
     getDebugSettings().setAjaxDebugModeEnabled(false)
   }
 
-  override def getWebSessionClass: Class[_ <:AbstractAuthenticatedWebSession] = {
-    classOf[AuthSession]
+  override def newConverterLocator() = {
+    val locator = super.newConverterLocator().asInstanceOf[ConverterLocator]
+    locator.set(classOf[Option[String]], new OptionConverter)
+    locator
   }
 
-  override def getSignInPageClass: Class[_ <:WebPage] = {
-    classOf[MySignInPage]
-  }
+  override def getWebSessionClass: Class[_ <:AbstractAuthenticatedWebSession] = classOf[AuthSession]
 
-
+  override def getSignInPageClass: Class[_ <:WebPage] = classOf[MySignInPage]
 }

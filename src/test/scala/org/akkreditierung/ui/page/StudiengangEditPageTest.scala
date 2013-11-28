@@ -2,11 +2,14 @@ package org.akkreditierung.ui.page
 
 import org.specs2.mutable._
 import org.apache.wicket.util.tester.{FormTester, WicketTester}
-import org.akkreditierung.model.{Studiengang, StudiengangAttribute}
-import org.akkreditierung.test.HSQLDbBefore
+import org.akkreditierung.model.DB
+import org.akkreditierung.test.{SlickDbBefore, HSQLDbBefore}
 import org.akkreditierung.ui.WicketApplication
+import scala.slick.session.Database
+import Database.threadLocalSession
 
-class StudiengangEditPageTest extends Specification with HSQLDbBefore {
+class StudiengangEditPageTest extends Specification with SlickDbBefore {
+  sys.props.+=("Database" -> "h2")
 
   def setValue(form: FormTester, index:Int, tuple: (String, String)) {
     form.setValue(s"displayPanel:${index}:value_column", tuple._2)
@@ -67,16 +70,20 @@ class StudiengangEditPageTest extends Specification with HSQLDbBefore {
         setValue(form,i, tuple)
       }
       form.submit()
-      val studienGang = Studiengang.findByFach("Advanced Nursing Practice")
-      val studienGangAttribute = StudiengangAttribute.find(studienGang)
-      studienGang.fach must be equalTo("Advanced Nursing Practice")
-      studienGang.hochschule must be equalTo("Hamburg MSH")
-      studienGang.gutachtentLink must be equalTo(Some("http://ahpgs.de/wp-content/uploads/2012/07/Gutachten_Berlin_MSB_BA_ANP.pdf"))
+      import DB.dal._
+      import DB.dal.profile.simple._
+      DB.db withSession {
+        val studienGang = Query(Studiengangs).filter(_.fach === "Advanced Nursing Practice").first
+        val studienGangAttribute = studienGang.attributes
+        studienGang.fach must be equalTo("Advanced Nursing Practice")
+        studienGang.hochschule must be equalTo("Hamburg MSH")
+        studienGang.gutachtenLink must be equalTo(Some("http://ahpgs.de/wp-content/uploads/2012/07/Gutachten_Berlin_MSB_BA_ANP.pdf"))
 
-      for ((k, v) <- attribueMap) {
-        studienGangAttribute(k).value must beEqualTo(v)
+        for ((k, v) <- attribueMap) {
+          studienGangAttribute(k).value must beEqualTo(v)
+        }
+        () must be equalTo("did something")
       }
-      () must be equalTo("did something")
     }
   }
 }

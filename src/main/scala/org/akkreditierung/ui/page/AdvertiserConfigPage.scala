@@ -21,7 +21,8 @@ import org.wicket.scala.RepeatingViews._
 import org.apache.wicket.markup.html.form.Form
 import com.avaje.ebean.{Expr, ExpressionList}
 import org.akkreditierung.model.DB
-import org.akkreditierung.model.slick.{Studiengang, Job}
+import org.akkreditierung.model.slick._
+import org.akkreditierung.ui.model.FilterSlick
 import org.akkreditierung.model.slick.Studiengang
 import org.akkreditierung.model.slick.Job
 import org.akkreditierung.ui.model.FilterSlick
@@ -64,7 +65,7 @@ class AdvertiserConfigPage(parameters: PageParameters) extends WebPage(parameter
     columns.add(column("Abschluss", "abschluss"))
     columns.add(column("Hochschule", "hochschule"))
     columns.add(column("Bezugstyp", "bezugstyp"))
-    columns.add(column("Gutachten", "gutachtenLink", (item, componentId, rowModel) => new LinkPanel(componentId, rowModel.getObject.gutachtentLink.getOrElse(null), "hier")))
+    columns.add(column("Gutachten", "gutachtenLink", (item, componentId, rowModel) => new LinkPanel(componentId, rowModel.getObject.gutachtenLink.getOrElse(null), "hier")))
     columns.add(column("Änderungs Datum", "modifiedDate"))
     columns.add(column("Aktion", "id", (item, componentId, rowModel) => new ActionPanel(componentId, rowModel, detailPanel)))
     columns
@@ -104,17 +105,17 @@ class AdvertiserConfigPage(parameters: PageParameters) extends WebPage(parameter
 
   private class DetailPanel(id: String, model: IModel[Studiengang]) extends Panel(id, model) {
     setOutputMarkupId(true)
-    val mapModel: IModel[Map[String, StudiengaengeAttribute]] = new PropertyModel[Map[String, StudiengaengeAttribute]](model, "attributes")
-    val provider: ListDataProvider[StudiengaengeAttribute] = new ListDataProvider[StudiengaengeAttribute] {
-      protected override def getData: List[StudiengaengeAttribute] = {
-        val map: Map[String, StudiengaengeAttribute] = if ((mapModel.getObject == null)) Collections.emptyMap[String, StudiengaengeAttribute] else mapModel.getObject
-        return new ArrayList[StudiengaengeAttribute](map.values)
+    val mapModel: IModel[Map[String, StudiengangAttribute]] = new PropertyModel[Map[String, StudiengangAttribute]](model, "attributes")
+    val provider: ListDataProvider[StudiengangAttribute] = new ListDataProvider[StudiengangAttribute] {
+      protected override def getData: List[StudiengangAttribute] = {
+        val map: Map[String, StudiengangAttribute] = if ((mapModel.getObject == null)) Collections.emptyMap[String, StudiengangAttribute] else mapModel.getObject
+        return new ArrayList[StudiengangAttribute](map.values)
       }
     }
 
-    val d = dataView("displayPanel", provider) {(entry: StudiengaengeAttribute, item: Item[StudiengaengeAttribute]) =>
-      item.add(new Label("key_column", entry.getK))
-      item.add(labelWithSpecialEscaping("value_column", entry.getV))
+    val d = dataView("displayPanel", provider) {(entry: StudiengangAttribute, item: Item[StudiengangAttribute]) =>
+      item.add(new Label("key_column", entry.key))
+      item.add(labelWithSpecialEscaping("value_column", entry.value))
     }
     add(d)
   }

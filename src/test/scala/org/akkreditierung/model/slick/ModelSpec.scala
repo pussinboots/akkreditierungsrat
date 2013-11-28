@@ -46,7 +46,11 @@ class ModelSpec extends Specification {
       }
       "retrieve one studiengaenge by fach from database" in {
         db withSession {
-          val studienGang = Studiengangs.findByFach("fach2").first
+          import QueryTapper._
+          Studiengangs.findByFach("fach2").cache(_.first)
+          Studiengangs.findByFach("fach2").cache(_.first)
+          Studiengangs.findByFach("fach2").cache(_.first)
+          val studienGang = Studiengangs.findByFach("fach2").cache(_.first)
           studienGang.fach must beEqualTo("fach2")
 //          studienGang.attributes.size must beEqualTo(3)
 //          studienGang.attributes.get("fach").get.value must beEqualTo("fach2")

@@ -5,10 +5,10 @@ import org.apache.wicket.markup.html.form.{FormComponent, TextField}
 import collection.mutable.Buffer
 import scala.slick.lifted.Query
 import org.akkreditierung.model.DB
-import scala.slick.driver.H2Driver.simple._
+import org.akkreditierung.model.slick.Studiengang
+import DB.dal.profile.simple._
 import scala.slick.session.Database
 import Database.threadLocalSession
-import org.akkreditierung.model.slick.Studiengang
 
 case class FilterSlick[E,T](id: String, field: FormComponent[String], filter: (String, Query[E,T]) => Query[E,T])
 

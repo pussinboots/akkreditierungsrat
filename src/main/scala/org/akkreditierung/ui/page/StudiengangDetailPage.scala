@@ -1,14 +1,17 @@
 package org.akkreditierung.ui.page
 
-import org.akkreditierung.ui.model._
 import org.apache.wicket.markup.html.WebPage
 import org.apache.wicket.markup.html.basic.Label
 import org.apache.wicket.markup.repeater.Item
 import org.apache.wicket.markup.repeater.data.ListDataProvider
 import org.apache.wicket.request.mapper.parameter.PageParameters
-import java.util.ArrayList
 import org.wicket.scala.RepeatingViews._
 import org.wicket.scala.Fields._
+import org.akkreditierung.model.DB
+import org.akkreditierung.model.slick._
+import scala.slick.session.Database
+import Database.threadLocalSession
+import collection.JavaConversions._
 
 object StudiengangDetailPage {
   final val PAGE_PARAMETER_ID: String = "studiengangId"
@@ -16,11 +19,14 @@ object StudiengangDetailPage {
 }
 
 class StudiengangDetailPage(parameters: PageParameters) extends WebPage(parameters) {
-    val studiengaengeAttributes = new StudiengaengeAttributeBean().findAll(parameters.get(StudiengangDetailPage.PAGE_PARAMETER_ID).toInt(1))
-    val provider = new ListDataProvider[StudiengaengeAttribute](new ArrayList[StudiengaengeAttribute](studiengaengeAttributes.values))
-    val d = dataView("displayPanel", provider) {(entry: StudiengaengeAttribute, item: Item[StudiengaengeAttribute]) =>
-      item.add(new Label("key_column", entry.getK))
-      item.add(labelWithSpecialEscaping("value_column", entry.getV))
-    }
-    add(d)
+  import DB.dal.profile.simple._
+  val studiengaengeAttributes =  DB.db withSession Query(DB.dal.StudiengangAttributes).filter(_.id === getStudiengangId).list
+  val provider = new ListDataProvider[StudiengangAttribute](studiengaengeAttributes)
+  val d = dataView("displayPanel", provider) {(entry: StudiengangAttribute, item: Item[StudiengangAttribute]) =>
+    item.add(new Label("key_column", entry.key))
+    item.add(labelWithSpecialEscaping("value_column", entry.value))
+  }
+  add(d)
+
+  def getStudiengangId = parameters.get(StudiengangDetailPage.PAGE_PARAMETER_ID).toInt(1)
 }

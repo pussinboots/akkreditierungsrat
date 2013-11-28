@@ -8,6 +8,8 @@ import org.akkreditierung.DateUtil
 import scala.slick.session.{Database, Session}
 import org.akkreditierung.model.DB
 import com.avaje.ebean.Expr
+import scala.beans.{BeanInfo, BeanProperty}
+import scala.slick.lifted.{Query=>SlickQuery}
 
 trait Profile {
   val profile: ExtendedProfile
@@ -31,7 +33,7 @@ class DAL(override val profile: ExtendedProfile) extends StudiengangComponent wi
 }
 
 case class Studiengang(var id: Option[Int] = None, jobId: Option[Int], fach: String, abschluss: String, hochschule: String,
-                       bezugstyp: String, link: Option[String], var gutachtentLink: Option[String] = None, updateDate: Option[Timestamp],
+                       bezugstyp: String, link: Option[String], var gutachtenLink: Option[String] = None, updateDate: Option[Timestamp],
                        var modifiedDate: Option[Timestamp], sourceId: Int) {
   lazy val checkSum = {
     val str = fach + abschluss + hochschule + bezugstyp + link.getOrElse("")
@@ -48,6 +50,10 @@ case class Studiengang(var id: Option[Int] = None, jobId: Option[Int], fach: Str
     println("attribues: " + (for {a <- StudiengangAttributes if a.id === id.get} yield (a.key->a)).selectStatement)
     (for {a <- StudiengangAttributes if a.id === id.get} yield (a.key->a)) toMap
   }
+}
+
+object StudiengangC {
+  def neu() = new Studiengang(Some(0),Some(0),"","","","",Some(""),Some(""), None, DateUtil.nowDateTimeOpt(),1)
 }
 
 trait StudiengangComponent { this: Profile with StudiengangAttributesComponent=> //requires a Profile to be mixed in...
@@ -67,16 +73,9 @@ trait StudiengangComponent { this: Profile with StudiengangAttributesComponent=>
     def updateDate = column[Option[Timestamp]]("updateDate")
     def sourceId = column[Int]("sourceId")
     def * = id.? ~ jobId ~ fach ~ abschluss ~ hochschule ~ bezugstyp ~ link~ gutachtentLink~ updateDate~ modifiedDate~ sourceId <> (Studiengang, Studiengang.unapply _)
-    def forInsert = jobId ~ fach ~ abschluss ~ hochschule ~ bezugstyp ~ link~ gutachtentLink~ updateDate~ modifiedDate~ sourceId <> ({ t => Studiengang(None,t._1, t._2, t._3, t._4, t._5, t._6, t._7, t._8, t._9, t._10)}, {(u: Studiengang) => Some((u.jobId, u.fach, u.abschluss, u.hochschule, u.bezugstyp, u.link, u.gutachtentLink, u.updateDate, u.modifiedDate, u.sourceId))}) returning id
+    def forInsert = jobId ~ fach ~ abschluss ~ hochschule ~ bezugstyp ~ link~ gutachtentLink~ updateDate~ modifiedDate~ sourceId <> ({ t => Studiengang(None,t._1, t._2, t._3, t._4, t._5, t._6, t._7, t._8, t._9, t._10)}, {(u: Studiengang) => Some((u.jobId, u.fach, u.abschluss, u.hochschule, u.bezugstyp, u.link, u.gutachtenLink, u.updateDate, u.modifiedDate, u.sourceId))}) returning id
     def insert(studiengang: Studiengang) = studiengang.copy(id = Some(forInsert.insert(studiengang)))
     def findByFach(fach: String) =  (for {a <- Studiengangs if a.fach === fach} yield (a))
-    def columns() = Map("id"->id,"jobId"->jobId,"fach"->fach,"abschluss"->abschluss,"hochschule"->hochschule,"bezugstyp"->bezugstyp,"link"->link,"gutachtentLink"->gutachtentLink,"updateDate"->updateDate,"modifiedDate"->modifiedDate,"sourceId"->sourceId)
-
-    def findByAttribute(attribute: String, value:String) = {
-      Studiengangs.flatMap{c=>
-        StudiengangAttributes.filter(s => s.id === c.id)
-      }
-    }
   }
 }
 
@@ -93,6 +92,10 @@ trait StudiengangAttributesComponent { this: Profile with StudiengangComponent=>
   }
 }
 
+object StudiengangAttributeC {
+  def neu(field: String) = new StudiengangAttribute(0,field,"")
+}
+
 case class Job(id: Int, createDate: Timestamp = new Timestamp(Calendar.getInstance().getTimeInMillis), newEntries: Int = 0, status: String = "started")
 trait JobsComponent { this: Profile => //requires a Profile to be mixed in...
   import profile.simple._
@@ -106,7 +109,6 @@ trait JobsComponent { this: Profile => //requires a Profile to be mixed in...
     def forInsert = createDate ~ newEntries ~ status <> ({ t => Job(-1, t._1, t._2, t._3)}, { (u: Job) => Some((u.createDate, u.newEntries, u.status))}) returning id
     def insert(job: Job) = job.copy(id = forInsert.insert(job))
     def updateOrDelete(job: Job) = if (job.newEntries <= 0) Query(Jobs).filter(_.id===job.id).delete else (for {jobs <- Jobs if jobs.id === job.id} yield (jobs.newEntries ~ jobs.status)).update(job.newEntries, job.status)
-    def columns() = Map("id"->id)
     def findLatest(): Option[Job] = {
       println(Query(Jobs).sortBy{value=>
         value.id.desc
