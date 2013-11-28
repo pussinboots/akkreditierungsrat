@@ -1,7 +1,7 @@
 package org.wicket.scala
 
 import org.apache.wicket.{Page, MarkupContainer}
-import org.apache.wicket.markup.html.form.Form
+import org.apache.wicket.markup.html.form.{TextArea, HiddenField, TextField, Form}
 import org.wicket.scala.Fields._
 import org.apache.wicket.markup.html.basic.Label
 import org.apache.wicket.markup.html.link.BookmarkablePageLink
@@ -17,6 +17,9 @@ class WicketDSL(id: String) {
     markupContainerToAdd
   }
   def form(markupContainer: MarkupContainer): Form[_] = add(new Form(id), markupContainer)
+  def textArea[T](value: T, field: String) = new TextArea[String](id, new PropertyModel[String](value, field))
+  def textField() = new TextField[String](id)
+  def hiddenTextField() = new HiddenField[String](id)
   def textField[T](form:Form[T]) = createAjaxTextFilter(id, form)
   def hiddenTextField[T](form:Form[T]) = createAjaxHiddenTextFilter(id, form)
   def label(message: String) = new Label(id, message)

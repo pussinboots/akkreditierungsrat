@@ -13,6 +13,7 @@ import org.apache.wicket.authroles.authorization.strategies.role.annotations.Aut
 import org.akkreditierung.model.DB
 import org.akkreditierung.model.slick._
 import org.apache.wicket.markup.html.panel.FeedbackPanel
+import scala.slick.session.Database.threadLocalSession
 
 object StudiengangEditPage {
   final val PAGE_PARAMETER_ID: String = "studiengangId"
@@ -22,29 +23,29 @@ object StudiengangEditPage {
 
 @AuthorizeInstantiation(value=Array("ADMIN"))
 class StudiengangEditPage(parameters: PageParameters) extends WebPage(parameters) {
-
+  import org.wicket.scala.WicketDSL._
   val provider = new ListDataProvider[String](StudiengangEditPage.fields)
   val list = StudiengangEditPage.fields map(field=>StudiengangAttributeC.neu(field))
   val studienGang = StudiengangC.neu
-  val fach = new TextField[String]("fach")
-  val abschluss = new TextField[String]("abschluss")
-  val hochschule = new TextField[String]("hochschule")
-  val bezugstyp = new TextField[String]("bezugstyp")
-  val gutachtenLink = new TextField[String]("gutachtenLink")
+  val fach = "fach".textField
+  val abschluss = "abschluss".textField
+  val hochschule = "hochschule".textField
+  val bezugstyp = "bezugstyp".textField
+  val gutachtenLink = "gutachtenLink".textField
   val form = new Form("form", new CompoundPropertyModel[Studiengang](studienGang)) {
-
     override def onSubmit() {
       println(studienGang)
       import DB.dal._
+      import DB.dal.profile.simple._
       val storedStudienGang = DB.db withSession Studiengangs.insert(getModelObject)
-      val l:Seq[StudiengangAttribute] = list.filter(_.value != null)
-      //StudiengangAttributes.insertAll(l)
+      val l:Seq[StudiengangAttribute] = list.filter(_.value != null).map(_.copy(id=storedStudienGang.id.get))
+      DB.db withSession StudiengangAttributes.insertAll(l:_*)
       clearInput()    //todo not working at the moment clear all input and model values
     }
   }
   val dataView = listView("displayPanel", list) {(entry: StudiengangAttribute, item: ListItem[StudiengangAttribute]) =>
-    item.add(new Label("key_column", entry.key))
-    item.add(new TextArea[String]("value_column", new PropertyModel[String](entry, "value")))
+    item.add("key_column".label(entry.key))
+    item.add("value_column".textArea(entry, "value"))
   }
   form.add(dataView)
   form.add(fach)
