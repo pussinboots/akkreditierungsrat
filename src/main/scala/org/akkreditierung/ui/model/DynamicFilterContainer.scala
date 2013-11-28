@@ -27,7 +27,7 @@ object DynamicFilterContainer {
       DB.dal.StudiengangAttributes.filter(_.id ===c.id).filter(_.key === field).filter(_.value like value).map(s =>(c))
     }
   }
-  def likeFilter[E<: Table[T],T](field: String, valueTranformer:(String)=>String) = {(value: String, query: Query[E,T]) =>
+  def likeFilter[E<: Table[T],T, R](field: String, valueTranformer:(String)=>R) = {(value: String, query: Query[E,T]) =>
     query.filter(_.column[String](field) like valueTranformer(value))
   }
 }
