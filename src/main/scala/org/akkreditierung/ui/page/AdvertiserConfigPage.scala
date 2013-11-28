@@ -4,11 +4,10 @@ import org.akkreditierung.ui.model._
 import org.apache.wicket.MarkupContainer
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.ajax.markup.html.AjaxLink
-import org.apache.wicket.extensions.markup.html.repeater.data.table.DefaultDataTable
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn
 import org.apache.wicket.markup.html.WebPage
 import org.apache.wicket.markup.html.basic.Label
-import org.apache.wicket.markup.html.link.{BookmarkablePageLink, ExternalLink, Link}
+import org.apache.wicket.markup.html.link.{ExternalLink, Link}
 import org.apache.wicket.markup.html.panel.Panel
 import org.apache.wicket.markup.repeater.Item
 import org.apache.wicket.markup.repeater.data.ListDataProvider
@@ -18,62 +17,48 @@ import java.util._
 import org.wicket.scala.Columns._
 import org.wicket.scala.Fields._
 import org.wicket.scala.RepeatingViews._
-import org.apache.wicket.markup.html.form.Form
-import com.avaje.ebean.{Expr, ExpressionList}
 import org.akkreditierung.model.DB
 import org.akkreditierung.model.slick._
-import org.akkreditierung.ui.model.FilterSlick
-import org.akkreditierung.model.slick.Studiengang
-import org.akkreditierung.model.slick.Job
-import org.akkreditierung.ui.model.FilterSlick
+import org.wicket.scala.WicketDSL._
 
 object AdvertiserConfigPage {
   private final val serialVersionUID: Long = 1L
 }
 
 class AdvertiserConfigPage(parameters: PageParameters) extends WebPage(parameters) {
-  val detailPanel: MarkupContainer = new DetailPanel("selected", new PropertyModel[Studiengang](this, "selected"))
-  add(detailPanel)
-  val filterContainer = createFilterContainer()
-  DB.db withSession{
-    val job = DB.dal.Jobs.findLatest().getOrElse(Job(1))
-    add(new BookmarkablePageLink[Void]("editLink", classOf[StudiengangEditPage]))
-    add(new Label("job", s" ${job.newEntries} neue Studiengänge importiert am ${job.createDate} status ${job.status}"))
-    val table = new DefaultDataTable[Studiengang, String]("datatable", getColumns(detailPanel), new StudienGangModelProvider(filterContainer), 25)
-    add(table)
-  }
+  val detailPanel = "selected".panel(this, "selected",(id:String, model:IModel[Studiengang])=>new DetailPanel(id, model))(this)
+  val job = DB.db withSession DB.dal.Jobs.findLatest().getOrElse(Job(1))
+  add("editLink".pageLink(classOf[StudiengangEditPage]))
+  add("job".label(s" ${job.newEntries} neue Studiengänge importiert am ${job.createDate} status ${job.status}"))
+  add("datatable".table(getColumns, new StudienGangModelProvider(createFilterContainer()), detailPanel))
 
   private def createFilterContainer() = {
-    val form = new Form("filterForm")
-    val filter = new DynamicFilterContainer[DB.dal.Studiengangs.type, Studiengang]()
-    import DB.dal.profile.simple._
+    val form = "filterForm".form(this)
     import DynamicFilterContainer._
-    filter.add(new FilterSlick[DB.dal.Studiengangs.type, Studiengang]("hochschule", createAjaxTextFilter("hochschule", form), likeFilter("hochschule")))
-    filter.add(new FilterSlick[DB.dal.Studiengangs.type, Studiengang]("fach", createAjaxTextFilter("fach", form), likeFilter("fach")))
-    filter.add(new FilterSlick[DB.dal.Studiengangs.type, Studiengang]("abschluss", createAjaxTextFilter("abschluss", form), likeFilter("abschluss")))
-    filter.add(new FilterSlick[DB.dal.Studiengangs.type, Studiengang]("agentur", createAjaxTextFilter("agentur", form), likeAttributeFilter("von")))
-    filter.add(new FilterSlick[DB.dal.Studiengangs.type, Studiengang]("studienform", createAjaxTextFilter("studienform", form), likeAttributeFilter("Besondere Studienform")))
-    filter.add(new FilterSlick[DB.dal.Studiengangs.type, Studiengang]("jobId", createAjaxHiddenTextFilter("jobId", form), (value: String, query: Query[DB.dal.Studiengangs.type, Studiengang]) => query.filter(_.jobId === value.substring(1, value.length - 1).toInt)))
-    add(form)
+    val filter = new DynamicFilterContainer[DB.dal.Studiengangs.type, Studiengang]()
+    filter.add("hochschule", "hochschule".textField(form), likeFilter("hochschule"))
+    filter.add("fach", "fach".textField(form), likeFilter("fach"))
+    filter.add("abschluss", "abschluss".textField(form), likeFilter("abschluss"))
+    filter.add("agentur", "agentur".textField(form), likeAttributeFilter("von"))
+    filter.add("studienform", "studienform".textField(form), likeAttributeFilter("Besondere Studienform"))
+    filter.add("jobId", "jobId".hiddenTextField(form), likeFilter("abschluss", (value:String) => value.substring(1, value.length - 1)))
     filter
   }
 
   private def getColumns(detailPanel: MarkupContainer) = {
     val columns = new ArrayList[IColumn[Studiengang, String]]
-    columns.add(column("Id", "id"))
-    columns.add(column("Fach", "fach"))
-    columns.add(column("Abschluss", "abschluss"))
-    columns.add(column("Hochschule", "hochschule"))
-    columns.add(column("Bezugstyp", "bezugstyp"))
+    "Id".addColumn(columns)
+    "Fach".addColumn(columns)
+    "Abschluss".addColumn(columns)
+    "Hochschule".addColumn(columns)
+    "Bezugstyp".addColumn(columns)
     columns.add(column("Gutachten", "gutachtenLink", (item, componentId, rowModel) => new LinkPanel(componentId, rowModel.getObject.gutachtenLink.getOrElse(null), "hier")))
-    columns.add(column("Änderungs Datum", "modifiedDate"))
+    "Änderungs Datum".addColumn("modifiedDate", columns)
     columns.add(column("Aktion", "id", (item, componentId, rowModel) => new ActionPanel(componentId, rowModel, detailPanel)))
     columns
   }
 
-  def getSelected: Studiengang = {
-    selected
-  }
+  def getSelected: Studiengang = selected
 
   def setSelected(selected: Studiengang) {
     addStateChange
@@ -96,14 +81,13 @@ class AdvertiserConfigPage(parameters: PageParameters) extends WebPage(parameter
     })
     add(new Link(("new")) {
       def onClick {
-        val pageParameters: PageParameters = new PageParameters
-        pageParameters.add(StudiengangDetailPage.PAGE_PARAMETER_ID, model.getObject.id.get)
+        val pageParameters: PageParameters = new PageParameters().add(StudiengangDetailPage.PAGE_PARAMETER_ID, model.getObject.id.get)
         setResponsePage(classOf[StudiengangDetailPage], pageParameters)
       }
     })
   }
 
-  private class DetailPanel(id: String, model: IModel[Studiengang]) extends Panel(id, model) {
+  class DetailPanel(id: String, model: IModel[Studiengang]) extends Panel(id, model) {
     setOutputMarkupId(true)
     val mapModel: IModel[Map[String, StudiengangAttribute]] = new PropertyModel[Map[String, StudiengangAttribute]](model, "attributes")
     val provider: ListDataProvider[StudiengangAttribute] = new ListDataProvider[StudiengangAttribute] {
@@ -112,7 +96,6 @@ class AdvertiserConfigPage(parameters: PageParameters) extends WebPage(parameter
         return new ArrayList[StudiengangAttribute](map.values)
       }
     }
-
     val d = dataView("displayPanel", provider) {(entry: StudiengangAttribute, item: Item[StudiengangAttribute]) =>
       item.add(new Label("key_column", entry.key))
       item.add(labelWithSpecialEscaping("value_column", entry.value))

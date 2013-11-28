@@ -10,32 +10,34 @@ import DB.dal.profile.simple._
 import scala.slick.session.Database
 import Database.threadLocalSession
 
-case class FilterSlick[E,T](id: String, field: FormComponent[String], filter: (String, Query[E,T]) => Query[E,T])
+case class FilterSlick[E,T](id: String, field: FormComponent[String], filter:(String, Query[E,T])  => Query[E,T])
 
 trait SlickFilter[E,T] {
   def apply(query: Query[E,T]): Query[E, T]
+
+  def add(id: String, field: FormComponent[String], filter:(String, Query[E,T])  => Query[E,T])
 }
 
 object DynamicFilterContainer {
-  def likeFilter(field: String) = {
-    (value: String, query: Query[DB.dal.Studiengangs.type, Studiengang]) =>
+  def likeFilter[E<: Table[T],T](field: String) = {(value: String, query: Query[E, T]) =>
       query.filter(_.column[String](field) like value)
   }
   def likeAttributeFilter(field: String) = {(value: String, query: Query[DB.dal.Studiengangs.type, Studiengang]) =>
     query.flatMap{c=>
-      DB.dal.StudiengangAttributes.filter(_.id ===c.id).filter(_.key === field).filter(_.value like value).map(s =>
-        (c)
-      )
+      DB.dal.StudiengangAttributes.filter(_.id ===c.id).filter(_.key === field).filter(_.value like value).map(s =>(c))
     }
+  }
+  def likeFilter[E<: Table[T],T](field: String, valueTranformer:(String)=>String) = {(value: String, query: Query[E,T]) =>
+    query.filter(_.column[String](field) like valueTranformer(value))
   }
 }
 class DynamicFilterContainer[E, T] extends SlickFilter[E,T] {
 
   val slickFilters: Buffer[FilterSlick[E,T]]= Buffer[FilterSlick[E,T]]()
 
-  def add(filter: FilterSlick[E,T]) {
-    slickFilters+=filter
-  }
+  override def add(id: String, field: FormComponent[String], filter:(String, Query[E,T])  => Query[E,T]) = add(new FilterSlick[E, T](id, field, filter))
+
+  def add(filter: FilterSlick[E,T]) = slickFilters+=filter
 
   override def apply(query: Query[E,T]): Query[E,T] = {
     var _query = query
