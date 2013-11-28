@@ -49,7 +49,6 @@ class ModelSpec extends Specification {
           import QueryTapper._
           Studiengangs.findByFach("fach2").cache(_.first)
           Studiengangs.findByFach("fach2").cache(_.first)
-          Studiengangs.findByFach("fach2").cache(_.first)
           val studienGang = Studiengangs.findByFach("fach2").cache(_.first)
           studienGang.fach must beEqualTo("fach2")
 //          studienGang.attributes.size must beEqualTo(3)
