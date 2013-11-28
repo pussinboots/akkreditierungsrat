@@ -41,7 +41,7 @@ class AdvertiserConfigPage(parameters: PageParameters) extends WebPage(parameter
     filter.add("abschluss", "abschluss".textField(form), likeFilter("abschluss"))
     filter.add("agentur", "agentur".textField(form), likeAttributeFilter("von"))
     filter.add("studienform", "studienform".textField(form), likeAttributeFilter("Besondere Studienform"))
-    filter.add("jobId", "jobId".hiddenTextField(form), likeFilter("abschluss", (value:String) => value.substring(1, value.length - 1)))
+    filter.add("jobId", "jobId".hiddenTextField(form), likeFilter("jobid", (value:String) => value.substring(1, value.length - 1)))
     filter
   }
 
