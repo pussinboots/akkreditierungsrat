@@ -7,19 +7,18 @@ import org.akkreditierung.ui.auth.AuthSession
 import org.apache.wicket.ConverterLocator
 import org.apache.wicket.util.convert.converter.AbstractConverter
 import java.util.Locale
+import java.sql.Timestamp
 
-class OptionConverter extends AbstractConverter[Option[String]] {
-  override def convertToObject(value: String, locale: Locale ) : Option[String] = {
-    if (value == null)
-      return None
-    else
-      return Some(value)
-  }
-  override def convertToString(value: Option[String], locale: Locale) = {
-    value.getOrElse("")
-  }
-
+class OptionStringConverter extends AbstractConverter[Option[String]] {
+  override def convertToObject(value: String, locale: Locale ) : Option[String] = if (value == null)  None else Some(value)
+  override def convertToString(value: Option[String], locale: Locale) = value.getOrElse("")
   def getTargetType: Class[Option[String]] = classOf[Option[String]]
+}
+
+class OptionIntConverter extends AbstractConverter[Option[Int]] {
+  override def convertToObject(value: String, locale: Locale ) : Option[Int] = if (value == null)  None else Some(value.toInt)
+  override def convertToString(value: Option[Int], locale: Locale) = value.getOrElse("").toString
+  def getTargetType: Class[Option[Int]] = classOf[Option[Int]]
 }
 
 class WicketApplication extends AuthenticatedWebApplication {
@@ -37,7 +36,8 @@ class WicketApplication extends AuthenticatedWebApplication {
 
   override def newConverterLocator() = {
     val locator = super.newConverterLocator().asInstanceOf[ConverterLocator]
-    locator.set(classOf[Option[String]], new OptionConverter)
+    locator.set(classOf[Option[String]], new OptionStringConverter)
+    locator.set(classOf[Option[Int]], new OptionIntConverter)
     locator
   }
 

@@ -7,15 +7,9 @@ import Database.threadLocalSession
 import org.akkreditierung.model.DB
 import org.akkreditierung.model.slick.Studiengang
 
-object DatabasePool {
-  DB.WithSSL()
-  val db = DB.getSlickMysqlConnection()
-}
-
 object AkkreditierungsRatImport extends App {
 
   DB.WithSSL()
-  DB.getMysqlConnection()
   importStudienGaenge()
 
   def importStudienGaenge(sessionId: String = getSessionId(), step:Int = 30, end: Int = 5100) {
@@ -38,7 +32,6 @@ object AkkreditierungsRatUpdate extends App {
   //System.setProperty("javax.net.debug", "all")
 
   DB.WithSSL()
-  DB.getMysqlConnection()
   updateStudiengaenge()
 
   def updateStudiengaenge(sessionId: String = getSessionId(), threadCount: Int = 4, days: Int = 7) = {

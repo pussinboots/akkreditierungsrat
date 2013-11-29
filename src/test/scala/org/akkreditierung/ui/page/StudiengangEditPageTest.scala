@@ -3,7 +3,7 @@ package org.akkreditierung.ui.page
 import org.specs2.mutable._
 import org.apache.wicket.util.tester.{FormTester, WicketTester}
 import org.akkreditierung.model.DB
-import org.akkreditierung.test.{SlickDbBefore, HSQLDbBefore}
+import org.akkreditierung.test.{SlickDbBefore}
 import org.akkreditierung.ui.WicketApplication
 import scala.slick.session.Database
 import Database.threadLocalSession

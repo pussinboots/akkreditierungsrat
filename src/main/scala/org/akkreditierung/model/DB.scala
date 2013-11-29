@@ -31,20 +31,6 @@ object DB {
     p
   }
 
-  def withConnection[A](block: Connection => A): A = {
-    val connection: Connection = ConnectionPool.borrow()
-    try {
-      block(connection)
-    }
-    finally {
-      try {
-        connection.close()
-      }
-    }
-  }
-
-  def getConfiguredMysqlConnection() = getMysqlConnection()
-
   def WithSSLDebug() = System.setProperty("javax.net.debug", "all")
 
   def WithSSL() {
@@ -52,12 +38,6 @@ object DB {
     System.setProperty("javax.net.ssl.keyStorePassword", "Korn4711")
     System.setProperty("javax.net.ssl.trustStore", "truststore")
     System.setProperty("javax.net.ssl.trustStorePassword", "Korn4711")
-  }
-
-  def getMysqlConnection(jdbcUrl: String = dbConfigUrl) {
-    Class.forName("com.mysql.jdbc.Driver")
-    val dbConnectionInfo = parseDbUrl(jdbcUrl)
-    ConnectionPool.singleton(dbConnectionInfo._1, dbConnectionInfo._2, dbConnectionInfo._3, ConnectionPoolSettings(validationQuery = "SELECT 1", initialSize= 10, maxSize = 15))
   }
 
   def getSlickMysqlConnection(jdbcUrl: String = dbConfigUrl) = {
@@ -77,47 +57,6 @@ object DB {
     ds.setDriverClass("org.hsqldb.jdbc.JDBCDriver")
     ds.setJdbcUrl(jdbcUrl + ";sql.enforce_size=false")
     Database.forDataSource(ds)
-  }
-
-  def createSlickTables(db: Database, dal: DAL) {
-    import dal._
-    import dal.profile.simple._
-    db withSession {
-      dal.create
-    }
-  }
-
-  def createTables() {
-    DB.withConnection {
-      implicit connection: Connection =>
-        SQL("create table studiengaenge (id integer primary key Identity, jobId integer, fach varchar(256), abschluss varchar(256), hochschule varchar(256), bezugstyp varchar(256), link varchar(256), checksum varchar(128), GutachtenLink varchar(256) default null, createDate timestamp default current_timestamp, updateDate timestamp default null, modifiedDate timestamp default null, sourceId integer)").execute()
-        SQL("create table studiengaenge_attribute (id integer, k varchar(128), v CLOB)").execute()
-        SQL("create table jobs (id integer primary key Identity, createDate timestamp DEFAULT CURRENT_TIMESTAMP, newEntries integer DEFAULT '0', status varchar(12))").execute()
-        SQL("create table sources (id integer primary key Identity, name varchar(128), createDate timestamp DEFAULT CURRENT_TIMESTAMP)").execute()
-    }
-  }
-
-  def getHSqlConnection(jdbcUrl: String = "jdbc:hsqldb:mem", schema: String = "public") = {
-    Class.forName("org.hsqldb.jdbc.JDBCDriver")
-    ConnectionPool.singleton(s"${jdbcUrl}:${schema}", "", "")
-    s"${jdbcUrl}:${schema}"
-  }
-
-  def shutdownHSqlConnection(jdbcUrl: String = "jdbc:hsqldb:mem", schema: String = "public") {
-    Class.forName("org.hsqldb.jdbc.JDBCDriver")
-    if (ConnectionPool.isInitialized()) {
-      val connection = ConnectionPool.borrow()
-      val statement = connection.createStatement()
-      try {
-        statement.execute(s"DROP SCHEMA ${schema} CASCADE")
-        connection.commit()
-      } catch {
-        case e: Exception => e.printStackTrace()
-      } finally {
-        statement.close()
-      }
-      ConnectionPool.closeAll()
-    }
   }
 
   def parseConfiguredDbUrl() = parseDbUrl()

@@ -2,7 +2,7 @@ package org.akkreditierung
 
 import org.specs2.mutable._
 import org.akkreditierung.AkkreditierungsRatClient._
-import org.akkreditierung.test.{SlickDbBefore, NullableBodyMatcher, Betamax, HSQLDbBefore}
+import org.akkreditierung.test.{SlickDbBefore, NullableBodyMatcher, Betamax}
 import co.freeside.betamax.{MatchRule, TapeMode, Recorder}
 import co.freeside.betamax.proxy.jetty.ProxyServer
 import scala.Some

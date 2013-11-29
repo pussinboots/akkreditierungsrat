@@ -2,7 +2,7 @@ package org.akkreditierung.ui.page
 
 import org.specs2.mutable._
 import org.apache.wicket.util.tester.WicketTester
-import org.akkreditierung.test.{SlickDbBefore, HSQLDbBefore}
+import org.akkreditierung.test.{SlickDbBefore}
 import org.apache.wicket.request.mapper.parameter.PageParameters
 import org.apache.wicket.markup.repeater.data.DataView
 import org.akkreditierung.ui.WicketApplication
