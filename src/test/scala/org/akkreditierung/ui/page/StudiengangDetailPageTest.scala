@@ -6,22 +6,21 @@ import org.akkreditierung.test.{SlickDbBefore, HSQLDbBefore}
 import org.apache.wicket.request.mapper.parameter.PageParameters
 import org.apache.wicket.markup.repeater.data.DataView
 import org.akkreditierung.ui.WicketApplication
-import org.akkreditierung.model.slick.StudiengangAttribute
+import org.akkreditierung.model.slick.{Studiengang, StudiengangAttribute}
 import org.akkreditierung.model.DB
 import scala.slick.session.Database
 import Database.threadLocalSession
+import org.akkreditierung.DateUtil
 
 class StudiengangDetailPageTest extends Specification with SlickDbBefore {
 
-  sys.props.+=("Database" -> "h2")
-
   override def initTestData(db: Database) {
+    def studiengang1 = new Studiengang(Some(1), jobId = Some(1), fach = "Angewandte Informatik", abschluss = "Master", hochschule = "Potsdam Universität", bezugstyp = "bezug", gutachtenLink = Some("gutachtenlink"), link = Some("link"), updateDate = DateUtil.nowDateTimeOpt(), modifiedDate = DateUtil.nowDateTimeOpt(), sourceId = 1)
     def studiengangAttribute1 = new StudiengangAttribute(1, "k1", "v1")
     def studiengangAttribute2 = new StudiengangAttribute(1, "k2", "v2")
     import DB.dal.profile.simple._
     db withSession {
-      DB.dal.drop
-      DB.dal.create
+      DB.dal.Studiengangs.insert(studiengang1)
       DB.dal.StudiengangAttributes.insertAll(studiengangAttribute1, studiengangAttribute2)
     }
   }

@@ -19,9 +19,11 @@ trait Profile {
  */
 class DAL(override val profile: ExtendedProfile) extends StudiengangComponent with StudiengangAttributesComponent with JobsComponent with SourcesComponent with Profile {
   import profile.simple._
-  def create(implicit session: Session)  {
-    (Studiengangs.ddl ++ StudiengangAttributes.ddl ++ Sources.ddl ++ Jobs.ddl).create //helper method to create all tables
+  def recreate(implicit session: Session) = {
+    drop(session)
+    create(session)
   }
+  def create(implicit session: Session) = (Studiengangs.ddl ++ StudiengangAttributes.ddl ++ Sources.ddl ++ Jobs.ddl).create //helper method to create all tables
 
   def drop(implicit session: Session) {
     try{
@@ -68,7 +70,7 @@ trait StudiengangComponent { this: Profile with StudiengangAttributesComponent=>
     def hochschule = column[String]("hochschule")
     def bezugstyp = column[String]("bezugstyp")
     def link = column[Option[String]]("link")
-    def gutachtentLink = column[Option[String]]("GutachtenLink")
+    def gutachtentLink = column[Option[String]]("gutachtenLink")
     def modifiedDate = column[Option[Timestamp]]("modifiedDate")
     def updateDate = column[Option[Timestamp]]("updateDate")
     def sourceId = column[Int]("sourceId")
@@ -87,6 +89,7 @@ trait StudiengangAttributesComponent { this: Profile with StudiengangComponent=>
     def id = column[Int]("id")
     def key = column[String]("k")
     def value = column[String]("v")
+    def pk = primaryKey("pk_a", (id, key, value))
     def * = id ~ key ~ value <> (StudiengangAttribute, StudiengangAttribute.unapply _)
     def studiengang = foreignKey("id", id, Studiengangs)(_.id)
   }

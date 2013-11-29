@@ -3,13 +3,15 @@ package org.akkreditierung.test
 import org.specs2.mutable.Before
 import org.akkreditierung.model.DB
 import scala.slick.session.Database
-import org.akkreditierung.model.slick.DAL
-import scala.slick.driver.H2Driver
+import Database.threadLocalSession
 
 trait SlickDbBefore extends Before {
+  sys.props.+=("Database" -> "h2")
+
   override def before {
     val schema="test"
     val db = DB.getSlickHSQLDatabase()
+    db withSession DB.dal.recreate
     initTestData(db)
   }
 
