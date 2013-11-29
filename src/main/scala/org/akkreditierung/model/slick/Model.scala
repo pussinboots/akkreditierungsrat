@@ -14,6 +14,10 @@ import scala.slick.lifted.{Query=>SlickQuery}
 trait Profile {
   val profile: ExtendedProfile
 }
+
+object SourceAkkreditierungsRat {
+  val name = "akkreditierungsrat"
+}
 /**
  * The Data Access Layer contains all components and a profile
  */
@@ -36,20 +40,23 @@ class DAL(override val profile: ExtendedProfile) extends StudiengangComponent wi
 
 case class Studiengang(var id: Option[Int] = None, jobId: Option[Int], fach: String, abschluss: String, hochschule: String,
                        bezugstyp: String, link: Option[String], var gutachtenLink: Option[String] = None, updateDate: Option[Timestamp],
-                       var modifiedDate: Option[Timestamp], sourceId: Int) {
+                       var modifiedDate: Option[Timestamp], sourceId: Int, checkSumDB: String = null) {
   lazy val checkSum = {
-    val str = fach + abschluss + hochschule + bezugstyp + link.getOrElse("")
-    MessageDigest.getInstance("MD5").digest(str.getBytes).map(0xFF & _).map {
-      "%02x".format(_)
-    }.foldLeft("") {
-      _ + _
+    if (checkSumDB != null)
+      checkSumDB
+    else {
+      val str = fach + abschluss + hochschule + bezugstyp + link.getOrElse("")
+      MessageDigest.getInstance("MD5").digest(str.getBytes).map(0xFF & _).map {
+        "%02x".format(_)
+      }.foldLeft("") {
+        _ + _
+      }
     }
   }
   import org.akkreditierung.model.DB.dal._
   import DB.dal.profile.simple._
   import DB.dal.profile.simple.Database.threadLocalSession
   lazy val attributes: Map[String, StudiengangAttribute] = {
-    println("attribues: " + (for {a <- StudiengangAttributes if a.id === id.get} yield (a.key->a)).selectStatement)
     (for {a <- StudiengangAttributes if a.id === id.get} yield (a.key->a)) toMap
   }
 }
@@ -70,14 +77,18 @@ trait StudiengangComponent { this: Profile with StudiengangAttributesComponent=>
     def hochschule = column[String]("hochschule")
     def bezugstyp = column[String]("bezugstyp")
     def link = column[Option[String]]("link")
-    def gutachtentLink = column[Option[String]]("gutachtenLink")
+    def gutachtentLink = column[Option[String]]("GutachtenLink")
     def modifiedDate = column[Option[Timestamp]]("modifiedDate")
     def updateDate = column[Option[Timestamp]]("updateDate")
+    def checkSumDB = column[String]("checksum")
     def sourceId = column[Int]("sourceId")
-    def * = id.? ~ jobId ~ fach ~ abschluss ~ hochschule ~ bezugstyp ~ link~ gutachtentLink~ updateDate~ modifiedDate~ sourceId <> (Studiengang, Studiengang.unapply _)
-    def forInsert = jobId ~ fach ~ abschluss ~ hochschule ~ bezugstyp ~ link~ gutachtentLink~ updateDate~ modifiedDate~ sourceId <> ({ t => Studiengang(None,t._1, t._2, t._3, t._4, t._5, t._6, t._7, t._8, t._9, t._10)}, {(u: Studiengang) => Some((u.jobId, u.fach, u.abschluss, u.hochschule, u.bezugstyp, u.link, u.gutachtenLink, u.updateDate, u.modifiedDate, u.sourceId))}) returning id
-    def insert(studiengang: Studiengang) = studiengang.copy(id = Some(forInsert.insert(studiengang)))
+    def * = id.? ~ jobId ~ fach ~ abschluss ~ hochschule ~ bezugstyp ~ link~ gutachtentLink~ updateDate~ modifiedDate~ sourceId~ checkSumDB <> (Studiengang, Studiengang.unapply _)
+    def forInsert = jobId ~ fach ~ abschluss ~ hochschule ~ bezugstyp ~ link~ gutachtentLink~ updateDate~ modifiedDate~ sourceId~ checkSumDB <> ({ t => Studiengang(None,t._1, t._2, t._3, t._4, t._5, t._6, t._7, t._8, t._9, t._10)}, {(u: Studiengang) => Some((u.jobId, u.fach, u.abschluss, u.hochschule, u.bezugstyp, u.link, u.gutachtenLink, u.updateDate, u.modifiedDate, u.sourceId, u.checkSum))}) returning id
+    def insert(studiengang: Studiengang) = {
+      studiengang.copy(id = Some(forInsert.insert(studiengang)))
+    }
     def findByFach(fach: String) =  (for {a <- Studiengangs if a.fach === fach} yield (a))
+    def findAll() =  (for {a <- Studiengangs} yield (a))
   }
 }
 
@@ -92,6 +103,7 @@ trait StudiengangAttributesComponent { this: Profile with StudiengangComponent=>
     def pk = primaryKey("pk_a", (id, key, value))
     def * = id ~ key ~ value <> (StudiengangAttribute, StudiengangAttribute.unapply _)
     def studiengang = foreignKey("id", id, Studiengangs)(_.id)
+    def findAll() =  (for {a <- StudiengangAttributes} yield (a))
   }
 }
 
@@ -112,12 +124,7 @@ trait JobsComponent { this: Profile => //requires a Profile to be mixed in...
     def forInsert = createDate ~ newEntries ~ status <> ({ t => Job(-1, t._1, t._2, t._3)}, { (u: Job) => Some((u.createDate, u.newEntries, u.status))}) returning id
     def insert(job: Job) = job.copy(id = forInsert.insert(job))
     def updateOrDelete(job: Job) = if (job.newEntries <= 0) Query(Jobs).filter(_.id===job.id).delete else (for {jobs <- Jobs if jobs.id === job.id} yield (jobs.newEntries ~ jobs.status)).update(job.newEntries, job.status)
-    def findLatest(): Option[Job] = {
-      println(Query(Jobs).sortBy{value=>
-        value.id.desc
-      }.take(1).selectStatement)
-      Query(Jobs).sortBy(_.id.desc).take(1).firstOption
-    }
+    def findLatest(): Option[Job] = Query(Jobs).sortBy(_.id.desc).take(1).firstOption
   }
 }
 

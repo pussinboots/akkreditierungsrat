@@ -32,8 +32,8 @@ class AdvertiserConfigPageTest extends Specification with SlickDbBefore {
       val dao = new DAL(H2Driver)
       import dao._
       import dao.profile.simple._
-      def studiengang1 = new Studiengang(Some(1), jobId = Some(1), fach = "Angewandte Informatik", abschluss = "Master", hochschule = "Potsdam Universität", bezugstyp = "bezug", gutachtenLink = Some("gutachtenlink"), link = Some("link"), updateDate = DateUtil.nowDateTimeOpt(), modifiedDate = DateUtil.nowDateTimeOpt(), sourceId = 1)
-      def studiengang2 = new Studiengang(Some(2), jobId = Some(2), fach = "Soziologie", abschluss = "Bachelor", hochschule = "Mainz Universität", bezugstyp = "bezug", link = Some("link2"), updateDate = DateUtil.nowDateTimeOpt(), modifiedDate = DateUtil.nowDateTimeOpt(), sourceId = 1)
+      def studiengang1 = new Studiengang(Some(1), jobId = Some(1), fach = "Angewandte Informatik", abschluss = "Master", hochschule = "Potsdam Universität", bezugstyp = "bezug", gutachtenLink = Some("gutachtenlink"), link = Some("link"), updateDate = DateUtil.nowDateTimeOpt(), modifiedDate = DateUtil.nowDateTimeOpt(), sourceId = 1, checkSumDB = "1")
+      def studiengang2 = new Studiengang(Some(2), jobId = Some(2), fach = "Soziologie", abschluss = "Bachelor", hochschule = "Mainz Universität", bezugstyp = "bezug", link = Some("link2"), updateDate = DateUtil.nowDateTimeOpt(), modifiedDate = DateUtil.nowDateTimeOpt(), sourceId = 1, checkSumDB = "2")
       Studiengangs.insertAll(studiengang1, studiengang2)
       def studiengangAttribute1 = new StudiengangAttribute(1, "k1", "v1")
       def studiengangAttribute2 = new StudiengangAttribute(2, "von", "Acquinn")

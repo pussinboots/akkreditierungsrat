@@ -11,8 +11,6 @@ class StudienGangModelProvider(filterContainer: SlickFilter[DB.dal.Studiengangs.
 
   override def filter(query: Query[DB.dal.Studiengangs.type, Studiengang]) = {
     val _query = if (filterContainer != null) filterContainer.apply(query) else query
-    import DB.dal.profile.simple._
-    println("StudienGangModelProvider + " + _query.selectStatement)
     super.filter(_query)
   }
 }

@@ -1,12 +1,11 @@
 package org.akkreditierung
 
-import org.akkreditierung.model.{Studiengang, DB}
 import org.akkreditierung.AkkreditierungsRatClient._
-import scala.concurrent.{Await, Future}
 import java.util.concurrent.Executors
-import java.util.Date
 import scala.slick.session.Database
 import Database.threadLocalSession
+import org.akkreditierung.model.DB
+import org.akkreditierung.model.slick.Studiengang
 
 object DatabasePool {
   DB.WithSSL()
@@ -15,27 +14,26 @@ object DatabasePool {
 
 object AkkreditierungsRatImport extends App {
 
-  //activate ssl debug logging
-  //System.setProperty("javax.net.debug", "all")
-
   DB.WithSSL()
   DB.getMysqlConnection()
   importStudienGaenge()
 
-  def importStudienGaenge(sessionId: String = getSessionId(), step:Int = 100, end: Int = 5100) {
+  def importStudienGaenge(sessionId: String = getSessionId(), step:Int = 30, end: Int = 5100) {
 
     println(s"Session ${sessionId}")
 
     //TODO actual the loop has to be defined with a specific end here 5100 studiengang is reached than break need a method to find when the table is at his end
     fetchAndStoreStudienGaenge(sessionId, step, end, {
       studienGang: Studiengang =>
-        println(fetchAndStoreStudienGangInfo(sessionId, studienGang))
+        fetchAndStoreStudienGangInfo(sessionId, studienGang)
     })
   }
 }
 
 object AkkreditierungsRatUpdate extends App {
 
+  import DB.dal._
+  import DB.dal.profile.simple._
   //activate ssl debug logging
   //System.setProperty("javax.net.debug", "all")
 
@@ -43,11 +41,11 @@ object AkkreditierungsRatUpdate extends App {
   DB.getMysqlConnection()
   updateStudiengaenge()
 
-  def updateStudiengaenge(sessionId: String = getSessionId(), threadCount: Int = 4) = {
+  def updateStudiengaenge(sessionId: String = getSessionId(), threadCount: Int = 4, days: Int = 7) = {
     println(s"Session ${sessionId}")
     val nextId = { var i = 0; () => { i += 1; i} }
 
-    val studienGaenge = Studiengang.findAllNotUpdatedInLastSevenDays()
+    val studienGaenge = DB.db withSession (for {gang <- Studiengangs if gang.updateDate < DateUtil.daysBeforDateTime(days)} yield (gang)).list
 
     import scala.concurrent.duration._
     import scala.concurrent._
@@ -59,13 +57,14 @@ object AkkreditierungsRatUpdate extends App {
 
     val tasks: Seq[Future[Studiengang]] = for(studienGang <- studienGaenge) yield future {
         val changed = fetchAndStoreStudienGangInfo(sessionId, studienGang, UpdateStudienGangAttribute)
+        val now = DateUtil.nowDateTimeOpt()
         if (changed) {
-          studienGang.modifiedDate = Some(new Date())
-          Studiengang.UpdateModifiedDate(studienGang)
-          println(s"Updated ${studienGang}")
+          DB.db withSession (for {gang <- Studiengangs if gang.id === studienGang.id} yield (gang.modifiedDate)).update(now)
+          println(s"Updated ${studienGang.copy(modifiedDate = now)}")
           println(nextId())
         }
-        Studiengang.UpdateUpdateDate(new Date(), studienGang)
+        DB.db withSession (for {gang <- Studiengangs if gang.id === studienGang.id} yield (gang.updateDate)).update(now)
+        studienGang.copy(modifiedDate = now)
     }
 
     val aggregated: Future[Seq[Studiengang]] = Future.sequence(tasks)

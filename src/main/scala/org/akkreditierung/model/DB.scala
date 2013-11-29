@@ -45,6 +45,8 @@ object DB {
 
   def getConfiguredMysqlConnection() = getMysqlConnection()
 
+  def WithSSLDebug() = System.setProperty("javax.net.debug", "all")
+
   def WithSSL() {
     System.setProperty("javax.net.ssl.keyStore", "keystore")
     System.setProperty("javax.net.ssl.keyStorePassword", "Korn4711")

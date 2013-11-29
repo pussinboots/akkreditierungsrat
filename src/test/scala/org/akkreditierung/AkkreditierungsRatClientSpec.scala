@@ -1,21 +1,25 @@
 package org.akkreditierung
 
 import org.specs2.mutable._
-import org.akkreditierung.model._
 import org.akkreditierung.AkkreditierungsRatClient._
-import org.akkreditierung.test.{NullableBodyMatcher, Betamax, HSQLDbBefore}
+import org.akkreditierung.test.{SlickDbBefore, NullableBodyMatcher, Betamax, HSQLDbBefore}
 import co.freeside.betamax.{MatchRule, TapeMode, Recorder}
 import co.freeside.betamax.proxy.jetty.ProxyServer
 import scala.Some
 import java.util.Comparator
 import co.freeside.betamax.message.Request
+import org.akkreditierung.model.slick.{SourceAkkreditierungsRat, Studiengang}
+import org.akkreditierung.model.DB
+import scala.slick.session.Database
+import Database.threadLocalSession
 
-class AkkreditierungsRatClientSpec extends Specification with HSQLDbBefore {
-
+class AkkreditierungsRatClientSpec extends Specification with SlickDbBefore {
+  import DB.dal._
+  import DB.dal.profile.simple._
   //activate betamax proxy for dispatch
   sys.props.+=("com.ning.http.client.AsyncHttpClientConfig.useProxyProperties" -> "true")
 
-  override def initTestData() {
+  override def initTestData(db: Database) {
     sys.props.+=("com.ning.http.client.AsyncHttpClientConfig.useProxyProperties" -> "true")
     val recorder = new Recorder
     val proxyServer = new ProxyServer(recorder)
@@ -39,19 +43,23 @@ class AkkreditierungsRatClientSpec extends Specification with HSQLDbBefore {
 
   "The AkkreditierungsRat Client" should {
     "fetch and store studiengaenge in the database" in {
-      Job.findLatest().get.newEntries must beEqualTo(60)
-      Studiengang.findAll().length must beEqualTo(60)
+      DB.db withSession{
+        Jobs.findLatest().get.newEntries must beEqualTo(60)
+        Studiengangs.findAll().list.length must beEqualTo(60)
+      }
     }
 
     "check that 1226 studiengang attribute are stored in the database for the 30 fetched studiengaenge" in {
-      Job.findLatest().get.newEntries must beEqualTo(60)
-      StudiengangAttribute.findAll().length must beEqualTo(1239)
-      Studiengang.findByFach("Alternativer Tourismus").gutachtentLink.get must beEqualTo("http://www.aqas.de/downloads/Gutachten/49_319_BWL")
-      Studiengang.findByFach("Altertumswissenschaften").gutachtentLink must beEqualTo(None)
-      Studiengang.findByFach("Altertumswissenschaften").jobId must beEqualTo(Job.findLatest().get.id)
-      val source = Source.FindOrCreateSourceAkkreditierungsrat()
-      Studiengang.findByFach("Altertumswissenschaften").sourceId must beEqualTo(source.get.id.get)
-      Studiengang.findByFach("Advanced Physical Methods in Radiotherapy").sourceId must beEqualTo(source.get.id.get)
+      DB.db withSession{
+        Jobs.findLatest().get.newEntries must beEqualTo(60)
+        StudiengangAttributes.findAll().list.length must beEqualTo(1239)
+        Studiengangs.findByFach("Alternativer Tourismus").first.gutachtenLink.get must beEqualTo("http://www.aqas.de/downloads/Gutachten/49_319_BWL")
+        Studiengangs.findByFach("Altertumswissenschaften").first.gutachtenLink must beEqualTo(None)
+        Studiengangs.findByFach("Altertumswissenschaften").first.jobId.get must beEqualTo(Jobs.findLatest().get.id)
+        val source = Sources.findOrInsert(SourceAkkreditierungsRat.name)
+        Studiengangs.findByFach("Altertumswissenschaften").first.sourceId must beEqualTo(source.get.id)
+        Studiengangs.findByFach("Advanced Physical Methods in Radiotherapy").first.sourceId must beEqualTo(source.get.id)
+      }
     }
 
     "retrieve sessionid" in Betamax("akkreditierungsratsession") {

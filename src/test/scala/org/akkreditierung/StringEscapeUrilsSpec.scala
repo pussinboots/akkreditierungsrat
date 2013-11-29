@@ -1,9 +1,6 @@
 package org.akkreditierung
 
 import org.specs2.mutable.Specification
-import org.akkreditierung.model.{Studiengang, Job}
-import org.apache.commons.lang3.StringEscapeUtils
-import org.apache.commons.lang3.text.translate.{NumericEntityEscaper, EntityArrays, AggregateTranslator, CharSequenceTranslator}
 
 class StringEscapeUrilsSpec extends Specification {
   "The StringEscapeUrils" should {

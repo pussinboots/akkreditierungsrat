@@ -5,19 +5,19 @@ import dispatch.Http
 import dispatch.enrichFuture
 import dispatch.implyRequestVerbs
 import dispatch.url
-import org.akkreditierung.model._
-import AkkreditierungsRatClient._
 import org.htmlcleaner.{TagNode, HtmlCleaner}
 import org.apache.commons.lang3.StringEscapeUtils
-import scala.Some
 import scala.collection.mutable
-import scala.concurrent._
 import scala.Some
-import java.util.Date
+import org.akkreditierung.model.DB
+import org.akkreditierung.model.slick._
+import scala.slick.session.Database
+import Database.threadLocalSession
 
 object AkkreditierungsRatClient {
-
-  val sourceAkkreditierungsRat = Source.FindOrCreateSourceAkkreditierungsrat()
+  import DB.dal._
+  import DB.dal.profile.simple._
+  val sourceAkkreditierungsRat = DB.db withSession Sources.findOrInsert(SourceAkkreditierungsRat.name)
 
   def getResult(sessionId: String, offset: String = "0", bezugsTyp: String = "3", maxOffset: String = "30") = {
     val post = Map("tid" -> "80520", "reuseresult" -> "false", "stylesheet" -> "tabelle_html_akkr.xsl", "Bezugstyp" -> bezugsTyp, "sort" -> "2", "offset" -> offset, "maxoffset" -> maxOffset, "contenttype" -> "")
@@ -43,17 +43,22 @@ object AkkreditierungsRatClient {
   }
 
   def fetchAndStoreStudienGaenge(sessionId: String, step: Int = 30, end: Int = 30, block: Studiengang => (Unit)) = {
-    val job = Job.Insert(Job())
+    import DB.dal._
+    import DB.dal.profile.simple._
+    val job = DB.db withSession Jobs.insert(Job(0))
 
     val neueStudienGaenge = mutable.MutableList[Studiengang]()
-    val checkSumMap: mutable.Map[String, Studiengang] = Studiengang.findAll().map(elem => elem.checkSum -> elem)(collection.breakOut)
-    //fetch bechelar studiengänge
-    try {
-      fetchStudienGaengeByBezugsTyp(start = 0, end, step, sessionId, "3", job, checkSumMap, neueStudienGaenge, block)
-      //fetch master studiengänge
-      fetchStudienGaengeByBezugsTyp(start = 0, end, step, sessionId, "4", job, checkSumMap, neueStudienGaenge, block)
-    } finally {
-      Job.UpdateOrDelete(Job(id = job.id, newEntries = neueStudienGaenge.size, status = "finished"))
+    import scala.collection.mutable
+    DB.db withSession {
+      val checkSumMap: mutable.Map[String, Studiengang] = Studiengangs.findAll().list().map(elem => elem.checkSum->elem)(collection.breakOut)
+      //fetch bechelar studiengänge
+      try {
+        fetchStudienGaengeByBezugsTyp(start = 0, end, step, sessionId, "3", job, checkSumMap, neueStudienGaenge, block)
+        //fetch master studiengänge
+        fetchStudienGaengeByBezugsTyp(start = 0, end, step, sessionId, "4", job, checkSumMap, neueStudienGaenge, block)
+      } finally {
+        Jobs.updateOrDelete(Job(id = job.id, newEntries = neueStudienGaenge.size, status = "finished"))
+      }
     }
     neueStudienGaenge
   }
@@ -78,16 +83,17 @@ object AkkreditierungsRatClient {
             .get.getElementsByAttValue("title", "Weiter", true, false)(0).getAttributeByName("href")
             .replace("..", "http://www.hs-kompass2.de/kompass")
             .replace(sessionId, "##sessionId##")
-
-          val studienGang = Studiengang(None, job.id, data(0), data(1), data(2), data(3), Option(link), modifiedDate = Some(new Date()), sourceId = sourceAkkreditierungsRat.get.id.get)
-          if (!checkSumMap.contains(studienGang.checkSum)) {
-            Studiengang.Insert(studienGang)
-            neueStudienGaenge += studienGang
-            block(studienGang)
-            println(s"insert ${studienGang}")
-            checkSumMap.put(studienGang.checkSum, studienGang)
-          } else {
-            //println(s"already exists ${studienGang}")
+          DB.db withSession {
+            val studienGang =  Studiengang(None, Some(job.id), data(0), data(1), data(2), data(3), Option(link),updateDate = DateUtil.nowDateTimeOpt(), modifiedDate = DateUtil.nowDateTimeOpt(), sourceId = sourceAkkreditierungsRat.get.id)
+            if (!checkSumMap.contains(studienGang.checkSum)) {
+              val stored = Studiengangs.insert(studienGang)
+              neueStudienGaenge += stored
+              block(stored)
+              println(s"insert ${studienGang}")
+              checkSumMap.put(studienGang.checkSum, studienGang)
+            } else {
+              //println(s"already exists ${studienGang}")
+            }
           }
         }
       }
@@ -95,18 +101,18 @@ object AkkreditierungsRatClient {
   }
 
   def InsertStudienGangAttribute(studienGang: Studiengang, studiengangAttribute: StudiengangAttribute) = {
-    StudiengangAttribute.Insert(studiengangAttribute)
+    StudiengangAttributes.insert(studiengangAttribute)
     false
   }
 
   def UpdateStudienGangAttribute(studienGang: Studiengang, studiengangAttribute: StudiengangAttribute): Boolean = {
-    val attributes = studienGang.studiengangAttributes
+    val attributes = DB.db withSession studienGang.attributes
     val st = attributes.get(studiengangAttribute.key)
     if (st == None) {
       InsertStudienGangAttribute(studienGang, studiengangAttribute)
       return true
     } else if (!st.get.equals(studiengangAttribute)) {
-      StudiengangAttribute.Update(studiengangAttribute)
+      (for {attribute <- StudiengangAttributes if attribute.id === studiengangAttribute.id && attribute.key === studiengangAttribute.key} yield (attribute.value)).update(studiengangAttribute.value)
       return true
     }
     return false
@@ -133,8 +139,7 @@ object AkkreditierungsRatClient {
         case (k, v) =>
           change = change || persit(studienGang, StudiengangAttribute(studienGang.id.get, k, v))
           if (k == "Gutachten Link") {
-            studienGang.gutachtentLink = Some(v)
-            Studiengang.UpdateGutachtentLink(studienGang)
+            (for {gang <- Studiengangs if gang.id === studienGang.id} yield (gang.gutachtentLink)).update(Some(v))
           }
       }
     }

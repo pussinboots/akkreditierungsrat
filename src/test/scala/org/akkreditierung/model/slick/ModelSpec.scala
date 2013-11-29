@@ -2,10 +2,8 @@ package org.akkreditierung.model.slick
 
 import org.specs2.mutable.Specification
 import scala.slick.session.Database
-import scala.slick.driver.H2Driver.simple._
 import Database.threadLocalSession
 import java.util.Calendar
-import org.akkreditierung.model.SourceAkkreditierungsRat
 import java.sql.Timestamp
 import scala.Some
 import org.akkreditierung.DateUtil
