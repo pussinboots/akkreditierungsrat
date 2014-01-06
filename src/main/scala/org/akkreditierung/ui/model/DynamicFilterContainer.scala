@@ -47,14 +47,13 @@ class DynamicFilterContainer[E, T] extends SlickFilter[E,T] {
     _query
   }
 
-  def isNotEmpty(field: FormComponent[String]) = {
-    field.getValue != null && field.getValue.length > 0
-  }
+  def isNotEmpty(value: String) = value != null && value.length > 0
 
   def filterIfNotEmpty(field: FormComponent[String], query: Query[E, T], filter: (String, Query[E,T]) => Query[E, T]): Query[E, T] = {
-    if(isNotEmpty(field)) {
+    val value = field.getValue
+    if(isNotEmpty(value)) {
       DB.db withSession {
-        return filter(s"%${field.getValue}%", query)
+        return filter(s"%${value}%", query)
       }
     }
     return query
