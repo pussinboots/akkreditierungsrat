@@ -84,6 +84,7 @@ class StudiengangEditPageTest extends Specification with SlickDbBefore {
         }
         () must be equalTo("did something")
       }*/
+      () must be equalTo("did something")
     }
   }
 }
