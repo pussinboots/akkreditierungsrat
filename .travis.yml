@@ -1,19 +1,9 @@
 language: scala
-env: 
-  global: 
-    secure: rTgZnVyWVFtR5wxgve06B2/0L/fcaTR+UlFL6MATMefRo0lmI7rRzdx7ahXf16t8WCAvEZXh4r0XuQTWMGjTvtoSnFhE9DQtq4humKcrykG8RtTLnUsVJVcz4paFhjK6MANdCQ0BbW5PlcGuqHm6Bfyrk+G1syxEjLgDJFkxFO4=
 scala: 
 - 2.10.2
-after_success: 
-- if [[ "$TRAVIS_PULL_REQUEST" == "true" ]]; then echo "This is a pull request. No deployment will be done."; exit 0; fi
-- if [![ "$TRAVIS_BRANCH" == "master" ]]; then echo "This is not the master branch ($TRAVIS_BRANCH) so no deployment"; exit 0; fi
-- echo "Start Deployment to heroku"
-- wget -qO- https://toolbelt.heroku.com/install-ubuntu.sh | sh
-- git remote add heroku git@heroku.com:lit-ocean-2199.git
-- echo "Host heroku.com" >> ~/.ssh/config
-- echo "   StrictHostKeyChecking no" >> ~/.ssh/config
-- echo "   CheckHostIP no" >> ~/.ssh/config
-- echo "   UserKnownHostsFile=/dev/null" >> ~/.ssh/config
-- heroku keys:clear
-- yes | heroku keys:add
-- yes | git push heroku master
+deploy:
+  provider: heroku
+  app: lit-ocean-2199
+  strategy: git  
+  api_key: 
+    secure: h4Jtxh/e7T2uMUMF/WuOIJwZ0x0T05+KijCYg9RL8yLdR7Hbb6vcEjYhriMnujIS0eBz6//bXNno7I9Gs1lSpORan+lZEBN9iVXvFjy+MmGnZobXIzGHaVWfwJD59LUFn3jhSSHjA4ERGrssFgH9EOlK7m0rXXAn/mt+U4frNoM=
