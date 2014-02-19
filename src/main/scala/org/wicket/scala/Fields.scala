@@ -15,25 +15,12 @@ object Fields {
     textField
   }
 
-  def createAjaxTextFilter(componentId: String, componentToAdd: MarkupContainer, block: TextField[String] => TextField[String] = addOnChange): TextField[String] = {
-    createTextFilter(componentId, componentToAdd, {textField:TextField[String] =>
-      textField.add(new AjaxOnChangeBehavoir)
-      textField
-    } )
-  }
-
-  def createAjaxTextFilter(componentId: String, componentToAdd: MarkupContainer, pageParameters: PageParameters, block: TextField[String] => TextField[String] = addOnChange): TextField[String] = {
-    createTextFilter(componentId, componentToAdd, {textField:TextField[String] =>
-      textField.add(new AjaxOnChangeBehavoir)
-      textField
-    }, pageParameters.get(componentId).toString("") )
+  def createAjaxTextFilter(componentId: String, componentToAdd: MarkupContainer, pageParameters: PageParameters = new PageParameter(), block: TextField[String] => TextField[String] = addOnChange): TextField[String] = {
+    createTextFilter(componentId, componentToAdd, block, pageParameters.get(componentId).toString("") )
   }
 
   def createAjaxHiddenTextFilter(componentId: String, componentToAdd: MarkupContainer, block: TextField[String] => TextField[String] = addOnChange): TextField[String] = {
-    createHiddenTextField(componentId, componentToAdd, {textField:TextField[String] =>
-      textField.add(new AjaxOnChangeBehavoir)
-      textField}
-      )
+    createHiddenTextField(componentId, componentToAdd, block)
   }
 
   def createTextFilter(componentId: String, componentToAdd: MarkupContainer, block: TextField[String] => TextField[String], value: String = ""): TextField[String] = {
