@@ -10,12 +10,14 @@ import org.apache.wicket.markup.html.basic.Label
 import org.akkreditierung.HTML4Escaper
 
 object Fields {
+
+  val pageParametersDefault = new PageParameters()
   def addOnChange(textField: TextField[String]) = {
     textField.add(new AjaxOnChangeBehavoir)
     textField
   }
 
-  def createAjaxTextFilter(componentId: String, componentToAdd: MarkupContainer, pageParameters: PageParameters = new PageParameter(), block: TextField[String] => TextField[String] = addOnChange): TextField[String] = {
+  def createAjaxTextFilter(componentId: String, componentToAdd: MarkupContainer, pageParameters: PageParameters = pageParametersDefault, block: TextField[String] => TextField[String] = addOnChange): TextField[String] = {
     createTextFilter(componentId, componentToAdd, block, pageParameters.get(componentId).toString("") )
   }
 
