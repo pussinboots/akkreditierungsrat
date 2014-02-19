@@ -36,7 +36,7 @@ class AdvertiserConfigPage(parameters: PageParameters) extends WebPage(parameter
     val form = "filterForm".form(this)
     import DynamicFilterContainer._
     val filter = new DynamicFilterContainer[DB.dal.Studiengangs.type, Studiengang]()
-    filter.add("hochschule", "hochschule".textField(form), likeFilter("hochschule"))
+    filter.add("hochschule", "hochschule".textField(form, parameters), likeFilter("hochschule"))
     filter.add("fach", "fach".textField(form), likeFilter("fach"))
     filter.add("abschluss", "abschluss".textField(form), likeFilter("abschluss"))
     filter.add("agentur", "agentur".textField(form), likeAttributeFilter("von"))

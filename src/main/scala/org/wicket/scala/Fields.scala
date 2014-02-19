@@ -3,6 +3,7 @@ package org.wicket.scala
 import org.apache.wicket.markup.html.form.{HiddenField, TextField}
 import org.apache.wicket.model.Model
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior
+import org.apache.wicket.request.mapper.parameter.PageParameters
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.MarkupContainer
 import org.apache.wicket.markup.html.basic.Label
@@ -21,6 +22,13 @@ object Fields {
     } )
   }
 
+  def createAjaxTextFilter(componentId: String, componentToAdd: MarkupContainer, pageParameters: PageParameters, block: TextField[String] => TextField[String] = addOnChange): TextField[String] = {
+    createTextFilter(componentId, componentToAdd, {textField:TextField[String] =>
+      textField.add(new AjaxOnChangeBehavoir)
+      textField
+    }, pageParameters.get(componentId).toString("") )
+  }
+
   def createAjaxHiddenTextFilter(componentId: String, componentToAdd: MarkupContainer, block: TextField[String] => TextField[String] = addOnChange): TextField[String] = {
     createHiddenTextField(componentId, componentToAdd, {textField:TextField[String] =>
       textField.add(new AjaxOnChangeBehavoir)
@@ -28,8 +36,8 @@ object Fields {
       )
   }
 
-  def createTextFilter(componentId: String, componentToAdd: MarkupContainer, block: TextField[String] => TextField[String]): TextField[String] = {
-    val textFilter: TextField[String] = new TextField[String](componentId, new Model(""))
+  def createTextFilter(componentId: String, componentToAdd: MarkupContainer, block: TextField[String] => TextField[String], value: String = ""): TextField[String] = {
+    val textFilter: TextField[String] = new TextField[String](componentId, new Model(value))
     componentToAdd.add(block(textFilter))
     textFilter
   }

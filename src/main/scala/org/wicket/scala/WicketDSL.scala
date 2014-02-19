@@ -8,6 +8,7 @@ import org.apache.wicket.markup.html.link.BookmarkablePageLink
 import org.apache.wicket.extensions.markup.html.repeater.data.table.{DefaultDataTable, ISortableDataProvider, IColumn}
 import org.apache.wicket.markup.html.panel.Panel
 import org.apache.wicket.model.{PropertyModel, IModel}
+import org.apache.wicket.request.mapper.parameter.PageParameters
 import java.util.ArrayList
 import org.wicket.scala.Columns._
 
@@ -21,6 +22,7 @@ class WicketDSL(id: String) {
   def textField() = new TextField[String](id)
   def hiddenTextField() = new HiddenField[String](id)
   def textField[T](form:Form[T]) = createAjaxTextFilter(id, form)
+  def textField[T](form:Form[T], pageParameters: PageParameters) = createAjaxTextFilter(id, form, pageParameters)
   def hiddenTextField[T](form:Form[T]) = createAjaxHiddenTextFilter(id, form)
   def label(message: String) = new Label(id, message)
   def pageLink[T<:Page](clazz: Class[T]) = new BookmarkablePageLink[Void](id, clazz)
