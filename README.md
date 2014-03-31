@@ -1,6 +1,8 @@
 Example Project to show the integration of wicket with Scala and Slick
 ==================
 
+Live Demo - http://lit-ocean-2199.herokuapp.com/
+
 This project is fully implemented with Scala and wicket. The Scala language make it 
 much easier to use wicket as fronted framework and need less code compared with Java.
 
