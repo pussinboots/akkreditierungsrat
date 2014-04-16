@@ -75,8 +75,10 @@ class AdvertiserConfigPage(parameters: PageParameters) extends WebPage(parameter
   private class ActionPanel(id: String, model: IModel[Studiengang], detailPanel: MarkupContainer) extends Panel(id, model) {
     add(new AjaxLink(("select")) {
       def onClick(target: AjaxRequestTarget) {
-        setSelected(getParent.getDefaultModelObject.asInstanceOf[Studiengang])
-        target.add(detailPanel)
+        DB.db withSession {
+          setSelected(getParent.getDefaultModelObject.asInstanceOf[Studiengang])
+          target.add(detailPanel)
+        }
       }
     })
     add(new Link(("new")) {
