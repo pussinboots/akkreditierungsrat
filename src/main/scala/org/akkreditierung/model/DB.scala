@@ -35,9 +35,9 @@ object DB {
 
   def WithSSL() {
     System.setProperty("javax.net.ssl.keyStore", "keystore")
-    System.setProperty("javax.net.ssl.keyStorePassword", "Korn4711")
+    System.setProperty("javax.net.ssl.keyStorePassword", sys.props.get("SSLPW").getOrElse(""))
     System.setProperty("javax.net.ssl.trustStore", "truststore")
-    System.setProperty("javax.net.ssl.trustStorePassword", "Korn4711")
+    System.setProperty("javax.net.ssl.trustStorePassword", sys.props.get("SSLPW").getOrElse(""))
   }
 
   def getSlickMysqlConnection(jdbcUrl: String = dbConfigUrl) = {
