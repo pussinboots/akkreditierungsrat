@@ -29,7 +29,7 @@ class DBSpec extends Specification {
       Properties.propIsSet("javax.net.ssl.keyStorePassword") must beFalse
       DB.WithSSL()
       Properties.propOrNull("javax.net.ssl.keyStore") must beEqualTo("keystore")
-      Properties.propOrNull("javax.net.ssl.keyStorePassword") must beEqualTo("Korn4711")
+      Properties.propOrNull("javax.net.ssl.keyStorePassword") must beEqualTo("")
     }
   }
 }
