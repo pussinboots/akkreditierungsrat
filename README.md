@@ -2,6 +2,7 @@ Example Project to show the integration of wicket with Scala and Slick
 ==================
 
 Live Demo - http://lit-ocean-2199.herokuapp.com/
+
 CI Linke (travis) - https://travis-ci.org/pussinboots/akkreditierungsrat
 
 This project is fully implemented with Scala and wicket. The Scala language make it 
