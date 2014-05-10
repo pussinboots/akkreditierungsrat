@@ -50,7 +50,7 @@ object DB {
     ds.setMaxPoolSize(15)
     ds.setPreferredTestQuery("Select 1")
     ds.setIdleConnectionTestPeriod(50)
-    ds.setTestConnectionOnCheckOut(true)
+    ds.setTestConnectionOnCheckout(true)
     Database.forDataSource(ds)
   }
 
