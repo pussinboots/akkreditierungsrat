@@ -48,7 +48,7 @@ object DB {
     ds.setUser(dbConnectionInfo._2)
     ds.setPassword(dbConnectionInfo._3)
     ds.setMaxPoolSize(15)
-    ds.setPreferredTestQuery("")
+    ds.setPreferredTestQuery("Select 1")
     Database.forDataSource(ds)
   }
 
