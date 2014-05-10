@@ -49,6 +49,8 @@ object DB {
     ds.setPassword(dbConnectionInfo._3)
     ds.setMaxPoolSize(15)
     ds.setPreferredTestQuery("Select 1")
+    ds.setIdleConnectionTestPeriod(50)
+    ds.setTestConnectionOnCheckOut(true)
     Database.forDataSource(ds)
   }
 
