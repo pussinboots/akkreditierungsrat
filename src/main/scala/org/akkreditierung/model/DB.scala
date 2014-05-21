@@ -26,7 +26,7 @@ object DB {
   }
 
   def dbConfigUrl: String = {
-    val p = Properties.envOrElse("CLEARDB_DATABASE_URL", "mysql://root:root@127.0.0.1:3306/heroku_9852f75c8ae3ea1")
+    val p = Properties.envOrElse("CLEARDB_DATABASE_URL", "mysql://root:mysql@127.0.0.1:3306/heroku_9852f75c8ae3ea1")
     println(p)
     p
   }
