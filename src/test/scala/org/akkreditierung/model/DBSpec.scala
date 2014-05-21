@@ -12,14 +12,14 @@ class DBSpec extends Specification {
     }
     "parse heroku database to jdbc url" in {
       val dbConf = DB.parseDbUrl("mysql://root:password@127.0.0.1/heroku_9852f75c8ae3ea1")
-      dbConf._1 must beEqualTo("jdbc:mysql://127.0.0.1/heroku_9852f75c8ae3ea1?useSSL=true&useUnicode=yes&characterEncoding=UTF-8")
+      dbConf._1 must beEqualTo("jdbc:mysql://127.0.0.1/heroku_9852f75c8ae3ea1?useSSL=true&useUnicode=yes&characterEncoding=UTF-8&reconnect=true")
       dbConf._2 must beEqualTo("root")
       dbConf._3 must beEqualTo("password")
     }
 
     "parse default heroku database to jdbc url" in {
       val dbConf = DB.parseConfiguredDbUrl()
-      dbConf._1 must beEqualTo("jdbc:mysql://127.0.0.1:3306/heroku_9852f75c8ae3ea1?useSSL=true&useUnicode=yes&characterEncoding=UTF-8")
+      dbConf._1 must beEqualTo("jdbc:mysql://127.0.0.1:3306/heroku_9852f75c8ae3ea1?useSSL=true&useUnicode=yes&characterEncoding=UTF-8&reconnect=true")
       dbConf._2 must beEqualTo("root")
       dbConf._3 must beEqualTo("mysql")
     }
