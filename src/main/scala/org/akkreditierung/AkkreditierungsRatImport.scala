@@ -9,9 +9,9 @@ import org.akkreditierung.model.slick.Studiengang
 object AkkreditierungsRatImport extends App {
 
   DB.WithSSL()
-  importStudienGaenge()
+  importStudienGaenge(start=5000)
 
-  def importStudienGaenge(sessionId: String = getSessionId(), step:Int = 30, end: Int = 5100) {
+  def importStudienGaenge(sessionId: String = getSessionId(), start:Int=0, step:Int = 30, end: Int = 5100) {
 
     println(s"Session ${sessionId}")
 

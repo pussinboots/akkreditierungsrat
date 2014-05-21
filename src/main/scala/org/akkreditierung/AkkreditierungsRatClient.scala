@@ -41,7 +41,7 @@ object AkkreditierungsRatClient {
     body.getResponseBody()
   }
 
-  def fetchAndStoreStudienGaenge(sessionId: String, step: Int = 30, end: Int = 30, block: Studiengang => (Unit)) = {
+  def fetchAndStoreStudienGaenge(sessionId: String, start:Int=0, step: Int = 30, end: Int = 30, block: Studiengang => (Unit)) = {
     import DB.dal._
     import DB.dal.profile.simple._
     val job = DB.db withDynSession jobInsert(Job(0))
@@ -52,13 +52,13 @@ object AkkreditierungsRatClient {
       val checkSumMap: mutable.Map[String, Studiengang] = findAllStudienGangs().list().map(elem => elem.checkSum->elem)(collection.breakOut)
       //fetch bechelar studiengänge
       try {
-        fetchStudienGaengeByBezugsTyp(start = 0, end, step, sessionId, "3", job, checkSumMap, neueStudienGaenge, block)
+        fetchStudienGaengeByBezugsTyp(start, end, step, sessionId, "3", job, checkSumMap, neueStudienGaenge, block)
         //fetch master studiengänge
-        fetchStudienGaengeByBezugsTyp(start = 0, end, step, sessionId, "4", job, checkSumMap, neueStudienGaenge, block)
+        fetchStudienGaengeByBezugsTyp(start, end, step, sessionId, "4", job, checkSumMap, neueStudienGaenge, block)
       } catch {
  	 case e: Exception => e.printStackTrace()
 	} finally {
-        updateOrDelete(Job(id = job.id, newEntries = neueStudienGaenge.size, status = "finished"))
+        //updateOrDelete(Job(id = job.id, newEntries = neueStudienGaenge.size, status = "finished"))
       }
     }
     neueStudienGaenge
