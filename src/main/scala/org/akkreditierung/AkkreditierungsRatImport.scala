@@ -16,7 +16,7 @@ object AkkreditierungsRatImport extends App {
     println(s"Session ${sessionId}")
 
     //TODO actual the loop has to be defined with a specific end here 5100 studiengang is reached than break need a method to find when the table is at his end
-    fetchAndStoreStudienGaenge(sessionId, step, end, {
+    fetchAndStoreStudienGaenge(sessionId, start, step, end, {
       studienGang: Studiengang =>
         fetchAndStoreStudienGangInfo(sessionId, studienGang)
     })

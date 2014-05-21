@@ -30,7 +30,7 @@ class AkkreditierungsRatClientSpec extends Specification with SlickDbBefore {
     proxyServer.start()
     try {
       val sessionId = "B787EA9B6B8633E4DC39904A77BC2F79"
-      fetchAndStoreStudienGaenge(sessionId, 30, 30, {
+      fetchAndStoreStudienGaenge(sessionId, 0, 30, 30, {
         studienGang: Studiengang =>
           fetchAndStoreStudienGangInfo(sessionId, studienGang)
       })
