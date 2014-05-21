@@ -55,7 +55,9 @@ object AkkreditierungsRatClient {
         fetchStudienGaengeByBezugsTyp(start = 0, end, step, sessionId, "3", job, checkSumMap, neueStudienGaenge, block)
         //fetch master studiengänge
         fetchStudienGaengeByBezugsTyp(start = 0, end, step, sessionId, "4", job, checkSumMap, neueStudienGaenge, block)
-      } finally {
+      } catch {
+ 	 case e: Exception => println("exception caught: " + e);
+	} finally {
         updateOrDelete(Job(id = job.id, newEntries = neueStudienGaenge.size, status = "finished"))
       }
     }
