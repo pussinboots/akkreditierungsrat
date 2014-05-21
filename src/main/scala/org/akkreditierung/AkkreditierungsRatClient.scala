@@ -48,8 +48,7 @@ object AkkreditierungsRatClient {
 
     val neueStudienGaenge = mutable.MutableList[Studiengang]()
     import scala.collection.mutable
-    DB.db withDynSession {
-      val checkSumMap: mutable.Map[String, Studiengang] = findAllStudienGangs().list().map(elem => elem.checkSum->elem)(collection.breakOut)
+      val checkSumMap: mutable.Map[String, Studiengang] = DB.db withDynSession findAllStudienGangs().list().map(elem => elem.checkSum->elem)(collection.breakOut)
       //fetch bechelar studiengänge
       try {
         fetchStudienGaengeByBezugsTyp(start = 0, end, step, sessionId, "3", job, checkSumMap, neueStudienGaenge, block)
@@ -58,9 +57,8 @@ object AkkreditierungsRatClient {
       } catch {
  	 case e: Exception => e.printStackTrace()
 	} finally {
-        updateOrDelete(Job(id = job.id, newEntries = neueStudienGaenge.size, status = "finished"))
+        DB.db withDynSession updateOrDelete(Job(id = job.id, newEntries = neueStudienGaenge.size, status = "finished"))
       }
-    }
     neueStudienGaenge
   }
 
