@@ -52,9 +52,10 @@ object AkkreditierungsRatClient {
       val checkSumMap: mutable.Map[String, Studiengang] = findAllStudienGangs().list().map(elem => elem.checkSum->elem)(collection.breakOut)
       //fetch bechelar studiengänge
       try {
-        //fetchStudienGaengeByBezugsTyp(start = 0, end, step, sessionId, "3", job, checkSumMap, neueStudienGaenge, block)
+        
         //fetch master studiengänge
         fetchStudienGaengeByBezugsTyp(start = 0, end, step, sessionId, "4", job, checkSumMap, neueStudienGaenge, block)
+	fetchStudienGaengeByBezugsTyp(start = 0, end, step, sessionId, "3", job, checkSumMap, neueStudienGaenge, block)
       } catch {
  	 case e: Exception => e.printStackTrace()
 	} finally {
