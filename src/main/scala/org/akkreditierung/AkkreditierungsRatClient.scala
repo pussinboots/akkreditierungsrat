@@ -58,7 +58,7 @@ object AkkreditierungsRatClient {
       } catch {
  	 case e: Exception => e.printStackTrace()
 	} finally {
-        //updateOrDelete(Job(id = job.id, newEntries = neueStudienGaenge.size, status = "finished"))
+        updateOrDelete(Job(id = job.id, newEntries = neueStudienGaenge.size, status = "finished"))
       }
     }
     neueStudienGaenge
