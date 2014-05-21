@@ -52,6 +52,7 @@ object DB {
     ds.setIdleConnectionTestPeriod(10)
     ds.setTestConnectionOnCheckin(true)
     ds.setTestConnectionOnCheckout(true)
+    ds.setMaxIdleTime(60)
     Database.forDataSource(ds)
   }
 
