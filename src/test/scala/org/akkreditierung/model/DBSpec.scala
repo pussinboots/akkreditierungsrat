@@ -8,7 +8,7 @@ class DBSpec extends Specification {
     "read database url from environment" in {
 //      System.setProperty("CLEARDB_DATABASE_URL", "mysql://testurl")
 //      DB.dbConfigUrl must beEqualTo("mysql://testurl")
-      DB.dbConfigUrl must beEqualTo("mysql://root:root@127.0.0.1:3306/heroku_9852f75c8ae3ea1")
+      DB.dbConfigUrl must beEqualTo("mysql://root:mysql@127.0.0.1:3306/heroku_9852f75c8ae3ea1")
     }
     "parse heroku database to jdbc url" in {
       val dbConf = DB.parseDbUrl("mysql://root:password@127.0.0.1/heroku_9852f75c8ae3ea1")
