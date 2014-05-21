@@ -67,6 +67,12 @@ class ModelSpec extends Specification {
           studiengang.id mustNotEqual(None)
         }
       }
+      "denie duplicate insertion of a new studienganag" in {
+        db withSession {
+          val studiengang = Studiengangs.insert(Studiengang(None, Some(1), "Zahnarzt", "Bachelor", "Zahnfee Academy", "bezugstyp", Some("link"), None, DateUtil.nowDateTimeOpt(), None, 1))
+	  Studiengangs.insert(Studiengang(None, Some(1), "Zahnarzt", "Bachelor", "Zahnfee Academy", "bezugstyp", Some("link"), None, DateUtil.nowDateTimeOpt(), None, 1)) must throwA[Exception]
+        }
+      }
     }
     "Job object" should {
       "store Job entry with newEntries bigger than zero" in {

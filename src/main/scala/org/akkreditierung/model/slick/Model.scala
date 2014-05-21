@@ -81,6 +81,7 @@ trait StudiengangComponent { this: Profile with StudiengangAttributesComponent=>
     def modifiedDate = column[Option[Timestamp]]("modifiedDate")
     def updateDate = column[Option[Timestamp]]("updateDate")
     def checkSumDB = column[String]("checksum")
+    def uniqueCheckSumDB = index("IDX_CHECKSUM", checkSumDB, unique = true)
     def sourceId = column[Int]("sourceId")
     def * = id.? ~ jobId ~ fach ~ abschluss ~ hochschule ~ bezugstyp ~ link~ gutachtentLink~ updateDate~ modifiedDate~ sourceId~ checkSumDB <> (Studiengang, Studiengang.unapply _)
     def forInsert = jobId ~ fach ~ abschluss ~ hochschule ~ bezugstyp ~ link~ gutachtentLink~ updateDate~ modifiedDate~ sourceId~ checkSumDB <> ({ t => Studiengang(None,t._1, t._2, t._3, t._4, t._5, t._6, t._7, t._8, t._9, t._10)}, {(u: Studiengang) => Some((u.jobId, u.fach, u.abschluss, u.hochschule, u.bezugstyp, u.link, u.gutachtenLink, u.updateDate, u.modifiedDate, u.sourceId, u.checkSum))}) returning id

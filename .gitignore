@@ -1,0 +1,7 @@
+private_start.sh
+target
+project/target
+project/project
+.idea
+logs
+.idea_modules
