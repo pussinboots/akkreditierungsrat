@@ -21,7 +21,7 @@ class DBSpec extends Specification {
       val dbConf = DB.parseConfiguredDbUrl()
       dbConf._1 must beEqualTo("jdbc:mysql://127.0.0.1:3306/heroku_9852f75c8ae3ea1?useSSL=true&useUnicode=yes&characterEncoding=UTF-8")
       dbConf._2 must beEqualTo("root")
-      dbConf._3 must beEqualTo("root")
+      dbConf._3 must beEqualTo("mysql")
     }
 
     "parse heroku database to jdbc url" in {
