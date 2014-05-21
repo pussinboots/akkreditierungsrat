@@ -13,7 +13,7 @@ import org.apache.wicket.authroles.authorization.strategies.role.annotations.Aut
 import org.akkreditierung.model.DB
 import org.akkreditierung.model.slick._
 import org.apache.wicket.markup.html.panel.FeedbackPanel
-import scala.slick.session.Database.threadLocalSession
+import scala.slick.jdbc.JdbcBackend.Database.dynamicSession
 
 object StudiengangEditPage {
   final val PAGE_PARAMETER_ID: String = "studiengangId"
@@ -37,9 +37,9 @@ class StudiengangEditPage(parameters: PageParameters) extends WebPage(parameters
       println(studienGang)
       import DB.dal._
       import DB.dal.profile.simple._
-      val storedStudienGang = DB.db withSession Studiengangs.insert(getModelObject)
+      val storedStudienGang = DB.db withDynSession studienGanginsert(getModelObject)
       val l:Seq[StudiengangAttribute] = list.filter(_.value != null).map(_.copy(id=storedStudienGang.id.get))
-      DB.db withSession StudiengangAttributes.insertAll(l:_*)
+      DB.db withDynSession studiengangAttributes.insertAll(l:_*)
       clearInput()    //todo not working at the moment clear all input and model values
     }
   }

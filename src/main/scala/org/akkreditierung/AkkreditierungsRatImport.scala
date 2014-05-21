@@ -2,8 +2,7 @@ package org.akkreditierung
 
 import org.akkreditierung.AkkreditierungsRatClient._
 import java.util.concurrent.Executors
-import scala.slick.session.Database
-import Database.threadLocalSession
+import scala.slick.jdbc.JdbcBackend.Database.dynamicSession
 import org.akkreditierung.model.DB
 import org.akkreditierung.model.slick.Studiengang
 
@@ -38,7 +37,7 @@ object AkkreditierungsRatUpdate extends App {
     println(s"Session ${sessionId}")
     val nextId = { var i = 0; () => { i += 1; i} }
 
-    val studienGaenge = DB.db withSession (for {gang <- Studiengangs if gang.updateDate < DateUtil.daysBeforDateTime(days)} yield (gang)).list
+    val studienGaenge = DB.db withDynSession (for {gang <- studiengangs if gang.updateDate < DateUtil.daysBeforDateTime(days)} yield (gang)).list
 
     import scala.concurrent.duration._
     import scala.concurrent._
@@ -52,11 +51,11 @@ object AkkreditierungsRatUpdate extends App {
         val changed = fetchAndStoreStudienGangInfo(sessionId, studienGang, UpdateStudienGangAttribute)
         val now = DateUtil.nowDateTimeOpt()
         if (changed) {
-          DB.db withSession (for {gang <- Studiengangs if gang.id === studienGang.id} yield (gang.modifiedDate)).update(now)
+          DB.db withDynSession (for {gang <- studiengangs if gang.id === studienGang.id} yield (gang.modifiedDate)).update(now)
           println(s"Updated ${studienGang.copy(modifiedDate = now)}")
           println(nextId())
         }
-        DB.db withSession (for {gang <- Studiengangs if gang.id === studienGang.id} yield (gang.updateDate)).update(now)
+        DB.db withDynSession (for {gang <- studiengangs if gang.id === studienGang.id} yield (gang.updateDate)).update(now)
         studienGang.copy(modifiedDate = now)
     }
 

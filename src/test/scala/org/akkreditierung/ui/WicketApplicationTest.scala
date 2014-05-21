@@ -6,8 +6,7 @@ import org.specs2.mutable._
 import org.apache.wicket.util.tester.{FormTester, WicketTester}
 import org.akkreditierung.model.DB
 import org.akkreditierung.test.{SlickDbBefore}
-import scala.slick.session.Database
-import Database.threadLocalSession
+import scala.slick.jdbc.JdbcBackend.Database.dynamicSession
 
 class WicketApplicationTest extends Specification {
 

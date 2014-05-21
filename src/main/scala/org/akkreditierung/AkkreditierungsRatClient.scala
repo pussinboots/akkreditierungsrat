@@ -11,13 +11,12 @@ import scala.collection.mutable
 import scala.Some
 import org.akkreditierung.model.DB
 import org.akkreditierung.model.slick._
-import scala.slick.session.Database
-import Database.threadLocalSession
+import scala.slick.jdbc.JdbcBackend.Database.dynamicSession
 
 object AkkreditierungsRatClient {
   import DB.dal._
   import DB.dal.profile.simple._
-  val sourceAkkreditierungsRat = DB.db withSession Sources.findOrInsert(SourceAkkreditierungsRat.name)
+  val sourceAkkreditierungsRat = DB.db withDynSession findOrInsert(SourceAkkreditierungsRat.name)
 
   def getResult(sessionId: String, offset: String = "0", bezugsTyp: String = "3", maxOffset: String = "30") = {
     val post = Map("tid" -> "80520", "reuseresult" -> "false", "stylesheet" -> "tabelle_html_akkr.xsl", "Bezugstyp" -> bezugsTyp, "sort" -> "2", "offset" -> offset, "maxoffset" -> maxOffset, "contenttype" -> "")
@@ -45,19 +44,19 @@ object AkkreditierungsRatClient {
   def fetchAndStoreStudienGaenge(sessionId: String, step: Int = 30, end: Int = 30, block: Studiengang => (Unit)) = {
     import DB.dal._
     import DB.dal.profile.simple._
-    val job = DB.db withSession Jobs.insert(Job(0))
+    val job = DB.db withDynSession jobInsert(Job(0))
 
     val neueStudienGaenge = mutable.MutableList[Studiengang]()
     import scala.collection.mutable
-    DB.db withSession {
-      val checkSumMap: mutable.Map[String, Studiengang] = Studiengangs.findAll().list().map(elem => elem.checkSum->elem)(collection.breakOut)
+    DB.db withDynSession {
+      val checkSumMap: mutable.Map[String, Studiengang] = findAllStudienGangs().list().map(elem => elem.checkSum->elem)(collection.breakOut)
       //fetch bechelar studiengänge
       try {
         fetchStudienGaengeByBezugsTyp(start = 0, end, step, sessionId, "3", job, checkSumMap, neueStudienGaenge, block)
         //fetch master studiengänge
         fetchStudienGaengeByBezugsTyp(start = 0, end, step, sessionId, "4", job, checkSumMap, neueStudienGaenge, block)
       } finally {
-        Jobs.updateOrDelete(Job(id = job.id, newEntries = neueStudienGaenge.size, status = "finished"))
+        updateOrDelete(Job(id = job.id, newEntries = neueStudienGaenge.size, status = "finished"))
       }
     }
     neueStudienGaenge
@@ -83,10 +82,10 @@ object AkkreditierungsRatClient {
             .get.getElementsByAttValue("title", "Weiter", true, false)(0).getAttributeByName("href")
             .replace("..", "http://www.hs-kompass2.de/kompass")
             .replace(sessionId, "##sessionId##")
-          DB.db withSession {
-            val studienGang =  Studiengang(None, Some(job.id), data(0), data(1), data(2), data(3), Option(link),updateDate = DateUtil.nowDateTimeOpt(), modifiedDate = DateUtil.nowDateTimeOpt(), sourceId = sourceAkkreditierungsRat.get.id)
+          DB.db withDynSession {
+            val studienGang =  Studiengang(None, Some(job.id), data(0), data(1), data(2), data(3), Option(link),  DateUtil.nowDateTimeOpt(), DateUtil.nowDateTimeOpt(), sourceAkkreditierungsRat.get.id)
             if (!checkSumMap.contains(studienGang.checkSum)) {
-              val stored = Studiengangs.insert(studienGang)
+              val stored = studienGanginsert(studienGang)
               neueStudienGaenge += stored
               block(stored)
               println(s"insert ${studienGang}")
@@ -101,18 +100,18 @@ object AkkreditierungsRatClient {
   }
 
   def InsertStudienGangAttribute(studienGang: Studiengang, studiengangAttribute: StudiengangAttribute) = {
-    StudiengangAttributes.insert(studiengangAttribute)
+    studiengangAttributes.insert(studiengangAttribute)
     false
   }
 
   def UpdateStudienGangAttribute(studienGang: Studiengang, studiengangAttribute: StudiengangAttribute): Boolean = {
-    val attributes = DB.db withSession studienGang.attributes
+    val attributes = DB.db withDynSession studienGang.attributes
     val st = attributes.get(studiengangAttribute.key)
     if (st == None) {
       InsertStudienGangAttribute(studienGang, studiengangAttribute)
       return true
     } else if (!st.get.equals(studiengangAttribute)) {
-      (for {attribute <- StudiengangAttributes if attribute.id === studiengangAttribute.id && attribute.key === studiengangAttribute.key} yield (attribute.value)).update(studiengangAttribute.value)
+      (for {attribute <- studiengangAttributes if attribute.id === studiengangAttribute.id && attribute.key === studiengangAttribute.key} yield (attribute.value)).update(studiengangAttribute.value)
       return true
     }
     return false
@@ -139,7 +138,7 @@ object AkkreditierungsRatClient {
         case (k, v) =>
           change = change || persit(studienGang, StudiengangAttribute(studienGang.id.get, k, v))
           if (k == "Gutachten Link") {
-            (for {gang <- Studiengangs if gang.id === studienGang.id} yield (gang.gutachtentLink)).update(Some(v))
+            (for {gang <- studiengangs if gang.id === studienGang.id} yield (gang.gutachtentLink)).update(Some(v))
           }
       }
     }

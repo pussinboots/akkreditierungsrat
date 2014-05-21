@@ -20,6 +20,7 @@ import org.wicket.scala.RepeatingViews._
 import org.akkreditierung.model.DB
 import org.akkreditierung.model.slick._
 import org.wicket.scala.WicketDSL._
+import scala.slick.jdbc.JdbcBackend.Database.dynamicSession
 
 object AdvertiserConfigPage {
   private final val serialVersionUID: Long = 1L
@@ -27,7 +28,7 @@ object AdvertiserConfigPage {
 
 class AdvertiserConfigPage(parameters: PageParameters) extends WebPage(parameters) {
   val detailPanel = "selected".panel(this, "selected",(id:String, model:IModel[Studiengang])=>new DetailPanel(id, model))(this)
-  val job = DB.db withSession DB.dal.Jobs.findLatest().getOrElse(Job(1))
+  val job = DB.db withDynSession DB.dal.findLatestJob().getOrElse(Job(1))
   add("editLink".pageLink(classOf[StudiengangEditPage]))
   add("job".label(s" ${job.newEntries} neue Studiengänge importiert am ${job.createDate} status ${job.status}"))
   add("datatable".table(getColumns, new StudienGangModelProvider(createFilterContainer()), detailPanel))
@@ -35,13 +36,13 @@ class AdvertiserConfigPage(parameters: PageParameters) extends WebPage(parameter
   private def createFilterContainer() = {
     val form = "filterForm".form(this)
     import DynamicFilterContainer._
-    val filter = new DynamicFilterContainer[DB.dal.Studiengangs.type, Studiengang]()
+    val filter = new DynamicFilterContainer[DB.dal.Studiengangs, Studiengang]()
     filter.add("hochschule", "hochschule".textField(form, parameters), likeFilter("hochschule"))
     filter.add("fach", "fach".textField(form), likeFilter("fach"))
     filter.add("abschluss", "abschluss".textField(form), likeFilter("abschluss"))
     filter.add("agentur", "agentur".textField(form), likeAttributeFilter("von"))
     filter.add("studienform", "studienform".textField(form), likeAttributeFilter("Besondere Studienform"))
-    filter.add("jobId", "jobId".hiddenTextField(form), likeFilter("jobId", (value:String) => value.substring(1, value.length - 1).toInt))
+    filter.add("jobId", "jobId".hiddenTextField(form), likeFilterOpt("jobId", (value:String) => Some(value.substring(1, value.length - 1).toInt)))
     filter
   }
 
@@ -75,7 +76,7 @@ class AdvertiserConfigPage(parameters: PageParameters) extends WebPage(parameter
   private class ActionPanel(id: String, model: IModel[Studiengang], detailPanel: MarkupContainer) extends Panel(id, model) {
     add(new AjaxLink(("select")) {
       def onClick(target: AjaxRequestTarget) {
-        DB.db withSession {
+        DB.db withDynSession {
           setSelected(getParent.getDefaultModelObject.asInstanceOf[Studiengang])
           target.add(detailPanel)
         }

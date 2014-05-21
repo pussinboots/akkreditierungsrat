@@ -54,7 +54,8 @@ libraryDependencies ++= Seq(
 )
 
 libraryDependencies ++= List(
-  "com.typesafe.slick" %% "slick" % "1.0.1",
+  //"com.typesafe.slick" %% "slick" % "1.0.1",
+  "com.typesafe.slick" %% "slick" % "2.0.2",
   "c3p0" % "c3p0" % "0.9.1.2"
 )
 

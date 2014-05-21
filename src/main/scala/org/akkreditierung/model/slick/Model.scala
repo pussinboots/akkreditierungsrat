@@ -1,18 +1,15 @@
 package org.akkreditierung.model.slick
 
-import scala.slick.driver.{ExtendedProfile, H2Driver, MySQLDriver}
+import scala.slick.driver.{JdbcProfile, H2Driver, MySQLDriver}
 import java.sql.{Timestamp, Date}
 import java.security.MessageDigest
 import java.util.{Date, Calendar}
 import org.akkreditierung.DateUtil
-import scala.slick.session.{Database, Session}
 import org.akkreditierung.model.DB
-import com.avaje.ebean.Expr
 import scala.beans.{BeanInfo, BeanProperty}
-import scala.slick.lifted.{Query=>SlickQuery}
 
 trait Profile {
-  val profile: ExtendedProfile
+  val profile: JdbcProfile
 }
 
 object SourceAkkreditierungsRat {
@@ -21,17 +18,17 @@ object SourceAkkreditierungsRat {
 /**
  * The Data Access Layer contains all components and a profile
  */
-class DAL(override val profile: ExtendedProfile) extends StudiengangComponent with StudiengangAttributesComponent with JobsComponent with SourcesComponent with Profile {
+class DAL(override val profile: JdbcProfile) extends StudiengangComponent with StudiengangAttributesComponent with JobsComponent with SourcesComponent with Profile {
   import profile.simple._
   def recreate(implicit session: Session) = {
     drop(session)
     create(session)
   }
-  def create(implicit session: Session) = (Studiengangs.ddl ++ StudiengangAttributes.ddl ++ Sources.ddl ++ Jobs.ddl).create //helper method to create all tables
+  def create(implicit session: Session) = (studiengangs.ddl ++ studiengangAttributes.ddl ++ sources.ddl ++ jobs.ddl).create //helper method to create all tables
 
   def drop(implicit session: Session) {
     try{
-      (Studiengangs.ddl ++ StudiengangAttributes.ddl ++ Sources.ddl ++ Jobs.ddl).drop
+      (studiengangs.ddl ++ studiengangAttributes.ddl ++ sources.ddl ++ jobs.ddl).drop
     } catch {
       case ioe: Exception =>
     }
@@ -40,36 +37,48 @@ class DAL(override val profile: ExtendedProfile) extends StudiengangComponent wi
 
 case class Studiengang(var id: Option[Int] = None, jobId: Option[Int], fach: String, abschluss: String, hochschule: String,
                        bezugstyp: String, link: Option[String], var gutachtenLink: Option[String] = None, updateDate: Option[Timestamp],
-                       var modifiedDate: Option[Timestamp], sourceId: Int, checkSumDB: String = null) {
-  lazy val checkSum = {
-    if (checkSumDB != null)
-      checkSumDB
-    else {
-      val str = fach + abschluss + hochschule + bezugstyp + link.getOrElse("")
-      MessageDigest.getInstance("MD5").digest(str.getBytes).map(0xFF & _).map {
-        "%02x".format(_)
-      }.foldLeft("") {
-        _ + _
-      }
-    }
-  }
+                       var modifiedDate: Option[Timestamp], sourceId: Int, checkSum: String) {
+
   import org.akkreditierung.model.DB.dal._
   import DB.dal.profile.simple._
-  import DB.dal.profile.simple.Database.threadLocalSession
+  import scala.slick.jdbc.JdbcBackend.Database.dynamicSession
   lazy val attributes: Map[String, StudiengangAttribute] = {
-    (for {a <- StudiengangAttributes if a.id === id.get} yield (a.key->a)) toMap
+    (for {a <- studiengangAttributes if a.id === id.get} yield (a.key->a)) toMap
   }
 }
 
+object Studiengang {
+  def calculateCheckSum( fach: String, abschluss: String, hochschule: String,
+                       bezugstyp: String, link: Option[String]) = {
+	val str = fach + abschluss + hochschule + bezugstyp + link.getOrElse("")
+	MessageDigest.getInstance("MD5").digest(str.getBytes).map(0xFF & _).map {
+	"%02x".format(_)
+	}.foldLeft("") {
+	_ + _
+	}
+  }
+  def apply(id: Option[Int], jobId: Option[Int], fach: String, abschluss: String, hochschule: String,
+                       bezugstyp: String, link: Option[String], updateDate: Option[Timestamp],           modifiedDate: Option[Timestamp], sourceId: Int) = new Studiengang(id, jobId, fach,     
+			abschluss, hochschule, bezugstyp, link, None, updateDate, modifiedDate, sourceId, 		
+			checkSum=calculateCheckSum(fach, abschluss, hochschule, bezugstyp, link))
+
+  def apply(id: Option[Int], jobId: Option[Int], fach: String, abschluss: String, hochschule: String,
+                       bezugstyp: String, link: Option[String], gutachtenLink: Option[String], updateDate: Option[Timestamp],           modifiedDate: Option[Timestamp], sourceId: Int) = new Studiengang(id, jobId, fach,     
+			abschluss, hochschule, bezugstyp, link, gutachtenLink, updateDate, modifiedDate, sourceId, 		
+			checkSum=calculateCheckSum(fach, abschluss, hochschule, bezugstyp, link))
+}
+
 object StudiengangC {
-  def neu() = new Studiengang(Some(0),Some(0),"","","","",Some(""),Some(""), None, DateUtil.nowDateTimeOpt(),1)
+  def neu() = Studiengang(Some(0),Some(0),"","","","",Some(""), None, DateUtil.nowDateTimeOpt(),1)
 }
 
 trait StudiengangComponent { this: Profile with StudiengangAttributesComponent=> //requires a Profile to be mixed in...
   import profile.simple._ //...to be able import profile.simple._
-  import profile.simple.Database.threadLocalSession
+  //import profile.simple.Database.threadLocalSession
 
-  object Studiengangs extends Table[Studiengang]("studiengaenge") {
+  class Studiengangs(tag: Tag) extends Table[Studiengang](tag, "studiengaenge") {
+    val createStudiengang = Studiengang.apply(_: Option[Int], _: Option[Int], _: String, _: String, _: String,
+                       _: String, _: Option[String], _: Option[String], _: Option[Timestamp],_: Option[Timestamp], _: Int, _: String)     
     def id = column[Int]("id", O.PrimaryKey, O.AutoInc) // This is the primary key column
     def jobId = column[Option[Int]]("jobId")
     def fach = column[String]("fach")
@@ -80,32 +89,32 @@ trait StudiengangComponent { this: Profile with StudiengangAttributesComponent=>
     def gutachtentLink = column[Option[String]]("GutachtenLink")
     def modifiedDate = column[Option[Timestamp]]("modifiedDate")
     def updateDate = column[Option[Timestamp]]("updateDate")
-    def checkSumDB = column[String]("checksum")
-    def uniqueCheckSumDB = index("IDX_CHECKSUM", checkSumDB, unique = true)
+    def checkSum = column[String]("checksum")
+    def uniqueCheckSumDB = index("IDX_CHECKSUM", checkSum, unique = true)
     def sourceId = column[Int]("sourceId")
-    def * = id.? ~ jobId ~ fach ~ abschluss ~ hochschule ~ bezugstyp ~ link~ gutachtentLink~ updateDate~ modifiedDate~ sourceId~ checkSumDB <> (Studiengang, Studiengang.unapply _)
-    def forInsert = jobId ~ fach ~ abschluss ~ hochschule ~ bezugstyp ~ link~ gutachtentLink~ updateDate~ modifiedDate~ sourceId~ checkSumDB <> ({ t => Studiengang(None,t._1, t._2, t._3, t._4, t._5, t._6, t._7, t._8, t._9, t._10)}, {(u: Studiengang) => Some((u.jobId, u.fach, u.abschluss, u.hochschule, u.bezugstyp, u.link, u.gutachtenLink, u.updateDate, u.modifiedDate, u.sourceId, u.checkSum))}) returning id
-    def insert(studiengang: Studiengang) = {
-      studiengang.copy(id = Some(forInsert.insert(studiengang)))
-    }
-    def findByFach(fach: String) =  (for {a <- Studiengangs if a.fach === fach} yield (a))
-    def findAll() =  (for {a <- Studiengangs} yield (a))
+    def * = (id.?, jobId, fach, abschluss, hochschule, bezugstyp, link, gutachtentLink, updateDate, modifiedDate, sourceId, checkSum) <> (createStudiengang.tupled, Studiengang.unapply)
   }
+  val studiengangs = TableQuery[Studiengangs]
+  val studienGangForInsert = studiengangs returning studiengangs.map(_.id) into { case (s, id) => s.copy(id = Some(id)) }
+  def studienGanginsert(studiengang: Studiengang)(implicit session: Session) = studienGangForInsert.insert(studiengang)
+  def findByFach(fach: String)(implicit session: Session) =  (for {a <- studiengangs if a.fach === fach} yield (a))
+  def findAllStudienGangs()(implicit session: Session) = for {a <- studiengangs} yield (a)
 }
 
 case class StudiengangAttribute(var id: Int, key: String, value: String)
 trait StudiengangAttributesComponent { this: Profile with StudiengangComponent=> //requires a Profile to be mixed in...
   import profile.simple._
-  import profile.simple.Database.threadLocalSession
-  object StudiengangAttributes extends Table[StudiengangAttribute]("studiengaenge_attribute") {
+  //import profile.simple.Database.threadLocalSession
+  class StudiengangAttributes(tag: Tag) extends Table[StudiengangAttribute](tag, "studiengaenge_attribute") {
     def id = column[Int]("id")
     def key = column[String]("k")
     def value = column[String]("v")
     def pk = primaryKey("pk_a", (id, key, value))
-    def * = id ~ key ~ value <> (StudiengangAttribute, StudiengangAttribute.unapply _)
-    def studiengang = foreignKey("id", id, Studiengangs)(_.id)
-    def findAll() =  (for {a <- StudiengangAttributes} yield (a))
+    def studiengang = foreignKey("id", id, studiengangs)(_.id)
+    def * = (id, key, value) <> (StudiengangAttribute.tupled, StudiengangAttribute.unapply)
   }
+  val studiengangAttributes = TableQuery[StudiengangAttributes]
+  def findAllStudiengangAttributes()(implicit session: Session) =  (for {a <- studiengangAttributes} yield (a))
 }
 
 object StudiengangAttributeC {
@@ -115,33 +124,36 @@ object StudiengangAttributeC {
 case class Job(id: Int, createDate: Timestamp = new Timestamp(Calendar.getInstance().getTimeInMillis), newEntries: Int = 0, status: String = "started")
 trait JobsComponent { this: Profile => //requires a Profile to be mixed in...
   import profile.simple._
-  import profile.simple.Database.threadLocalSession
-  object Jobs extends Table[Job]("jobs"){
+  import profile.simple.Database.dynamicSession
+  class Jobs(tag: Tag) extends Table[Job](tag,"jobs"){
     def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
     def createDate = column[Timestamp]("createDate")
     def newEntries = column[Int]("newEntries")
     def status = column[String]("status")
-    def * = id ~ createDate ~ newEntries~ status <> (Job, Job.unapply _)
-    def forInsert = createDate ~ newEntries ~ status <> ({ t => Job(-1, t._1, t._2, t._3)}, { (u: Job) => Some((u.createDate, u.newEntries, u.status))}) returning id
-    def insert(job: Job) = job.copy(id = forInsert.insert(job))
-    def updateOrDelete(job: Job) = if (job.newEntries <= 0) Query(Jobs).filter(_.id===job.id).delete else (for {jobs <- Jobs if jobs.id === job.id} yield (jobs.newEntries ~ jobs.status)).update(job.newEntries, job.status)
-    def findLatest(): Option[Job] = Query(Jobs).sortBy(_.id.desc).take(1).firstOption
+    def * = (id, createDate, newEntries, status) <> (Job.tupled, Job.unapply)
   }
+  val jobs = TableQuery[Jobs]
+  val jobForInsert = jobs returning jobs.map(_.id) into { case (s, id) => s.copy(id = id) }
+  def jobInsert(job: Job)(implicit session: Session) = jobForInsert.insert(job)
+  def updateOrDelete(job: Job)(implicit session: Session) = if (job.newEntries <= 0) jobs.filter(_.id===job.id).delete else (for {jobsdb <- jobs if jobsdb.id === job.id} yield (jobsdb.newEntries, jobsdb.status)).update(job.newEntries, job.status)
+  def findLatestJob(): Option[Job] = jobs.sortBy(_.id.desc).take(1).firstOption
 }
 
 case class Source(id: Int =0, name: String, createDate: Timestamp = DateUtil.nowDateTime())
 trait SourcesComponent { this: Profile => //requires a Profile to be mixed in...
   import profile.simple._
-  import profile.simple.Database.threadLocalSession
-  object Sources extends Table[Source]("sources") {
+  //import profile.simple.Database.threadLocalSession
+  class Sources(tag: Tag) extends Table[Source](tag,"sources") {
     def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
     def name = column[String]("name")
     def createDate = column[Timestamp]("createDate")
-    def * = id ~  name ~ createDate <> (Source, Source.unapply _)
-    def forInsert = name ~ createDate <> ({ t => Source(-1, name=t._1, createDate=t._2)}, { (u: Source) => Some((u.name, u.createDate))}) returning id
-    def insert(source: Source) = source.copy(id = forInsert.insert(source))
-    def findOrInsert(name: String): Option[Source] = Query(Sources).filter(_.name===name).take(1).firstOption.orElse(Option(insert(Source(0, name))))
+    def * = (id, name, createDate) <> (Source.tupled, Source.unapply)
   }
+  val sources = TableQuery[Sources]
+  val sourceForInsert = sources returning sources.map(_.id) into { case (s, id) => s.copy(id = id) }
+  def sourceInsert(source: Source)(implicit session: Session) = sourceForInsert.insert(source)
+  def findOrInsert(name: String)(implicit session: Session): Option[Source] = sources.filter(_.name===name).take(1).firstOption.orElse(Option(sourceInsert(Source(0, name))))
+
 }
 
 //object Test extends App {

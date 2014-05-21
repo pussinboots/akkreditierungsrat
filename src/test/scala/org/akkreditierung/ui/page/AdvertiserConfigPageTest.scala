@@ -6,8 +6,8 @@ import org.akkreditierung.test.SlickDbBefore
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable
 import org.akkreditierung.ui.WicketApplication
 import org.akkreditierung.model.slick._
-import scala.slick.session.Database
-import Database.threadLocalSession
+import scala.slick.jdbc.JdbcBackend.Database
+import scala.slick.jdbc.JdbcBackend.Database.dynamicSession
 import org.akkreditierung.DateUtil
 import org.akkreditierung.model.slick.Studiengang
 import org.akkreditierung.model.slick.StudiengangAttribute
@@ -28,17 +28,17 @@ class AdvertiserConfigPageTest extends Specification with SlickDbBefore {
   }
 
   override def initTestData(db: Database) {
-    db withSession {
+    db withDynSession {
       val dao = new DAL(H2Driver)
       import dao._
       import dao.profile.simple._
-      def studiengang1 = new Studiengang(Some(1), jobId = Some(1), fach = "Angewandte Informatik", abschluss = "Master", hochschule = "Potsdam Universität", bezugstyp = "bezug", gutachtenLink = Some("gutachtenlink"), link = Some("link"), updateDate = DateUtil.nowDateTimeOpt(), modifiedDate = DateUtil.nowDateTimeOpt(), sourceId = 1, checkSumDB = "1")
-      def studiengang2 = new Studiengang(Some(2), jobId = Some(2), fach = "Soziologie", abschluss = "Bachelor", hochschule = "Mainz Universität", bezugstyp = "bezug", link = Some("link2"), updateDate = DateUtil.nowDateTimeOpt(), modifiedDate = DateUtil.nowDateTimeOpt(), sourceId = 1, checkSumDB = "2")
-      Studiengangs.insertAll(studiengang1, studiengang2)
+      def studiengang1 = new Studiengang(Some(1), jobId = Some(1), fach = "Angewandte Informatik", abschluss = "Master", hochschule = "Potsdam Universität", bezugstyp = "bezug", gutachtenLink = Some("gutachtenlink"), link = Some("link"), updateDate = DateUtil.nowDateTimeOpt(), modifiedDate = DateUtil.nowDateTimeOpt(), sourceId = 1, checkSum = "1")
+      def studiengang2 = new Studiengang(Some(2), jobId = Some(2), fach = "Soziologie", abschluss = "Bachelor", hochschule = "Mainz Universität", bezugstyp = "bezug", link = Some("link2"), updateDate = DateUtil.nowDateTimeOpt(), modifiedDate = DateUtil.nowDateTimeOpt(), sourceId = 1, checkSum = "2")
+      studiengangs.insertAll(studiengang1, studiengang2)
       def studiengangAttribute1 = new StudiengangAttribute(1, "k1", "v1")
       def studiengangAttribute2 = new StudiengangAttribute(2, "von", "Acquinn")
       def studiengangAttribute3 = new StudiengangAttribute(2, "k1", "v1")
-      StudiengangAttributes.insertAll(studiengangAttribute1, studiengangAttribute2, studiengangAttribute3)
+      studiengangAttributes.insertAll(studiengangAttribute1, studiengangAttribute2, studiengangAttribute3)
     }
   }
 

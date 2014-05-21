@@ -5,8 +5,8 @@ import org.apache.wicket.util.tester.{FormTester, WicketTester}
 import org.akkreditierung.model.DB
 import org.akkreditierung.test.{SlickDbBefore}
 import org.akkreditierung.ui.WicketApplication
-import scala.slick.session.Database
-import Database.threadLocalSession
+import scala.slick.jdbc.JdbcBackend.Database
+import scala.slick.jdbc.JdbcBackend.Database.dynamicSession
 
 class StudiengangEditPageTest extends Specification with SlickDbBefore {
   sys.props.+=("Database" -> "h2")
@@ -72,7 +72,7 @@ class StudiengangEditPageTest extends Specification with SlickDbBefore {
       form.submit()
       import DB.dal._
       import DB.dal.profile.simple._
-      /*DB.db withSession {
+      /*DB.db withDynSession {
         val studienGang = Query(Studiengangs).filter(_.fach === "Advanced Nursing Practice").first
         val studienGangAttribute = studienGang.attributes
         studienGang.fach must be equalTo("Advanced Nursing Practice")

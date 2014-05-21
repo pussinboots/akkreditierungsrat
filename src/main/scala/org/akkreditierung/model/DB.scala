@@ -7,9 +7,9 @@ import anorm._
 import java.net.URI
 import scala.util.Properties
 import com.mchange.v2.c3p0.ComboPooledDataSource
-import scala.slick.session.Database
+import scala.slick.jdbc.JdbcBackend.Database
 import scala.slick.driver.{ExtendedProfile, H2Driver, MySQLDriver}
-import Database.threadLocalSession
+import Database.dynamicSession
 import org.akkreditierung.model.slick.DAL
 
 //https://github.com/slick/slick-examples/blob/master/src/main/scala/com/typesafe/slick/examples/lifted/MultiDBCakeExample.scala

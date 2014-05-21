@@ -8,20 +8,20 @@ import org.apache.wicket.markup.repeater.data.DataView
 import org.akkreditierung.ui.WicketApplication
 import org.akkreditierung.model.slick.{Studiengang, StudiengangAttribute}
 import org.akkreditierung.model.DB
-import scala.slick.session.Database
-import Database.threadLocalSession
+import scala.slick.jdbc.JdbcBackend.Database
+import scala.slick.jdbc.JdbcBackend.Database.dynamicSession
 import org.akkreditierung.DateUtil
 
 class StudiengangDetailPageTest extends Specification with SlickDbBefore {
 
   override def initTestData(db: Database) {
-    def studiengang1 = new Studiengang(Some(1), jobId = Some(1), fach = "Angewandte Informatik", abschluss = "Master", hochschule = "Potsdam Universität", bezugstyp = "bezug", gutachtenLink = Some("gutachtenlink"), link = Some("link"), updateDate = DateUtil.nowDateTimeOpt(), modifiedDate = DateUtil.nowDateTimeOpt(), sourceId = 1)
+    def studiengang1 = Studiengang(Some(1), jobId = Some(1), fach = "Angewandte Informatik", abschluss = "Master", hochschule = "Potsdam Universität", bezugstyp = "bezug", gutachtenLink = Some("gutachtenlink"), link = Some("link"), updateDate = DateUtil.nowDateTimeOpt(), modifiedDate = DateUtil.nowDateTimeOpt(), sourceId = 1)
     def studiengangAttribute1 = new StudiengangAttribute(1, "k1", "v1")
     def studiengangAttribute2 = new StudiengangAttribute(1, "k2", "v2")
     import DB.dal.profile.simple._
-    db withSession {
-      DB.dal.Studiengangs.insert(studiengang1)
-      DB.dal.StudiengangAttributes.insertAll(studiengangAttribute1, studiengangAttribute2)
+    db withDynSession {
+      DB.dal.studienGanginsert(studiengang1)
+      DB.dal.studiengangAttributes.insertAll(studiengangAttribute1, studiengangAttribute2)
     }
   }
 

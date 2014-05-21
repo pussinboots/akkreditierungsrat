@@ -9,8 +9,7 @@ import org.wicket.scala.RepeatingViews._
 import org.wicket.scala.Fields._
 import org.akkreditierung.model.DB
 import org.akkreditierung.model.slick._
-import scala.slick.session.Database
-import Database.threadLocalSession
+import scala.slick.jdbc.JdbcBackend.Database.dynamicSession
 import collection.JavaConversions._
 
 object StudiengangDetailPage {
@@ -20,7 +19,7 @@ object StudiengangDetailPage {
 
 class StudiengangDetailPage(parameters: PageParameters) extends WebPage(parameters) {
   import DB.dal.profile.simple._
-  val studiengaengeAttributes =  DB.db withSession Query(DB.dal.StudiengangAttributes).filter(_.id === getStudiengangId).list
+  val studiengaengeAttributes =  DB.db withDynSession DB.dal.studiengangAttributes.filter(_.id === getStudiengangId).list
   val provider = new ListDataProvider[StudiengangAttribute](studiengaengeAttributes)
   val d = dataView("displayPanel", provider) {(entry: StudiengangAttribute, item: Item[StudiengangAttribute]) =>
     item.add(new Label("key_column", entry.key))
