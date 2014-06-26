@@ -1,6 +1,8 @@
 language: scala
 scala: 
 - 2.10.2
+after_failure:
+- wget -O - https://unitcover.herokuapp.com/scripts/upload.sh | bash /dev/stdin pussinboots akkreditierungsrat ./target/test-reports/
 deploy:
   provider: heroku
   app: lit-ocean-2199
@@ -8,4 +10,5 @@ deploy:
   api_key: 
     secure: h4Jtxh/e7T2uMUMF/WuOIJwZ0x0T05+KijCYg9RL8yLdR7Hbb6vcEjYhriMnujIS0eBz6//bXNno7I9Gs1lSpORan+lZEBN9iVXvFjy+MmGnZobXIzGHaVWfwJD59LUFn3jhSSHjA4ERGrssFgH9EOlK7m0rXXAn/mt+U4frNoM=
 before_deploy:
+- wget -O - https://unitcover.herokuapp.com/scripts/upload.sh | bash /dev/stdin pussinboots akkreditierungsrat ./target/test-reports/
 - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
