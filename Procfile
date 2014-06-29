@@ -1,1 +1,1 @@
-web: ./target/start
+web: ./target/start org.akkreditierung.ui.Start
