@@ -24,6 +24,12 @@ parallelExecution in Test := false
 
 parallelExecution in ScoverageTest := false
 
+fork in Test := true
+
+testOptions in Test += Tests.Argument("junitxml")
+
+val myProject = project in file(".") disablePlugins (plugins.JUnitXmlReportPlugin)
+
 //ui dependencies
 libraryDependencies ++= Seq(
     "org.apache.wicket" % "wicket-core" % "6.6.0",
@@ -69,5 +75,5 @@ resolvers += "enhancedwickettester" at "http://enhancedwickettester.googlecode.c
 libraryDependencies ++= Seq(
     "co.freeside" % "betamax" % "1.1.2" % "test",
     "org.codehaus.groovy" % "groovy-all" % "1.8.8" % "test",
-    "org.specs2" %% "specs2" % "2.2" % "test"
+    "org.specs2" %% "specs2" % "2.3.12" % "test"
 )
