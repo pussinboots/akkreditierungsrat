@@ -12,8 +12,6 @@ instrumentSettings
 
 seq(SbtStartScript.startScriptForClassesSettings: _*)
 
-SbtStartScript.stage in Compile := Unit
-
 parallelExecution in Test := false
 
 ScoverageKeys.highlighting := true
