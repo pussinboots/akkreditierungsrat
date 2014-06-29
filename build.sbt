@@ -18,6 +18,10 @@ ScoverageKeys.minimumCoverage := 80
 
 ScoverageKeys.failOnMinimumCoverage := true
 
+parallelExecution in Global := false //disable parallel execution for all tasks the below configuration could be deleted but for documentation purpose they are still there
+
+parallelExecution in Test := false
+
 parallelExecution in ScoverageTest := false
 
 //ui dependencies
