@@ -1,4 +1,5 @@
 language: scala
+script: sbt scoverage:test
 after_failure:
 - wget -O - https://unitcover.herokuapp.com/scripts/upload.sh | bash /dev/stdin pussinboots akkreditierungsrat ./target/test-reports/
 deploy:
