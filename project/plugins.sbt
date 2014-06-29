@@ -16,6 +16,8 @@ resolvers += "Sonatype snapshots" at "http://oss.sonatype.org/content/repositori
 //addSbtPlugin("com.typesafe.sbt" % "sbt-start-script" % "0.9.0")
 
 addSbtPlugin("org.scoverage" %% "sbt-scoverage" % "0.99.5.1")
+
+addSbtPlugin("com.typesafe.sbt" % "sbt-start-script" % "0.10.0")
 //resolvers += Classpaths.typesafeResolver
 
 //resolvers += "scct-github-repository" at "http://mtkopone.github.com/scct/maven-repo"
