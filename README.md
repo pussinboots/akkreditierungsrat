@@ -3,7 +3,7 @@ Example Project to show the integration of wicket with Scala and Slick
 [![Build Status](https://travis-ci.org/pussinboots/akkreditierungsrat.svg?branch=master)](https://travis-ci.org/pussinboots/akkreditierungsrat)
 [![Unit Tests](https://unitcover.herokuapp.com/api/pussinboots/akkreditierungsrat/badge)](https://unitcover.herokuapp.com/#/builds/pussinboots/akkreditierungsrat/builds)
 
-[![Unit Tests](http://unitcover.herokuapp.com/api/pussinboots/akkreditierungsrat/testsuites/badge)](https://unitcover.herokuapp.com/#/builds/pussinboots/akkreditierungsrat/builds)
+[![Unit Tests](http://unitcover.herokuapp.com/api/pussinboots/akkreditierungsrat/testsuites/badge?ts=1)](https://unitcover.herokuapp.com/#/builds/pussinboots/akkreditierungsrat/builds)
 
 Live Demo - http://lit-ocean-2199.herokuapp.com/
 
