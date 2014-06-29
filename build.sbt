@@ -1,3 +1,5 @@
+import com.typesafe.sbt.SbtStartScript
+
 name := "akkreditierung_fetcher"
 
 version in ThisBuild := "0.2"
@@ -8,7 +10,9 @@ scalaVersion in ThisBuild := "2.10.3"
 
 instrumentSettings
 
-mainClass in Compile := Some("org.akkreditierung.ui.Start")
+seq(SbtStartScript.startScriptForClassesSettings: _*)
+
+SbtStartScript.stage in Compile := Unit
 
 parallelExecution in Test := false
 
